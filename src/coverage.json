@@ -1,0 +1,96 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-05T16:42:43.716Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 5,
+    "implemented": 4,
+    "items": [
+      {
+        "id": "REQ-1",
+        "summary": "Fix the \"Unable to Load Mood History\" error in the user-facing Mood History view so mood history loads correctly for both Internet Identity users and guest users.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/MoodHistory.tsx",
+          "frontend/src/lib/moodErrors.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/MoodHistory.tsx",
+          "frontend/src/lib/moodErrors.ts"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Update the backend to support guest users fetching their own mood history without requiring admin privileges, while preserving admin-only access for admin analytics endpoints.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Redesign the user-facing Mood History UI to keep the existing overall layout while adding: (a) a clickable calendar view where selecting a date with an entry opens that entry for viewing/editing, and (b) improved weekly graph readability with clear day labels, intuitive color coding, and a visible trend line.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/WeeklyMoodTrendline.tsx",
+          "frontend/src/components/MoodCalendar.tsx",
+          "frontend/src/components/MoodHistory.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/WeeklyMoodTrendline.tsx",
+          "frontend/src/components/MoodHistory.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Add additional mood trend charts in Mood History for monthly and overall mood trends (in addition to the weekly chart), using the existing mood history data already fetched for the user.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/MonthlyMoodTrendChart.tsx",
+          "frontend/src/components/OverallMoodTrendChart.tsx",
+          "frontend/src/components/MoodHistory.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/MonthlyMoodTrendChart.tsx",
+          "frontend/src/components/OverallMoodTrendChart.tsx",
+          "frontend/src/components/MoodHistory.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Redesign the admin user drilldown Mood History section to include the same calendar + chart-based mood history navigation (calendar with clickable dates, weekly graph improvements, and monthly/overall trend charts) for the selected user, while keeping the existing admin drilldown structure and styling conventions.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/AdminUserDrilldownMoodHistory.tsx",
+          "frontend/src/components/AdminUserDrilldown.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/AdminUserDrilldownMoodHistory.tsx",
+          "frontend/src/components/AdminUserDrilldown.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/components/AdminUserDrilldown.tsx",
+    "frontend/src/components/AdminUserDrilldownMoodHistory.tsx",
+    "frontend/src/components/MonthlyMoodTrendChart.tsx",
+    "frontend/src/components/MoodHistory.tsx",
+    "frontend/src/components/OverallMoodTrendChart.tsx",
+    "frontend/src/components/WeeklyMoodTrendline.tsx",
+    "frontend/src/lib/moodErrors.ts",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

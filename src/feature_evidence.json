@@ -1,0 +1,98 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-fix-the-unable-to-load-mood-history-error-in-the-user-facing-mood-history-view-so-mood-history-loads-correctly-for-both-internet-identity-users-and-guest-users",
+      "featureTitle": "Fix the \"Unable to Load Mood History\" error in the user-facing Mood History view so mood history loads correctly for both Internet Identity users and guest users.",
+      "files": [
+        "frontend/src/components/MoodHistory.tsx",
+        "frontend/src/lib/moodErrors.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "blob-storage@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-redesign-the-user-facing-mood-history-ui-to-keep-the-existing-overall-layout-while-adding-a-a-clickable-calendar-view-where-selecting-a-date-with-an-entry-opens-that-entry-for-viewing-editing-and-b-improved-weekly-graph-readability-with-clear-day-labels-intuitive-color-coding-and-a-visible-trend-line",
+      "featureTitle": "Redesign the user-facing Mood History UI to keep the existing overall layout while adding: (a) a clickable calendar view where selecting a date with an entry opens that entry for viewing/editing, and (b) improved weekly graph readability with clear day labels, intuitive color coding, and a visible trend line.",
+      "files": [
+        "frontend/src/components/MoodHistory.tsx",
+        "frontend/src/components/WeeklyMoodTrendline.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "blob-storage@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-additional-mood-trend-charts-in-mood-history-for-monthly-and-overall-mood-trends-in-addition-to-the-weekly-chart-using-the-existing-mood-history-data-already-fetched-for-the-user",
+      "featureTitle": "Add additional mood trend charts in Mood History for monthly and overall mood trends (in addition to the weekly chart), using the existing mood history data already fetched for the user.",
+      "files": [
+        "frontend/src/components/MonthlyMoodTrendChart.tsx",
+        "frontend/src/components/MoodHistory.tsx",
+        "frontend/src/components/OverallMoodTrendChart.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "blob-storage@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-redesign-the-admin-user-drilldown-mood-history-section-to-include-the-same-calendar-chart-based-mood-history-navigation-calendar-with-clickable-dates-weekly-graph-improvements-and-monthly-overall-trend-charts-for-the-selected-user-while-keeping-the-existing-admin-drilldown-structure-and-styling-conventions",
+      "featureTitle": "Redesign the admin user drilldown Mood History section to include the same calendar + chart-based mood history navigation (calendar with clickable dates, weekly graph improvements, and monthly/overall trend charts) for the selected user, while keeping the existing admin drilldown structure and styling conventions.",
+      "files": [
+        "frontend/src/components/AdminUserDrilldown.tsx",
+        "frontend/src/components/AdminUserDrilldownMoodHistory.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "blob-storage@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

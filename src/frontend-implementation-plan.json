@@ -1,0 +1,108 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Fix Mood History loading and redesign Mood History with calendar + weekly/monthly/overall trend charts",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Fix Mood History loading and error handling so both Internet Identity and guest users can load mood history, with a retryable failure state.",
+      "acceptanceCriteria": [
+        "When logged in with Internet Identity, opening the Mood History view loads entries successfully and does not show the error alert.",
+        "When using guest mode, opening the Mood History view loads the guest’s entries successfully and does not show an Unauthorized/permission error.",
+        "If the backend is temporarily unavailable, the UI shows a clear retryable error state and the Retry button triggers a refetch."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Harden the useMoodHistory query to (1) consistently surface a user-friendly error message (use classifyMoodError for messaging) and (2) avoid false Unauthorized states for guest sessions by ensuring the guest path is only attempted once guestId is present; keep Retry/refetch behavior intact. (No backend capability changes here.)"
+        },
+        {
+          "path": "frontend/src/components/MoodHistory.tsx",
+          "operation": "modify",
+          "description": "Update the Mood History error UI to rely on the shared mood error classification (permission/availability/unexpected) instead of brittle substring checks, and ensure the Retry button clearly triggers a refetch. Use existing shadcn-ui Alert/Button components for the retryable error state. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/moodErrors.ts",
+          "operation": "modify",
+          "description": "Extend mood error classification to recognize common transient connectivity/replica/canister unavailability messages and map them to a clear retryable availability message, while preserving permission messaging for true authorization failures."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Redesign the user-facing Mood History UI to keep the current layout while adding a clickable calendar and improving weekly chart readability (labels, color coding, and a visible trend line).",
+      "acceptanceCriteria": [
+        "The Mood History screen retains the same primary structure (header/back button, tabs, and sections) but the weekly visualization is easier to read.",
+        "Weekly chart shows day labels (Mon–Sun) clearly and consistently.",
+        "Weekly chart uses color coding to communicate low/medium/high mood levels in a way that is visually understandable.",
+        "Weekly chart includes a trend line drawn across the week’s daily values (skipping or clearly indicating days with no data).",
+        "Calendar dates containing entries are clickable; clicking a date with an entry opens the existing mood editor flow for that entry."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/WeeklyMoodTrendline.tsx",
+          "operation": "modify",
+          "description": "Improve the weekly visualization by adding a visible trend line overlay across Mon–Sun day values (skip days with no data or visually indicate gaps), keep clear day labels, and preserve intuitive low/medium/high color coding for bars/points."
+        },
+        {
+          "path": "frontend/src/components/MoodCalendar.tsx",
+          "operation": "modify",
+          "description": "Ensure calendar date labels are consistently Mon–Sun and that dates with entries are clearly indicated as clickable while non-entry dates remain disabled; keep behavior aligned with existing MoodHistory selection flow. Use existing shadcn-ui Button where applicable. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/MoodHistory.tsx",
+          "operation": "modify",
+          "description": "Keep the existing Mood History layout (header/back, tabs, sections) while wiring the improved WeeklyMoodTrendline behavior and maintaining the calendar-to-MoodEditor flow for clicking dates that contain entries. Use existing shadcn-ui Tabs/Card components. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add monthly and overall mood trend charts to Mood History using the already-fetched mood history data, with graceful empty states.",
+      "acceptanceCriteria": [
+        "Mood History includes a monthly trend chart view summarizing mood across the selected/current month.",
+        "Mood History includes an overall trend chart summarizing mood across all available history.",
+        "Charts render without backend changes beyond those required to fix guest mood history loading, and they handle empty states gracefully (no crashes, clear messaging)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/MonthlyMoodTrendChart.tsx",
+          "operation": "create",
+          "description": "Create a monthly mood trend chart component that summarizes mood across the selected/current month using the in-memory mood history array; include an explicit empty-state message when there is no data for the month. Use existing shadcn-ui Card/typography patterns where integrated. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/OverallMoodTrendChart.tsx",
+          "operation": "create",
+          "description": "Create an overall mood trend chart component that summarizes mood across all available history (e.g., aggregated over time buckets) using the already-fetched mood history array; include an explicit empty-state message when there is no history. Use existing shadcn-ui Card/typography patterns where integrated. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/MoodHistory.tsx",
+          "operation": "modify",
+          "description": "Wire the new MonthlyMoodTrendChart and OverallMoodTrendChart into the existing Mood History 'graph' area (without adding new top-level routes) and ensure switching between weekly/monthly/overall views uses the already-fetched moodHistory data and shows clear empty states. Use existing shadcn-ui Tabs/Card components. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Redesign the admin user drilldown Mood History section to use the same calendar + weekly/monthly/overall trend navigation for the selected user while keeping the existing drilldown structure and styles.",
+      "acceptanceCriteria": [
+        "In the admin drilldown, the Mood History tab provides calendar-based navigation and chart-based summaries for that user’s mood entries.",
+        "Admin drilldown mood history continues to load successfully for both guest users and Internet Identity users listed in admin records.",
+        "Admin view handles the empty-state case (no entries) with a clear message and no errors."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/AdminUserDrilldownMoodHistory.tsx",
+          "operation": "create",
+          "description": "Create an admin drilldown Mood History panel component that reuses the existing MoodCalendar plus the WeeklyMoodTrendline and the new MonthlyMoodTrendChart/OverallMoodTrendChart for a provided user's moodEntries, and provides a simple entry detail view when a date with an entry is clicked (do not require editing). Use existing shadcn-ui Tabs/Card/Alert/ScrollArea patterns. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/AdminUserDrilldown.tsx",
+          "operation": "modify",
+          "description": "Replace the current list-only Mood History tab content with the new AdminUserDrilldownMoodHistory panel while preserving existing admin drilldown structure and styling conventions; ensure an empty-state message is shown when the selected user has no entries. Use existing shadcn-ui Tabs/Card/Alert components. Verify the component's usage instructions before implementing."
+        }
+      ]
+    }
+  ]
+}
