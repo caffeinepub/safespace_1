@@ -1,13 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix Mood History loading errors for both Internet Identity and guest users, and redesign Mood History views (user-facing and admin drilldown) to add calendar-based navigation plus clearer weekly/monthly/overall trend charts.
+**Goal:** Fix the guest login flow so submitting the “Welcome, Guest” name form reliably enters the authenticated app (dashboard) and the guest session persists.
 
 **Planned changes:**
-- Fix the user-facing Mood History data loading flow so entries load correctly for Internet Identity and guest users, with a retryable error state when the backend is unavailable.
-- Update backend authorization/routing so guest users can fetch their own mood history without admin privileges, while keeping admin analytics/user-record endpoints admin-only and preserving existing stored data.
-- Redesign the user-facing Mood History UI to keep the existing overall layout while adding a clickable calendar (dates with entries open the existing view/edit flow) and improving weekly chart readability (Mon–Sun labels, mood level color coding, and a trend line).
-- Add monthly and overall mood trend charts to Mood History using the already-fetched mood history data, including clear empty states.
-- Redesign the admin user drilldown Mood History section to mirror the same calendar + weekly improvements + monthly/overall trend charts while keeping the existing admin drilldown structure and styling conventions.
+- Fix guest name submission flow so a valid (non-empty) guest name transitions from login UI to the dashboard without bouncing back to the main login page.
+- Ensure guest session state updates propagate immediately across all components using the guest auth hook (including immediate updates on guest login and logout).
+- Ensure guest session persistence so a browser refresh after guest login keeps the user in the app.
 
-**User-visible outcome:** Mood History loads reliably in both guest mode and Internet Identity; users and admins can navigate entries via a calendar and see clearer weekly charts plus additional monthly and overall trend summaries, with graceful empty/error states and a working Retry action when needed.
+**User-visible outcome:** Users can choose “Continue as guest,” enter a name on the “Welcome, Guest” screen, and consistently land in the dashboard; the app stays logged in as a guest on refresh and returns to the login screen immediately on guest logout.

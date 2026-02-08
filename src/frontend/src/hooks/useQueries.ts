@@ -548,137 +548,26 @@ export function useDailyAnalysis() {
       }
     },
     enabled: !!actor && !isFetching && (!isGuest || !!guestId),
-    staleTime: 30000,
-    retry: 2,
+    retry: 1,
     retryDelay: 500,
   });
 }
 
-export function useSaveWeeklyAnalysis() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (analysis: WeeklyMoodAnalysis) => {
-      if (!actor) {
-        throw new Error('Weekly analysis not available');
-      }
-      
-      try {
-        const result = await actor.saveWeeklyAnalysis(analysis);
-        console.log('Weekly analysis saved successfully');
-        return result;
-      } catch (error) {
-        console.error('Failed to save weekly analysis:', error);
-        throw new Error(getErrorMessage(error));
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['weeklyMoodInsights'] });
-    },
-    retry: 2,
-    retryDelay: 500,
-  });
-}
-
-export function useWeeklyMoodInsights() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery({
-    queryKey: ['weeklyMoodInsights'],
-    queryFn: async () => {
-      if (!actor) return [];
-      try {
-        console.log('Fetching weekly mood insights...');
-        const insights = await actor.getWeeklyMoodInsights();
-        console.log(`Weekly mood insights received: ${insights.length} entries`);
-        return insights;
-      } catch (error) {
-        console.error('Failed to fetch weekly mood insights:', error);
-        throw new Error(getErrorMessage(error));
-      }
-    },
-    enabled: !!actor && !isFetching,
-    staleTime: 60000,
-    retry: 2,
-    retryDelay: 500,
-  });
-}
-
-// User Profile - FIXED
-export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ userId, profession }: { userId: string; profession: string | null }) => {
-      if (!actor) {
-        throw new Error('Authentication required. Please log in again.');
-      }
-      
-      try {
-        const profile: UserProfile = {
-          userId,
-          profession: profession || undefined,
-        };
-        
-        console.log('Saving user profile:', profile);
-        await actor.saveCallerUserProfile(profile);
-        console.log('✅ User profile saved successfully');
-        return profile;
-      } catch (error) {
-        console.error('❌ Failed to save user profile:', error);
-        throw new Error(getErrorMessage(error));
-      }
-    },
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 5000),
-    onSuccess: (profile) => {
-      queryClient.setQueryData(['currentUserProfile'], profile);
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-      queryClient.invalidateQueries({ queryKey: ['allUserData'] });
-      queryClient.invalidateQueries({ queryKey: ['userRecords'] });
-      console.log('Profile cache updated');
-    },
-    onError: (error: Error) => {
-      console.error('Profile save mutation error:', error);
-    },
-  });
-}
-
+// User Profile
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
 
-  const query = useQuery({
+  const query = useQuery<UserProfile | null>({
     queryKey: ['currentUserProfile'],
     queryFn: async () => {
-      if (!actor) {
-        console.log('Actor not available for profile fetch');
-        return null;
-      }
-      
-      try {
-        console.log('Fetching caller user profile...');
-        const profile = await actor.getCallerUserProfile();
-        
-        if (profile) {
-          console.log('✅ User profile found:', profile);
-        } else {
-          console.log('ℹ️ No user profile found (user needs to set up profile)');
-        }
-        
-        return profile;
-      } catch (error) {
-        console.error('❌ Failed to fetch caller user profile:', error);
-        return null;
-      }
+      if (!actor) throw new Error('Actor not available');
+      return actor.getCallerUserProfile();
     },
     enabled: !!actor && !actorFetching,
-    retry: 2,
-    retryDelay: 500,
-    staleTime: 60000,
+    retry: false,
   });
 
+  // Return custom state that properly reflects actor dependency
   return {
     ...query,
     isLoading: actorFetching || query.isLoading,
@@ -686,195 +575,200 @@ export function useGetCallerUserProfile() {
   };
 }
 
-// Analytics - Admin Only
+export function useSaveCallerUserProfile() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (profile: UserProfile) => {
+      if (!actor) {
+        throw new Error('Profile functionality not available');
+      }
+      
+      // Validate name field
+      if (!profile.name || !profile.name.trim()) {
+        throw new Error('Name is required');
+      }
+      
+      try {
+        return await actor.saveCallerUserProfile(profile);
+      } catch (error) {
+        throw new Error(getErrorMessage(error));
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+      queryClient.invalidateQueries({ queryKey: ['userRecords'] });
+    },
+    onError: (error: Error) => {
+      console.error('Failed to save profile:', error);
+      showErrorToast(error.message);
+    },
+    retry: 1,
+  });
+}
+
+// Admin Queries
 export function useIsCallerAdmin() {
   const { actor, isFetching } = useActor();
 
   return useQuery({
-    queryKey: ['isCallerAdmin'],
+    queryKey: ['isAdmin'],
     queryFn: async () => {
-      if (!actor) {
-        console.log('Actor not available for admin check');
-        return false;
-      }
+      if (!actor) return false;
       try {
-        const isAdmin = await actor.isCallerAdmin();
-        console.log('Admin check result:', isAdmin);
-        return isAdmin;
+        return await actor.isCallerAdmin();
       } catch (error) {
         console.error('Failed to check admin status:', error);
         return false;
       }
     },
     enabled: !!actor && !isFetching,
-    staleTime: 60000,
-    retry: 2,
-    retryDelay: 500,
+    staleTime: Infinity,
+    retry: 1,
   });
 }
 
-export function useAggregatedAnalytics() {
+export function useGetAllUserData() {
   const { actor, isFetching } = useActor();
 
-  return useQuery({
-    queryKey: ['aggregatedAnalytics'],
-    queryFn: async () => {
-      if (!actor) {
-        throw new Error('Analytics not available');
-      }
-      try {
-        console.log('Fetching aggregated analytics...');
-        const analytics = await actor.getAggregatedAnalytics();
-        console.log('Analytics data received:', analytics);
-        return analytics;
-      } catch (error) {
-        console.error('Failed to fetch analytics:', error);
-        throw new Error(getErrorMessage(error));
-      }
-    },
-    enabled: !!actor && !isFetching,
-    staleTime: 30000,
-    retry: 2,
-    retryDelay: 500,
-  });
-}
-
-export function useAllUserData() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery({
+  return useQuery<UserData[]>({
     queryKey: ['allUserData'],
     queryFn: async () => {
       if (!actor) return [];
       try {
-        console.log('Fetching all user data...');
-        const userData = await actor.getAllUserData();
-        console.log(`User data received: ${userData.length} users`);
-        return userData;
+        return await actor.getAllUserData();
       } catch (error) {
         console.error('Failed to fetch user data:', error);
-        throw new Error(getErrorMessage(error));
+        return [];
       }
     },
     enabled: !!actor && !isFetching,
     staleTime: 30000,
-    retry: 2,
-    retryDelay: 500,
+    retry: 1,
   });
 }
 
-export function useAllMoodLogs() {
+export function useGetAllMoodLogs() {
   const { actor, isFetching } = useActor();
 
-  return useQuery({
+  return useQuery<MoodLogEntry[]>({
     queryKey: ['allMoodLogs'],
     queryFn: async () => {
       if (!actor) return [];
       try {
-        console.log('Fetching all mood logs...');
-        const moodLogs = await actor.getAllMoodLogs();
-        console.log(`Mood logs received: ${moodLogs.length} entries`);
-        return moodLogs;
+        return await actor.getAllMoodLogs();
       } catch (error) {
         console.error('Failed to fetch mood logs:', error);
-        throw new Error(getErrorMessage(error));
+        return [];
       }
     },
     enabled: !!actor && !isFetching,
     staleTime: 30000,
-    retry: 2,
-    retryDelay: 500,
+    retry: 1,
   });
 }
 
-// User Records - Combined guest + II users with activity logs
-export function useUserRecords() {
+export function useGetAggregatedAnalytics() {
   const { actor, isFetching } = useActor();
 
-  return useQuery({
+  return useQuery<AnalyticsData>({
+    queryKey: ['aggregatedAnalytics'],
+    queryFn: async () => {
+      if (!actor) {
+        return {
+          totalSessions: BigInt(0),
+          totalSessionDuration: BigInt(0),
+          averageSessionDuration: BigInt(0),
+        };
+      }
+      try {
+        return await actor.getAggregatedAnalytics();
+      } catch (error) {
+        console.error('Failed to fetch analytics:', error);
+        return {
+          totalSessions: BigInt(0),
+          totalSessionDuration: BigInt(0),
+          averageSessionDuration: BigInt(0),
+        };
+      }
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 30000,
+    retry: 1,
+  });
+}
+
+export function useGetWeeklyMoodInsights() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<WeeklyMoodAnalysis[]>({
+    queryKey: ['weeklyMoodInsights'],
+    queryFn: async () => {
+      if (!actor) return [];
+      try {
+        return await actor.getWeeklyMoodInsights();
+      } catch (error) {
+        console.error('Failed to fetch weekly insights:', error);
+        return [];
+      }
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 30000,
+    retry: 1,
+  });
+}
+
+export function useGetUserRecords() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<UserRecord[]>({
     queryKey: ['userRecords'],
     queryFn: async () => {
       if (!actor) return [];
       try {
-        console.log('Fetching user records...');
-        const records = await actor.getUserRecords();
-        console.log(`User records received: ${records.length} users`);
-        return records;
+        return await actor.getUserRecords();
       } catch (error) {
         console.error('Failed to fetch user records:', error);
-        throw new Error(getErrorMessage(error));
+        return [];
       }
     },
     enabled: !!actor && !isFetching,
     staleTime: 30000,
-    retry: 2,
-    retryDelay: 500,
+    retry: 1,
   });
 }
 
-export function useUserRecordById(userId: string) {
+export function useGetUserRecordById(userId: string) {
   const { actor, isFetching } = useActor();
 
-  return useQuery({
+  return useQuery<UserRecord | null>({
     queryKey: ['userRecord', userId],
     queryFn: async () => {
       if (!actor) return null;
       try {
-        console.log('Fetching user record for:', userId);
-        const record = await actor.getUserRecordById(userId);
-        console.log('User record received:', record);
-        return record;
+        return await actor.getUserRecordById(userId);
       } catch (error) {
         console.error('Failed to fetch user record:', error);
-        throw new Error(getErrorMessage(error));
+        return null;
       }
     },
     enabled: !!actor && !isFetching && !!userId,
     staleTime: 30000,
-    retry: 2,
-    retryDelay: 500,
-  });
-}
-
-// Activity Logging
-export function useLogActivity() {
-  const { actor } = useActor();
-  const { isGuest, guestId } = useGuestAuth();
-
-  return useMutation({
-    mutationFn: async ({ eventType, details }: { eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry; details: string }) => {
-      if (!actor) {
-        console.warn('Activity logging skipped: actor not available');
-        return;
-      }
-      
-      try {
-        if (isGuest && guestId) {
-          await actor.logGuestActivityPublic(guestId, eventType, details);
-        } else {
-          await actor.logUserActivity(eventType, details);
-        }
-      } catch (error) {
-        console.error('Failed to log activity:', error);
-        // Don't throw - activity logging is non-critical
-      }
-    },
     retry: 1,
-    retryDelay: 500,
   });
 }
 
-// App Market Integration
-export function useAppMarketMetadata() {
+// App Market
+export function useGetAppMarketMetadata() {
   const { actor, isFetching } = useActor();
 
-  return useQuery({
+  return useQuery<AppMarketMetadata | null>({
     queryKey: ['appMarketMetadata'],
     queryFn: async () => {
       if (!actor) return null;
       try {
-        const metadata = await actor.getAppMarketMetadata();
-        return metadata;
+        return await actor.getAppMarketMetadata();
       } catch (error) {
         console.error('Failed to fetch app market metadata:', error);
         return null;
@@ -882,8 +776,7 @@ export function useAppMarketMetadata() {
     },
     enabled: !!actor && !isFetching,
     staleTime: 60000,
-    retry: 2,
-    retryDelay: 500,
+    retry: 1,
   });
 }
 
@@ -913,16 +806,15 @@ export function useSetAppMarketMetadata() {
   });
 }
 
-export function usePricingConfig() {
+export function useGetPricingConfig() {
   const { actor, isFetching } = useActor();
 
-  return useQuery({
+  return useQuery<PricingConfig | null>({
     queryKey: ['pricingConfig'],
     queryFn: async () => {
       if (!actor) return null;
       try {
-        const config = await actor.getPricingConfig();
-        return config;
+        return await actor.getPricingConfig();
       } catch (error) {
         console.error('Failed to fetch pricing config:', error);
         return null;
@@ -930,8 +822,7 @@ export function usePricingConfig() {
     },
     enabled: !!actor && !isFetching,
     staleTime: 60000,
-    retry: 2,
-    retryDelay: 500,
+    retry: 1,
   });
 }
 
@@ -942,7 +833,7 @@ export function useSetPricingConfig() {
   return useMutation({
     mutationFn: async (config: PricingConfig) => {
       if (!actor) {
-        throw new Error('Pricing configuration not available');
+        throw new Error('Pricing functionality not available');
       }
       try {
         return await actor.setPricingConfig(config);
@@ -961,104 +852,34 @@ export function useSetPricingConfig() {
   });
 }
 
-export function useMarketAnalytics() {
+export function useGetMarketAnalytics() {
   const { actor, isFetching } = useActor();
 
-  return useQuery({
+  return useQuery<MarketAnalytics>({
     queryKey: ['marketAnalytics'],
     queryFn: async () => {
       if (!actor) {
-        throw new Error('Market analytics not available');
+        return {
+          totalViews: BigInt(0),
+          totalClones: BigInt(0),
+          totalSubscriptions: BigInt(0),
+          totalRevenue: BigInt(0),
+        };
       }
       try {
-        const analytics = await actor.getMarketAnalytics();
-        return analytics;
+        return await actor.getMarketAnalytics();
       } catch (error) {
-        throw new Error(getErrorMessage(error));
+        console.error('Failed to fetch market analytics:', error);
+        return {
+          totalViews: BigInt(0),
+          totalClones: BigInt(0),
+          totalSubscriptions: BigInt(0),
+          totalRevenue: BigInt(0),
+        };
       }
     },
     enabled: !!actor && !isFetching,
     staleTime: 30000,
-    retry: 2,
-    retryDelay: 500,
-  });
-}
-
-// PDF Presentation
-export function usePdfPresentation() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery({
-    queryKey: ['pdfPresentation'],
-    queryFn: async () => {
-      if (!actor) return null;
-      try {
-        console.log('Fetching PDF presentation...');
-        const pdf = await actor.getPDF('safespace-presentation');
-        if (pdf) {
-          console.log('PDF presentation retrieved successfully');
-        } else {
-          console.log('PDF presentation not found');
-        }
-        return pdf;
-      } catch (error) {
-        console.error('Failed to fetch PDF presentation:', error);
-        return null;
-      }
-    },
-    enabled: !!actor && !isFetching,
-    staleTime: 300000,
-    retry: 2,
-    retryDelay: 500,
-  });
-}
-
-// AI Chat
-export function useSendAIMessage() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ sessionId, message }: { sessionId: string; message: string }) => {
-      if (!actor) {
-        throw new Error('AI chat not available');
-      }
-      try {
-        const response = await actor.sendAIMessage(sessionId, message);
-        return response;
-      } catch (error) {
-        throw new Error(getErrorMessage(error));
-      }
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['aiConversation', variables.sessionId] });
-      queryClient.invalidateQueries({ queryKey: ['userRecords'] });
-    },
-    onError: (error: Error) => {
-      showErrorToast(error.message);
-    },
     retry: 1,
-  });
-}
-
-export function useAIConversation(sessionId: string) {
-  const { actor, isFetching } = useActor();
-
-  return useQuery({
-    queryKey: ['aiConversation', sessionId],
-    queryFn: async () => {
-      if (!actor) return [];
-      try {
-        const conversation = await actor.getAIConversation(sessionId);
-        return conversation;
-      } catch (error) {
-        console.error('Failed to fetch AI conversation:', error);
-        return [];
-      }
-    },
-    enabled: !!actor && !isFetching && !!sessionId,
-    staleTime: 10000,
-    retry: 1,
-    retryDelay: 500,
   });
 }

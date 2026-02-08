@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Heart, Activity, Clock, MessageCircle, AlertCircle } from 'lucide-react';
-import { useUserRecordById } from '../hooks/useQueries';
+import { useGetUserRecordById } from '../hooks/useQueries';
 import { format } from 'date-fns';
 import AdminUserDrilldownMoodHistory from './AdminUserDrilldownMoodHistory';
 
@@ -15,7 +15,7 @@ interface AdminUserDrilldownProps {
 }
 
 export default function AdminUserDrilldown({ userId, onClose }: AdminUserDrilldownProps) {
-  const { data: userRecord, isLoading, error } = useUserRecordById(userId);
+  const { data: userRecord, isLoading, error } = useGetUserRecordById(userId);
 
   const formatTimestamp = (timestamp: bigint): string => {
     const milliseconds = Number(timestamp) / 1_000_000;
@@ -78,83 +78,98 @@ export default function AdminUserDrilldown({ userId, onClose }: AdminUserDrilldo
     <Card className="border-0 bg-white/70 dark:bg-gray-900/70 shadow-2xl backdrop-blur-md">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="admin-icon-badge admin-badge-purple">
-              <Activity className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-xl flex items-center gap-2">
-                {userRecord.id}
-                <Badge variant={userRecord.authType === 'guest' ? 'secondary' : 'default'}>
-                  {userRecord.authType === 'guest' ? 'Guest' : 'Internet Identity'}
-                </Badge>
-              </CardTitle>
-              <CardDescription>
-                {userRecord.moodEntries.length} mood entries • Weekly avg: {userRecord.weeklyAverageMood.toFixed(1)}/10
-              </CardDescription>
-            </div>
+          <div>
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <Heart className="w-6 h-6 text-lavender-600" />
+              {userRecord.id}
+            </CardTitle>
+            <CardDescription className="mt-2 flex items-center gap-4 flex-wrap">
+              <Badge variant={userRecord.authType === 'guest' ? 'secondary' : 'default'}>
+                {userRecord.authType === 'guest' ? 'Guest User' : 'Internet Identity'}
+              </Badge>
+              <span className="text-sm">
+                {userRecord.moodEntries.length} mood {userRecord.moodEntries.length === 1 ? 'entry' : 'entries'}
+              </span>
+              <span className="text-sm">
+                Weekly avg: {userRecord.weeklyAverageMood.toFixed(1)} / 10
+              </span>
+            </CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="moods" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-white/70 dark:bg-gray-900/70 border border-lavender-200 dark:border-lavender-800">
-            <TabsTrigger 
-              value="moods"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-lavender-500 data-[state=active]:to-blush-500 data-[state=active]:text-white"
-            >
+        <Tabs defaultValue="mood" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="mood">
               <Heart className="w-4 h-4 mr-2" />
               Mood History
             </TabsTrigger>
-            <TabsTrigger 
-              value="activity"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-lavender-500 data-[state=active]:to-blush-500 data-[state=active]:text-white"
-            >
+            <TabsTrigger value="activity">
               <Activity className="w-4 h-4 mr-2" />
               Activity Log
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="moods" className="mt-6">
+          <TabsContent value="mood" className="space-y-4 mt-6">
             <AdminUserDrilldownMoodHistory moodEntries={userRecord.moodEntries} />
           </TabsContent>
 
-          <TabsContent value="activity" className="mt-6">
-            {userRecord.activityLog.length > 0 ? (
-              <ScrollArea className="h-[500px] pr-4">
-                <div className="space-y-2">
-                  {userRecord.activityLog.map((event, index) => (
-                    <Card key={index} className="border-0 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/40 dark:to-cyan-950/40 shadow-sm">
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Activity className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                              <span className="text-sm font-medium text-blue-900 dark:text-blue-100 capitalize">
-                                {getEventTypeLabel(event.eventType)}
-                              </span>
+          <TabsContent value="activity" className="space-y-4 mt-6">
+            <Card className="border-lavender-200 dark:border-lavender-800">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Activity className="w-5 h-5" />
+                  Activity Timeline
+                </CardTitle>
+                <CardDescription>
+                  {userRecord.activityLog.length} {userRecord.activityLog.length === 1 ? 'event' : 'events'} recorded
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[500px] pr-4">
+                  {userRecord.activityLog.length > 0 ? (
+                    <div className="space-y-3">
+                      {userRecord.activityLog
+                        .slice()
+                        .sort((a, b) => Number(b.timestamp - a.timestamp))
+                        .map((event, index) => (
+                          <div
+                            key={index}
+                            className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-lavender-50/50 to-blush-50/50 dark:from-lavender-950/20 dark:to-blush-950/20 border border-lavender-100 dark:border-lavender-900"
+                          >
+                            <div className="shrink-0 mt-1">
+                              {event.eventType === 'login' && <Activity className="w-4 h-4 text-lavender-600" />}
+                              {event.eventType === 'createMoodEntry' && <Heart className="w-4 h-4 text-blush-600" />}
+                              {event.eventType === 'updateMoodEntry' && <Heart className="w-4 h-4 text-purple-600" />}
+                              {event.eventType === 'pageNavigation' && <MessageCircle className="w-4 h-4 text-sky-600" />}
+                              {event.eventType === 'interaction' && <MessageCircle className="w-4 h-4 text-purple-600" />}
                             </div>
-                            <p className="text-xs text-muted-foreground mb-1">{event.details}</p>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              {formatTimestamp(event.timestamp)}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge variant="outline" className="text-xs">
+                                  {getEventTypeLabel(event.eventType)}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  {formatTimestamp(event.timestamp)}
+                                </span>
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1 break-words">
+                                {event.details}
+                              </p>
                             </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </ScrollArea>
-            ) : (
-              <Alert className="border-blue-300 dark:border-blue-700 bg-gradient-to-r from-blue-50/90 to-cyan-50/90 dark:from-blue-950/40 dark:to-cyan-950/40">
-                <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <AlertTitle className="text-blue-900 dark:text-blue-100">No Activity Logged</AlertTitle>
-                <AlertDescription className="text-blue-700 dark:text-blue-300">
-                  No activity has been recorded for this user yet.
-                </AlertDescription>
-              </Alert>
-            )}
+                        ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Activity className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+                      <p className="text-muted-foreground">No activity recorded yet</p>
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </CardContent>

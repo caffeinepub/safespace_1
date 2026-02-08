@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Users, Clock, TrendingUp, Shield, AlertCircle, RefreshCw, Activity, BarChart3, Heart, Sparkles, Download, ChevronRight } from 'lucide-react';
-import { useAggregatedAnalytics, useIsCallerAdmin, useUserRecords } from '../hooks/useQueries';
+import { useGetAggregatedAnalytics, useIsCallerAdmin, useGetUserRecords } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useEffect } from 'react';
@@ -17,8 +17,8 @@ interface AnalyticsDashboardProps {
 
 export default function AnalyticsDashboard({ onBack }: AnalyticsDashboardProps) {
   const { data: isAdmin, isLoading: isAdminLoading, error: adminError, refetch: refetchAdmin } = useIsCallerAdmin();
-  const { data: analytics, isLoading: analyticsLoading, error: analyticsError, refetch: refetchAnalytics } = useAggregatedAnalytics();
-  const { data: userRecords, isLoading: userRecordsLoading, error: userRecordsError, refetch: refetchUserRecords } = useUserRecords();
+  const { data: analytics, isLoading: analyticsLoading, error: analyticsError, refetch: refetchAnalytics } = useGetAggregatedAnalytics();
+  const { data: userRecords, isLoading: userRecordsLoading, error: userRecordsError, refetch: refetchUserRecords } = useGetUserRecords();
   
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
@@ -491,324 +491,263 @@ if __name__ == "__main__":
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="flex items-center gap-4">
-              <div className="admin-icon-glow">
-                <BarChart3 className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-lavender-600 via-purple-600 to-blush-600 bg-clip-text text-transparent">
-                  Analytics Dashboard
-                </h1>
-                <p className="text-muted-foreground mt-1 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-lavender-500 animate-pulse" />
-                  Real-time privacy-friendly insights
-                </p>
-              </div>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-lavender-600 via-purple-600 to-blush-600 bg-clip-text text-transparent">
+                Analytics Dashboard
+              </h1>
+              <p className="text-muted-foreground mt-2 flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Admin-only insights and metrics
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleDownloadScript}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 border-lavender-300 hover:bg-lavender-100 dark:border-lavender-700 dark:hover:bg-lavender-900/30 transition-all duration-300 hover:scale-105"
-            >
-              <Download className="w-4 h-4" />
-              Download Analysis Script
-            </Button>
-            <Button
-              onClick={handleRefresh}
-              variant="outline"
-              size="sm"
-              disabled={isLoading}
-              className="flex items-center gap-2 border-lavender-300 hover:bg-lavender-100 dark:border-lavender-700 dark:hover:bg-lavender-900/30 transition-all duration-300 hover:scale-105"
-            >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh Data
-            </Button>
-          </div>
+          <Button 
+            onClick={handleRefresh} 
+            variant="outline" 
+            size="sm"
+            className="border-lavender-300 hover:bg-lavender-100 dark:border-lavender-700 dark:hover:bg-lavender-900/30"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
         </div>
 
-        <Alert className="border-lavender-300 dark:border-lavender-700 bg-gradient-to-r from-lavender-50/90 to-blush-50/90 dark:from-lavender-950/40 dark:to-blush-950/40 shadow-lg backdrop-blur-sm">
-          <Shield className="h-5 w-5 text-lavender-600 dark:text-lavender-400" />
-          <AlertTitle className="text-lavender-900 dark:text-lavender-100 font-semibold">Privacy-First Analytics</AlertTitle>
-          <AlertDescription className="text-lavender-700 dark:text-lavender-300 mt-1">
-            All data is aggregated and anonymized. No personal information or individual user tracking is performed.
-          </AlertDescription>
-        </Alert>
+        {hasError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-5 w-5" />
+            <AlertTitle>Error Loading Analytics</AlertTitle>
+            <AlertDescription>
+              {analyticsError instanceof Error ? analyticsError.message : 'Failed to load analytics data'}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl bg-white/70 dark:bg-gray-900/70 border border-lavender-200 dark:border-lavender-800 shadow-md backdrop-blur-sm">
-            <TabsTrigger 
-              value="overview" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-lavender-500 data-[state=active]:to-blush-500 data-[state=active]:text-white transition-all duration-300"
-            >
+          <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-lavender-100 via-purple-100 to-blush-100 dark:from-lavender-950/50 dark:via-purple-950/50 dark:to-blush-950/50">
+            <TabsTrigger value="overview">
+              <BarChart3 className="w-4 h-4 mr-2" />
               Overview
             </TabsTrigger>
-            <TabsTrigger 
-              value="users" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-lavender-500 data-[state=active]:to-blush-500 data-[state=active]:text-white transition-all duration-300"
-            >
-              All Users
+            <TabsTrigger value="users">
+              <Users className="w-4 h-4 mr-2" />
+              Users
             </TabsTrigger>
-            <TabsTrigger 
-              value="insights" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-lavender-500 data-[state=active]:to-blush-500 data-[state=active]:text-white transition-all duration-300"
-            >
-              Weekly Insights
+            <TabsTrigger value="insights">
+              <Sparkles className="w-4 h-4 mr-2" />
+              Insights
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-8 mt-8">
-            {isLoading ? (
-              <div className="grid md:grid-cols-3 gap-6">
-                {[1, 2, 3].map((i) => (
-                  <Card key={i} className="animate-pulse border-lavender-200 dark:border-lavender-800">
-                    <CardHeader>
-                      <Skeleton className="h-6 w-3/4 mb-2" />
-                      <Skeleton className="h-4 w-full" />
-                    </CardHeader>
-                    <CardContent>
-                      <Skeleton className="h-12 w-full" />
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : hasError ? (
-              <Card className="border-destructive shadow-lg">
-                <CardContent className="py-12 text-center">
-                  <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
-                  <p className="text-destructive mb-4 text-lg font-medium">
-                    {analyticsError instanceof Error && analyticsError.message.includes('Unauthorized') 
-                      ? 'Admin access required to view analytics data'
-                      : 'Failed to load analytics data. Please try again.'}
-                  </p>
-                  <Button onClick={handleRefresh} variant="outline" className="border-destructive text-destructive hover:bg-destructive/10">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Retry
-                  </Button>
+          <TabsContent value="overview" className="space-y-6 mt-6">
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="border-0 bg-gradient-to-br from-lavender-100/80 via-purple-100/80 to-blush-100/80 dark:from-lavender-950/30 dark:via-purple-950/30 dark:to-blush-950/30 shadow-xl backdrop-blur-sm admin-metric-card">
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium flex items-center gap-2 text-lavender-700 dark:text-lavender-300">
+                    <Users className="w-4 h-4" />
+                    Total Sessions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <Skeleton className="h-10 w-24" />
+                  ) : (
+                    <div className="text-3xl font-bold bg-gradient-to-r from-lavender-600 to-purple-600 bg-clip-text text-transparent">
+                      {analytics ? Number(analytics.totalSessions) : 0}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            ) : analytics ? (
-              <>
-                <div className="grid md:grid-cols-3 gap-6">
-                  <Card className="admin-metric-card admin-card-blue">
-                    <div className="admin-card-glow admin-glow-blue"></div>
-                    <CardHeader className="relative">
-                      <div className="flex items-center justify-between mb-2">
-                        <CardTitle className="text-lg font-semibold text-blue-900 dark:text-blue-100">Total Sessions</CardTitle>
-                        <div className="admin-icon-badge admin-badge-blue">
-                          <Users className="w-7 h-7 text-white" />
-                        </div>
-                      </div>
-                      <CardDescription className="text-blue-700 dark:text-blue-300">
-                        Anonymous user sessions tracked
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="relative">
-                      <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2 admin-metric-number">
-                        {analytics.totalSessions.toString()}
-                      </div>
-                      <p className="text-sm text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                        <Activity className="w-4 h-4" />
-                        Unique anonymous sessions
-                      </p>
-                    </CardContent>
-                  </Card>
 
-                  <Card className="admin-metric-card admin-card-purple">
-                    <div className="admin-card-glow admin-glow-purple"></div>
-                    <CardHeader className="relative">
-                      <div className="flex items-center justify-between mb-2">
-                        <CardTitle className="text-lg font-semibold text-purple-900 dark:text-purple-100">Total Time</CardTitle>
-                        <div className="admin-icon-badge admin-badge-purple">
-                          <Clock className="w-7 h-7 text-white" />
-                        </div>
-                      </div>
-                      <CardDescription className="text-purple-700 dark:text-purple-300">
-                        Cumulative session duration
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="relative">
-                      <div className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2 admin-metric-number">
-                        {formatDuration(analytics.totalSessionDuration)}
-                      </div>
-                      <p className="text-sm text-purple-600 dark:text-purple-400 flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        Total time across all sessions
-                      </p>
-                    </CardContent>
-                  </Card>
+              <Card className="border-0 bg-gradient-to-br from-blush-100/80 via-purple-100/80 to-lavender-100/80 dark:from-blush-950/30 dark:via-purple-950/30 dark:to-lavender-950/30 shadow-xl backdrop-blur-sm admin-metric-card">
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium flex items-center gap-2 text-blush-700 dark:text-blush-300">
+                    <Clock className="w-4 h-4" />
+                    Total Duration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <Skeleton className="h-10 w-24" />
+                  ) : (
+                    <div className="text-3xl font-bold bg-gradient-to-r from-blush-600 to-purple-600 bg-clip-text text-transparent">
+                      {analytics ? formatDuration(analytics.totalSessionDuration) : '0s'}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-                  <Card className="admin-metric-card admin-card-indigo">
-                    <div className="admin-card-glow admin-glow-indigo"></div>
-                    <CardHeader className="relative">
-                      <div className="flex items-center justify-between mb-2">
-                        <CardTitle className="text-lg font-semibold text-indigo-900 dark:text-indigo-100">Average Duration</CardTitle>
-                        <div className="admin-icon-badge admin-badge-indigo">
-                          <TrendingUp className="w-7 h-7 text-white" />
-                        </div>
-                      </div>
-                      <CardDescription className="text-indigo-700 dark:text-indigo-300">
-                        Mean session length
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="relative">
-                      <div className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2 admin-metric-number">
-                        {formatDuration(analytics.averageSessionDuration)}
-                      </div>
-                      <p className="text-sm text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
-                        <TrendingUp className="w-4 h-4" />
-                        Average time per session
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
+              <Card className="border-0 bg-gradient-to-br from-purple-100/80 via-blush-100/80 to-lavender-100/80 dark:from-purple-950/30 dark:via-blush-950/30 dark:to-lavender-950/30 shadow-xl backdrop-blur-sm admin-metric-card">
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium flex items-center gap-2 text-purple-700 dark:text-purple-300">
+                    <TrendingUp className="w-4 h-4" />
+                    Avg Session
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <Skeleton className="h-10 w-24" />
+                  ) : (
+                    <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-lavender-600 bg-clip-text text-transparent">
+                      {analytics ? formatDuration(analytics.averageSessionDuration) : '0s'}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
 
-                <Card className="border-0 bg-white/70 dark:bg-gray-900/70 shadow-2xl backdrop-blur-md overflow-hidden admin-chart-card">
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div className="admin-icon-glow">
-                        <BarChart3 className="w-6 h-6 text-white" />
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="border-0 bg-white/70 dark:bg-gray-900/70 shadow-2xl backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-lavender-600" />
+                    User Distribution
+                  </CardTitle>
+                  <CardDescription>Breakdown by authentication type</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <div className="space-y-3">
+                      <Skeleton className="h-12 w-full" />
+                      <Skeleton className="h-12 w-full" />
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-lavender-50 to-purple-50 dark:from-lavender-950/30 dark:to-purple-950/30">
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-lavender-500 to-purple-500" />
+                          <span className="font-medium">Internet Identity</span>
+                        </div>
+                        <Badge variant="secondary" className="text-lg px-3 py-1">
+                          {iiUsers.length}
+                        </Badge>
                       </div>
-                      <div>
-                        <CardTitle className="text-xl">Session Analytics Overview</CardTitle>
-                        <CardDescription>Visual representation of usage patterns</CardDescription>
+                      <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-blush-50 to-pink-50 dark:from-blush-950/30 dark:to-pink-950/30">
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blush-500 to-pink-500" />
+                          <span className="font-medium">Guest Users</span>
+                        </div>
+                        <Badge variant="secondary" className="text-lg px-3 py-1">
+                          {guestUsers.length}
+                        </Badge>
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-8">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium text-muted-foreground flex items-center gap-2">
-                            <Users className="w-4 h-4 text-blue-500" />
-                            Total Sessions
-                          </span>
-                          <span className="font-bold text-blue-600 text-lg">{analytics.totalSessions.toString()}</span>
-                        </div>
-                        <div className="admin-bar-container">
-                          <div className="admin-bar admin-bar-blue" style={{ width: '100%' }}></div>
-                        </div>
-                      </div>
+                  )}
+                </CardContent>
+              </Card>
 
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium text-muted-foreground flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-purple-500" />
-                            Total Duration
-                          </span>
-                          <span className="font-bold text-purple-600 text-lg">{formatDuration(analytics.totalSessionDuration)}</span>
+              <Card className="border-0 bg-white/70 dark:bg-gray-900/70 shadow-2xl backdrop-blur-md">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-blush-600" />
+                    Mood Tracking Stats
+                  </CardTitle>
+                  <CardDescription>Total mood entries recorded</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <Skeleton className="h-20 w-full" />
+                  ) : (
+                    <div className="flex items-center justify-center p-8">
+                      <div className="text-center">
+                        <div className="text-5xl font-bold bg-gradient-to-r from-blush-600 via-purple-600 to-lavender-600 bg-clip-text text-transparent mb-2">
+                          {userRecords?.reduce((sum, user) => sum + user.moodEntries.length, 0) || 0}
                         </div>
-                        <div className="admin-bar-container">
-                          <div className="admin-bar admin-bar-purple" style={{ width: '90%' }}></div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium text-muted-foreground flex items-center gap-2">
-                            <TrendingUp className="w-4 h-4 text-indigo-500" />
-                            Average Duration
-                          </span>
-                          <span className="font-bold text-indigo-600 text-lg">{formatDuration(analytics.averageSessionDuration)}</span>
-                        </div>
-                        <div className="admin-bar-container">
-                          <div className="admin-bar admin-bar-indigo" style={{ width: '75%' }}></div>
-                        </div>
+                        <p className="text-sm text-muted-foreground">Total Mood Entries</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </>
-            ) : null}
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
-          <TabsContent value="users" className="space-y-6 mt-8">
+          <TabsContent value="users" className="space-y-6 mt-6">
             <Card className="border-0 bg-white/70 dark:bg-gray-900/70 shadow-2xl backdrop-blur-md">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="admin-icon-badge admin-badge-blue">
-                      <Users className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-xl">All Users</CardTitle>
-                      <CardDescription>
-                        {userRecords ? `${userRecords.length} total users (${guestUsers.length} guests, ${iiUsers.length} Internet Identity)` : 'Loading user data...'}
-                      </CardDescription>
-                    </div>
-                  </div>
-                </div>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-lavender-600" />
+                  User Records
+                </CardTitle>
+                <CardDescription>
+                  {userRecords?.length || 0} total users ({iiUsers.length} authenticated, {guestUsers.length} guests)
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {userRecordsLoading ? (
+              <CardContent>
+                {isLoading ? (
                   <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                      <Skeleton key={i} className="h-20 w-full" />
+                    {[1, 2, 3, 4].map((i) => (
+                      <Skeleton key={i} className="h-16 w-full" />
                     ))}
                   </div>
-                ) : userRecordsError ? (
-                  <Alert className="border-destructive bg-destructive/10">
-                    <AlertCircle className="h-5 w-5 text-destructive" />
-                    <AlertTitle className="text-destructive">Failed to load user data</AlertTitle>
-                    <AlertDescription className="text-destructive/90">
-                      {userRecordsError instanceof Error ? userRecordsError.message : 'An error occurred'}
-                    </AlertDescription>
-                  </Alert>
                 ) : userRecords && userRecords.length > 0 ? (
-                  <div className="space-y-3">
-                    {userRecords.map((user, index) => (
-                      <Card 
-                        key={index} 
-                        className="border-0 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/40 dark:to-pink-950/40 shadow-md hover:shadow-lg transition-all duration-300 admin-user-card cursor-pointer"
+                  <div className="space-y-2">
+                    {userRecords.map((user) => (
+                      <button
+                        key={user.id}
                         onClick={() => setSelectedUserId(user.id)}
+                        className="w-full text-left p-4 rounded-lg bg-gradient-to-r from-lavender-50/50 to-blush-50/50 dark:from-lavender-950/20 dark:to-blush-950/20 border border-lavender-100 dark:border-lavender-900 hover:border-lavender-300 dark:hover:border-lavender-700 transition-all duration-200 hover:shadow-md group"
                       >
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-semibold text-purple-900 dark:text-purple-100">{user.id}</span>
-                                <Badge variant={user.authType === 'guest' ? 'secondary' : 'default'}>
-                                  {user.authType === 'guest' ? 'Guest' : 'Internet Identity'}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <Heart className="w-5 h-5 text-lavender-600 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{user.id}</p>
+                              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                <Badge variant={user.authType === 'guest' ? 'secondary' : 'default'} className="text-xs">
+                                  {user.authType === 'guest' ? 'Guest' : 'II'}
                                 </Badge>
-                              </div>
-                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Heart className="w-3 h-3" />
-                                  {user.moodEntries.length} moods
+                                <span className="text-xs text-muted-foreground">
+                                  {user.moodEntries.length} {user.moodEntries.length === 1 ? 'entry' : 'entries'}
                                 </span>
-                                <span className="flex items-center gap-1">
-                                  <Activity className="w-3 h-3" />
-                                  {user.activityLog.length} activities
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <TrendingUp className="w-3 h-3" />
+                                <span className="text-xs text-muted-foreground">
                                   Avg: {user.weeklyAverageMood.toFixed(1)}/10
                                 </span>
                               </div>
                             </div>
-                            <ChevronRight className="w-5 h-5 text-muted-foreground" />
                           </div>
-                        </CardContent>
-                      </Card>
+                          <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-lavender-600 transition-colors shrink-0" />
+                        </div>
+                      </button>
                     ))}
                   </div>
                 ) : (
-                  <Alert className="border-blue-300 dark:border-blue-700 bg-gradient-to-r from-blue-50/90 to-cyan-50/90 dark:from-blue-950/40 dark:to-cyan-950/40">
-                    <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    <AlertTitle className="text-blue-900 dark:text-blue-100">No Users Yet</AlertTitle>
-                    <AlertDescription className="text-blue-700 dark:text-blue-300">
-                      No users have been recorded yet. Users will appear here once they start using the app.
-                    </AlertDescription>
-                  </Alert>
+                  <div className="text-center py-12">
+                    <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+                    <p className="text-muted-foreground">No user records found</p>
+                  </div>
                 )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="insights" className="space-y-6 mt-8">
-            <WeeklyMoodInsights />
+          <TabsContent value="insights" className="space-y-6 mt-6">
+            <Card className="border-0 bg-white/70 dark:bg-gray-900/70 shadow-2xl backdrop-blur-md">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-purple-600" />
+                      Weekly Mood Insights
+                    </CardTitle>
+                    <CardDescription className="mt-2">
+                      Advanced pattern analysis using machine learning
+                    </CardDescription>
+                  </div>
+                  <Button
+                    onClick={handleDownloadScript}
+                    variant="outline"
+                    size="sm"
+                    className="border-purple-300 hover:bg-purple-100 dark:border-purple-700 dark:hover:bg-purple-900/30"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Script
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <WeeklyMoodInsights />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

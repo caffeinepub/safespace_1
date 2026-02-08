@@ -261,6 +261,7 @@ export interface WeeklyMoodChartData {
 }
 export interface UserProfile {
     userId: string;
+    name: string;
     profession?: string;
 }
 export interface _CaffeineStorageRefillResult {
@@ -1362,13 +1363,16 @@ function from_candid_record_n26(_uploadFile: (file: ExternalBlob) => Promise<Uin
 }
 function from_candid_record_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     userId: string;
+    name: string;
     profession: [] | [string];
 }): {
     userId: string;
+    name: string;
     profession?: string;
 } {
     return {
         userId: value.userId,
+        name: value.name,
         profession: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.profession))
     };
 }
@@ -1449,7 +1453,7 @@ function from_candid_record_n46(_uploadFile: (file: ExternalBlob) => Promise<Uin
 }
 function from_candid_record_n49(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     profession: [] | [string];
-    sender: Principal;
+    sender: _Principal;
     message: string;
     timestamp: _Time;
 }): {
@@ -1703,13 +1707,16 @@ function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
 }
 function to_candid_record_n65(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     userId: string;
+    name: string;
     profession?: string;
 }): {
     userId: string;
+    name: string;
     profession: [] | [string];
 } {
     return {
         userId: value.userId,
+        name: value.name,
         profession: value.profession ? candid_some(value.profession) : candid_none()
     };
 }
@@ -1780,7 +1787,7 @@ function to_candid_record_n75(_uploadFile: (file: ExternalBlob) => Promise<Uint8
     timestamp: Time;
 }): {
     profession: [] | [string];
-    sender: Principal;
+    sender: _Principal;
     message: string;
     timestamp: _Time;
 } {

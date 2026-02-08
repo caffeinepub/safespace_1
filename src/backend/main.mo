@@ -17,6 +17,8 @@ import AccessControl "authorization/access-control";
 import Storage "blob-storage/Storage";
 import Float "mo:core/Float";
 
+
+
 actor {
   public type Mood = {
     #happy;
@@ -82,6 +84,7 @@ actor {
 
   public type UserProfile = {
     userId : Text;
+    name : Text;
     profession : ?Text;
   };
 
@@ -108,14 +111,14 @@ actor {
 
   public type PrivateThread = {
     id : Text;
-    participant1 : Principal;
-    participant2 : Principal;
+    participant1 : Principal.Principal;
+    participant2 : Principal.Principal;
     messages : List.List<PrivateMessage>;
   };
 
   public type PrivateMessage = {
     timestamp : Time.Time;
-    sender : Principal;
+    sender : Principal.Principal;
     message : Text;
     profession : ?Text;
   };
@@ -169,7 +172,7 @@ actor {
     amount : Nat;
     currency : Text;
     transactionType : { #clone; #subscription };
-    buyer : Principal;
+    buyer : Principal.Principal;
   };
 
   public type MarketAnalytics = {
@@ -258,12 +261,12 @@ actor {
 
   let chatRooms = Map.empty<Text, ChatRoom>();
   let privateThreads = Map.empty<Text, PrivateThread>();
-  let userMoodHistory = Map.empty<Principal, List.List<MoodEntry>>();
+  let userMoodHistory = Map.empty<Principal.Principal, List.List<MoodEntry>>();
   let guestMoodHistory = Map.empty<Text, List.List<MoodEntry>>();
-  let userDailyAnalysis = Map.empty<Principal, List.List<DailyAnalysisEntry>>();
+  let userDailyAnalysis = Map.empty<Principal.Principal, List.List<DailyAnalysisEntry>>();
   let guestDailyAnalysis = Map.empty<Text, DailyAnalysisEntry>();
-  let userWeeklyAnalysis = Map.empty<Principal, List.List<WeeklyMoodAnalysis>>();
-  let userProfiles = Map.empty<Principal, UserProfile>();
+  let userWeeklyAnalysis = Map.empty<Principal.Principal, List.List<WeeklyMoodAnalysis>>();
+  let userProfiles = Map.empty<Principal.Principal, UserProfile>();
   let userIdMapping = Map.empty<Text, Principal.Principal>();
   let analyticsData = Map.empty<Text, AnalyticsData>();
   let sessionTokenOwners = Map.empty<Text, Principal.Principal>();
@@ -285,7 +288,7 @@ actor {
 
   let pdfFiles = Map.empty<Text, Storage.ExternalBlob>();
 
-  let viewTracker = Map.empty<Principal, Nat>();
+  let viewTracker = Map.empty<Principal.Principal, Nat>();
 
   let aiResponses = Map.empty<Text, List.List<AIMessage>>();
   let aiDefaultResponses = Map.fromIter([
@@ -700,14 +703,14 @@ actor {
     guestDailyAnalysis.get(guestId);
   };
 
-  public shared ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view profiles");
     };
     userProfiles.get(caller);
   };
 
-  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+  public query ({ caller }) func getUserProfile(user : Principal.Principal) : async ?UserProfile {
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Can only view your own profile");
     };
@@ -795,7 +798,7 @@ actor {
     };
   };
 
-  public shared ({ caller }) func createPrivateThread(threadId : Text, participant1 : Principal, participant2 : Principal) : async () {
+  public shared ({ caller }) func createPrivateThread(threadId : Text, participant1 : Principal.Principal, participant2 : Principal.Principal) : async () {
     if (caller != participant1 and caller != participant2) {
       Runtime.trap("Unauthorized: You must be a participant to create this thread");
     };
@@ -1015,7 +1018,7 @@ actor {
     };
 
     let profiles = userProfiles.entries();
-    profiles.toArray().map<(Principal, UserProfile), UserData>(
+    profiles.toArray().map<(Principal.Principal, UserProfile), UserData>(
       func((principal, profile)) {
         let moodCount = switch (userMoodHistory.get(principal)) {
           case (null) { 0 };

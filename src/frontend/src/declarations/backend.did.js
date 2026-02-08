@@ -31,6 +31,7 @@ export const ShoppingItem = IDL.Record({
   'priceInCents' : IDL.Nat,
   'productDescription' : IDL.Text,
 });
+export const Principal = IDL.Principal;
 export const Time = IDL.Int;
 export const AIMessage = IDL.Record({
   'sender' : IDL.Variant({ 'ai' : IDL.Null, 'user' : IDL.Null }),
@@ -42,7 +43,6 @@ export const AnalyticsData = IDL.Record({
   'averageSessionDuration' : Time,
   'totalSessions' : IDL.Nat,
 });
-export const Principal = IDL.Principal;
 export const Mood = IDL.Variant({
   'sad' : IDL.Null,
   'hopeful' : IDL.Null,
@@ -83,6 +83,7 @@ export const AppMarketMetadata = IDL.Record({
 });
 export const UserProfile = IDL.Record({
   'userId' : IDL.Text,
+  'name' : IDL.Text,
   'profession' : IDL.Opt(IDL.Text),
 });
 export const ChatMessage = IDL.Record({
@@ -119,7 +120,7 @@ export const PricingConfig = IDL.Record({
 });
 export const PrivateMessage = IDL.Record({
   'profession' : IDL.Opt(IDL.Text),
-  'sender' : IDL.Principal,
+  'sender' : Principal,
   'message' : IDL.Text,
   'timestamp' : Time,
 });
@@ -248,11 +249,7 @@ export const idlService = IDL.Service({
       [IDL.Text],
       [],
     ),
-  'createPrivateThread' : IDL.Func(
-      [IDL.Text, IDL.Principal, IDL.Principal],
-      [],
-      [],
-    ),
+  'createPrivateThread' : IDL.Func([IDL.Text, Principal, Principal], [], []),
   'getAIConversation' : IDL.Func([IDL.Text], [IDL.Vec(AIMessage)], ['query']),
   'getAggregatedAnalytics' : IDL.Func([], [AnalyticsData], ['query']),
   'getAllMoodLogs' : IDL.Func([], [IDL.Vec(MoodLogEntry)], ['query']),
@@ -262,7 +259,7 @@ export const idlService = IDL.Service({
       [IDL.Opt(AppMarketMetadata)],
       ['query'],
     ),
-  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], []),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getChatMessages' : IDL.Func([IDL.Text], [IDL.Vec(ChatMessage)], ['query']),
   'getChatRooms' : IDL.Func(
@@ -300,11 +297,7 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getStripeSessionStatus' : IDL.Func([IDL.Text], [StripeSessionStatus], []),
-  'getUserProfile' : IDL.Func(
-      [IDL.Principal],
-      [IDL.Opt(UserProfile)],
-      ['query'],
-    ),
+  'getUserProfile' : IDL.Func([Principal], [IDL.Opt(UserProfile)], ['query']),
   'getUserRecordById' : IDL.Func([IDL.Text], [IDL.Opt(UserRecord)], ['query']),
   'getUserRecords' : IDL.Func([], [IDL.Vec(UserRecord)], ['query']),
   'getWeeklyMoodChartData' : IDL.Func([], [WeeklyMoodChartData], ['query']),
@@ -399,6 +392,7 @@ export const idlFactory = ({ IDL }) => {
     'priceInCents' : IDL.Nat,
     'productDescription' : IDL.Text,
   });
+  const Principal = IDL.Principal;
   const Time = IDL.Int;
   const AIMessage = IDL.Record({
     'sender' : IDL.Variant({ 'ai' : IDL.Null, 'user' : IDL.Null }),
@@ -410,7 +404,6 @@ export const idlFactory = ({ IDL }) => {
     'averageSessionDuration' : Time,
     'totalSessions' : IDL.Nat,
   });
-  const Principal = IDL.Principal;
   const Mood = IDL.Variant({
     'sad' : IDL.Null,
     'hopeful' : IDL.Null,
@@ -451,6 +444,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const UserProfile = IDL.Record({
     'userId' : IDL.Text,
+    'name' : IDL.Text,
     'profession' : IDL.Opt(IDL.Text),
   });
   const ChatMessage = IDL.Record({
@@ -487,7 +481,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const PrivateMessage = IDL.Record({
     'profession' : IDL.Opt(IDL.Text),
-    'sender' : IDL.Principal,
+    'sender' : Principal,
     'message' : IDL.Text,
     'timestamp' : Time,
   });
@@ -610,11 +604,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Text],
         [],
       ),
-    'createPrivateThread' : IDL.Func(
-        [IDL.Text, IDL.Principal, IDL.Principal],
-        [],
-        [],
-      ),
+    'createPrivateThread' : IDL.Func([IDL.Text, Principal, Principal], [], []),
     'getAIConversation' : IDL.Func([IDL.Text], [IDL.Vec(AIMessage)], ['query']),
     'getAggregatedAnalytics' : IDL.Func([], [AnalyticsData], ['query']),
     'getAllMoodLogs' : IDL.Func([], [IDL.Vec(MoodLogEntry)], ['query']),
@@ -624,7 +614,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(AppMarketMetadata)],
         ['query'],
       ),
-    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], []),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getChatMessages' : IDL.Func([IDL.Text], [IDL.Vec(ChatMessage)], ['query']),
     'getChatRooms' : IDL.Func(
@@ -666,11 +656,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getStripeSessionStatus' : IDL.Func([IDL.Text], [StripeSessionStatus], []),
-    'getUserProfile' : IDL.Func(
-        [IDL.Principal],
-        [IDL.Opt(UserProfile)],
-        ['query'],
-      ),
+    'getUserProfile' : IDL.Func([Principal], [IDL.Opt(UserProfile)], ['query']),
     'getUserRecordById' : IDL.Func(
         [IDL.Text],
         [IDL.Opt(UserRecord)],

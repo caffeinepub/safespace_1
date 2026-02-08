@@ -1,36 +1,42 @@
-// Extended backend types that are not yet in the generated backend interface
-// These types match the specification but are missing from the current backend
+import type { Mood, Time, Principal } from '../backend';
 
-export type Time = bigint;
-
-export type Mood = 
-  | { __kind__: 'happy' }
-  | { __kind__: 'sad' }
-  | { __kind__: 'anxious' }
-  | { __kind__: 'calm' }
-  | { __kind__: 'angry' }
-  | { __kind__: 'grateful' }
-  | { __kind__: 'stressed' }
-  | { __kind__: 'lonely' }
-  | { __kind__: 'hopeful' }
-  | { __kind__: 'content' }
-  | { __kind__: 'overwhelmed' }
-  | { __kind__: 'inspired' }
-  | { __kind__: 'relaxed' };
+// Extended type definitions that match the backend structure
+export type { Mood, Time, Principal };
 
 export interface MoodEntry {
   timestamp: Time;
   mood: Mood;
   note?: string;
+  moodScore: bigint;
+}
+
+export interface UserProfile {
+  userId: string;
+  name: string;
+  profession?: string;
+}
+
+export interface ChatMessage {
+  timestamp: Time;
+  userId: string;
+  message: string;
+  profession?: string;
+}
+
+export interface PrivateMessage {
+  timestamp: Time;
+  sender: Principal;
+  message: string;
+  profession?: string;
 }
 
 export interface DailyAnalysisEntry {
   timestamp: Time;
   mood: Mood;
+  note?: string;
   moodScore: bigint;
   stepCount: bigint;
   sleepHours: bigint;
-  note?: string;
 }
 
 export interface WeeklySummary {
@@ -57,25 +63,6 @@ export interface WeeklyMoodAnalysis {
   anomalies: Anomaly[];
 }
 
-export interface UserProfile {
-  userId: string;
-  profession?: string;
-}
-
-export interface ChatMessage {
-  timestamp: Time;
-  userId: string;
-  message: string;
-  profession?: string;
-}
-
-export interface PrivateMessage {
-  timestamp: Time;
-  sender: string;
-  message: string;
-  profession?: string;
-}
-
 export interface AnalyticsData {
   totalSessions: bigint;
   totalSessionDuration: Time;
@@ -83,7 +70,7 @@ export interface AnalyticsData {
 }
 
 export interface UserData {
-  principal: string;
+  principal: Principal;
   userId: string;
   profession?: string;
   moodEntryCount: bigint;
@@ -91,7 +78,7 @@ export interface UserData {
 }
 
 export interface MoodLogEntry {
-  principal: string;
+  principal: Principal;
   userId: string;
   timestamp: Time;
   mood: Mood;
@@ -121,16 +108,18 @@ export interface MarketAnalytics {
   totalRevenue: bigint;
 }
 
-export interface ExternalBlob {
-  getBytes(): Promise<Uint8Array>;
-  getDirectURL(): string;
+export type AuthType = 'guest' | 'internetIdentity';
+
+export interface ActivityEvent {
+  timestamp: Time;
+  eventType: 'login' | 'createMoodEntry' | 'updateMoodEntry' | 'pageNavigation' | 'interaction';
+  details: string;
 }
 
-// Helper functions to create mood objects
-export const createMood = (moodType: string): Mood => {
-  return { __kind__: moodType as any };
-};
-
-export const getMoodKind = (mood: Mood): string => {
-  return mood.__kind__;
-};
+export interface UserRecord {
+  id: string;
+  authType: AuthType;
+  moodEntries: MoodEntry[];
+  activityLog: ActivityEvent[];
+  weeklyAverageMood: number;
+}

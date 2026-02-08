@@ -179,6 +179,7 @@ export interface WeeklyMoodChartData {
 }
 export interface UserProfile {
     userId: string;
+    name: string;
     profession?: string;
 }
 export enum AuthType {

@@ -1,123 +1,71 @@
 {
   "kind": "build_request",
-  "title": "Fix Mood History load error and redesign Mood History with calendar + weekly/monthly/overall trend charts",
-  "priority": "normal",
+  "title": "Fix guest name screen regression so guest can enter the app",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the \"Unable to Load Mood History\" error in the user-facing Mood History view so mood history loads correctly for both Internet Identity users and guest users.",
-      "target": "both",
+      "text": "Fix the guest login flow so that after submitting the guest name form (screen title: \"Welcome, Guest\"), the app reliably transitions into the authenticated app experience (dashboard) instead of returning to the main login page.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-1"
         ],
         "quotes": [
-          "Mood history in showing error stating unable to load mood history",
-          "fix it also redesign",
-          "both ..."
+          "I am not able to enter the app after guest name screen",
+          "It brings back to main login page....",
+          "Welcome, Guest"
         ]
       },
       "acceptanceCriteria": [
-        "When logged in with Internet Identity, opening the Mood History view loads entries successfully and does not show the error alert.",
-        "When using guest mode, opening the Mood History view loads the guest’s entries successfully and does not show an Unauthorized/permission error.",
-        "If the backend is temporarily unavailable, the UI shows a clear retryable error state and the Retry button triggers a refetch."
+        "From the main login page, clicking \"Continue as guest\" shows the full-page guest name entry step.",
+        "Submitting the guest name form with a non-empty name results in the login UI disappearing and the dashboard rendering.",
+        "After successful guest submit, the login page does not re-appear due to any auth-state effect/rerender.",
+        "Refreshing the browser after guest login keeps the user in the app (guest session persists)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the backend to support guest users fetching their own mood history without requiring admin privileges, while preserving admin-only access for admin analytics endpoints.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "Mood history in showing error stating unable to load mood history",
-          "1. current app .... 2. both.... 3. fix it also redesign with similar form"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Guest mood history can be retrieved via a backend method that does not require admin privileges.",
-        "Existing admin-only methods (e.g., admin user records / admin analytics) remain admin-restricted and continue to trap for non-admin callers.",
-        "Existing stored mood history data remains intact after the change (no state reset)."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Redesign the user-facing Mood History UI to keep the existing overall layout while adding: (a) a clickable calendar view where selecting a date with an entry opens that entry for viewing/editing, and (b) improved weekly graph readability with clear day labels, intuitive color coding, and a visible trend line.",
+      "text": "Update guest session state propagation so all components using the guest auth hook observe guest session changes immediately after guest login and logout (even when different components call the hook independently).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-1"
         ],
         "quotes": [
-          "i exact previous layout with improved weekly graph so that is more understandable",
-          "labeling of days, color coding, trend line",
-          "calendar and charts",
-          "yes"
+          "I am not able to enter the app after guest name screen",
+          "It brings back to main login page...."
         ]
       },
       "acceptanceCriteria": [
-        "The Mood History screen retains the same primary structure (header/back button, tabs, and sections) but the weekly visualization is easier to read.",
-        "Weekly chart shows day labels (Mon–Sun) clearly and consistently.",
-        "Weekly chart uses color coding to communicate low/medium/high mood levels in a way that is visually understandable.",
-        "Weekly chart includes a trend line drawn across the week’s daily values (skipping or clearly indicating days with no data).",
-        "Calendar dates containing entries are clickable; clicking a date with an entry opens the existing mood editor flow for that entry."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Add additional mood trend charts in Mood History for monthly and overall mood trends (in addition to the weekly chart), using the existing mood history data already fetched for the user.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "the weekly chart or also monthly/overall mood‑trend charts"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Mood History includes a monthly trend chart view summarizing mood across the selected/current month.",
-        "Mood History includes an overall trend chart summarizing mood across all available history.",
-        "Charts render without backend changes beyond those required to fix guest mood history loading, and they handle empty states gracefully (no crashes, clear messaging)."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Redesign the admin user drilldown Mood History section to include the same calendar + chart-based mood history navigation (calendar with clickable dates, weekly graph improvements, and monthly/overall trend charts) for the selected user, while keeping the existing admin drilldown structure and styling conventions.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "1. both ...",
-          "fix it also redesign with similar form",
-          "calendar and charts"
-        ]
-      },
-      "acceptanceCriteria": [
-        "In the admin drilldown, the Mood History tab provides calendar-based navigation and chart-based summaries for that user’s mood entries.",
-        "Admin drilldown mood history continues to load successfully for both guest users and Internet Identity users listed in admin records.",
-        "Admin view handles the empty-state case (no entries) with a clear message and no errors."
+        "When the guest session is created in the guest name screen, the App-level guest auth state (used to decide whether to show the login screen) updates in the same tick/interaction without requiring a full page reload.",
+        "When the guest session is cleared (guest logout), the App-level guest auth state updates immediately and the login screen is shown.",
+        "Guest session migration behavior (adding missing guestId to old sessions) continues to work."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor (all logic in backend/main.mo).",
-    "Only create backend/migration.mo changes if required to preserve/upgrade existing stable state.",
-    "Do not modify any frontend files under frontend/src/components/ui or other paths listed as immutable in SYSTEM_CONTEXT.",
-    "Use English for any user-facing text."
+    "Do not edit files under frontend/src/components/ui (read-only shadcn components).",
+    "Do not modify immutable frontend hook files listed in SYSTEM_CONTEXT.",
+    "Backend must remain single-actor; do not introduce additional backend services."
   ],
   "nonGoals": [
-    "Do not add new authentication providers beyond the existing guest mode and Internet Identity.",
-    "Do not add real-time features (e.g., WebSockets) for mood updates.",
-    "Do not introduce external databases or third-party analytics services.",
-    "Do not redesign the mood-entry form beyond what is necessary to support opening/editing entries from the calendar."
+    "Changing Internet Identity login behavior beyond ensuring it does not interfere with guest login.",
+    "Adding new backend endpoints or altering backend persistence/state schema.",
+    "Introducing routing libraries or switching to a different navigation architecture."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

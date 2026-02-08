@@ -142,7 +142,11 @@ export interface UserData {
   'lastActivity' : [] | [Time],
   'profession' : [] | [string],
 }
-export interface UserProfile { 'userId' : string, 'profession' : [] | [string] }
+export interface UserProfile {
+  'userId' : string,
+  'name' : string,
+  'profession' : [] | [string],
+}
 export interface UserRecord {
   'id' : string,
   'authType' : AuthType,

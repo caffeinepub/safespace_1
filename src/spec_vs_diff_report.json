@@ -1,46 +1,35 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T16:42:43.713Z",
-  "summary": "Frontend shows substantial redesign work for Mood History (calendar + weekly/monthly/overall charts) and new error-classification utility, plus an admin drilldown Mood History component. However, the diff summary does not provide clear evidence that the backend guest-access fix was implemented, nor that the user-facing Retry UI/behavior and admin calendar click-to-edit flow are fully wired end-to-end (parts are truncated or not shown).",
+  "generatedAt": "2026-02-08T20:00:57.484Z",
+  "summary": "The diff implements a shared guest session store with pub/sub and updates the guest auth hook and App-level login gating to rely on shared guest auth state, addressing immediate propagation and reducing regressions where the login screen reappears. Persistence via localStorage and migration for missing guestId are present. Some guest-name-submit UI/behavior details are truncated, so full verification of the guest name screen’s submit behavior and title cannot be confirmed from the provided diff.",
   "missing_requirements": [
     {
-      "id": "REQ-2",
-      "requirement": "Update the backend to support guest users fetching their own mood history without requiring admin privileges, while preserving admin-only access for admin analytics endpoints, and preserving existing stored data.",
-      "reason": "backend/main.mo is shown only as type/import sections (truncated) and the diff summary does not show any new/changed public methods or authorization logic enabling non-admin guest callers to fetch their own mood history, nor evidence that admin-only endpoints remain restricted.",
+      "id": "REQ-1",
+      "requirement": "Submitting the guest name form with a non-empty name results in the login UI disappearing and the dashboard rendering (and does not regress back to the login page due to auth-state effects/rerenders).",
+      "reason": "The key handler that submits the guest name form and triggers the guest session creation/transition is truncated in the AnonymousLogin diff, so it is not verifiable that a non-empty name submission reliably calls guest login and causes the app to render the dashboard instead of returning to the main login screen.",
       "evidence": [
-        "backend/main.mo (truncated; no guest mood-history method / auth logic shown)"
+        "frontend/src/components/AnonymousLogin.tsx (truncated at handleGuestNameSubmit)",
+        "frontend/src/App.tsx (login gating shown, but transition depends on truncated submit logic)"
       ]
     },
     {
       "id": "REQ-1",
-      "requirement": "If the backend is temporarily unavailable, the UI shows a clear retryable error state and the Retry button triggers a refetch.",
-      "reason": "MoodHistory.tsx shows useMoodHistory() returning refetch and imports classifyMoodError, but the truncated diff does not include the actual rendered error UI section demonstrating a visible Retry button wired to refetch for availability errors.",
+      "requirement": "The guest name entry step is a full-page screen with title \"Welcome, Guest\" when clicking \"Continue as guest\" from the main login page.",
+      "reason": "While the step state includes 'guest-name-entry', the rendered UI (including screen title and full-page layout) is not visible in the truncated AnonymousLogin diff.",
       "evidence": [
-        "frontend/src/components/MoodHistory.tsx (truncated at error UI section; refetch present but Retry UI not shown)"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "requirement": "In the admin user drilldown Mood History section, calendar dates containing entries are clickable; clicking opens the existing mood editor flow for that entry.",
-      "reason": "AdminUserDrilldownMoodHistory.tsx (truncated) shows selecting a date and finding a selectedEntry, but there is no visible evidence in the provided portion that a click opens an editor/view-edit flow for that entry (it only sets selectedDate). The remainder may exist but is not shown.",
-      "evidence": [
-        "frontend/src/components/AdminUserDrilldownMoodHistory.tsx (handleDateSelect sets state; no editor invocation shown in provided portion)"
+        "frontend/src/components/AnonymousLogin.tsx (step state present, render not fully shown due to truncation)"
       ]
     }
   ],
   "hallucinated_features": [],
-  "confidence": 0.58,
+  "confidence": 0.62,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/AdminUserDrilldown.tsx",
-    "frontend/src/components/AdminUserDrilldownMoodHistory.tsx",
-    "frontend/src/components/MonthlyMoodTrendChart.tsx",
-    "frontend/src/components/MoodHistory.tsx",
-    "frontend/src/components/OverallMoodTrendChart.tsx",
-    "frontend/src/components/WeeklyMoodTrendline.tsx",
-    "frontend/src/lib/moodErrors.ts",
+    "frontend/src/App.tsx",
+    "frontend/src/components/AnonymousLogin.tsx",
+    "frontend/src/hooks/guestAuthStore.ts",
+    "frontend/src/hooks/useGuestAuth.ts",
     "project_state.json"
   ]
 }
