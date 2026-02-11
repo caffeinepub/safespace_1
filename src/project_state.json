@@ -1,19 +1,26 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "App uses Internet Identity for authentication and has an admin dashboard gated by an admin allowlist; after redeploys the admin allowlist may reset, blocking admin access.",
+  "summary": "New project",
   "architectural_notes": [
-    "Admin dashboard access is gated by an isAdmin check (e.g., useIsCallerAdmin) backed by a backend admin allowlist.",
-    "Redeploys can reset the backend admin allowlist unless it is persisted/initialized, causing loss of admin access."
+    "Deployment supports versioned releases with rollback capability (e.g., rollback from v100 to v99 across both frontend and backend)."
   ],
   "known_issues": [
-    "Internet Identity login/admin dashboard access may fail after redeploy because the admin principal allowlist is not recognized/reset."
+    "User requested rollback from v100 to v99 due to too many changes in v100; rollback should apply to both frontend and backend."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-add-a-frontend-bootstrap-flow-that-after-a-successful-internet-identity-login-attempts-to-set-the-current-principal-as-admin-only-when-needed-and-then-refreshes-admin-gated-ui-state",
-      "title": "Add a frontend bootstrap flow that, after a successful Internet Identity login, attempts to set the current principal as admin (only when needed) and then refreshes admin-gated UI state.",
+      "id": "feature-revert-the-deployed-application-behavior-to-match-version-99-across-both-frontend-and-backend-undoing-the-changes-introduced-in-version-100",
+      "title": "Revert the deployed application behavior to match version 99 across both frontend and backend, undoing the changes introduced in version 100.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-or-disable-the-version-100-admin-auto-bootstrap-flow-so-that-the-app-no-longer-automatically-attempts-to-claim-admin-rights-after-internet-identity-login-restore-version-99-behavior",
+      "title": "Remove or disable the version 100 admin auto-bootstrap flow so that the app no longer automatically attempts to claim admin rights after Internet Identity login (restore version 99 behavior).",
       "reqIds": [
         "REQ-2"
       ],
@@ -22,21 +29,15 @@
   ],
   "new_feature_requests": [
     {
-      "id": "AR-1",
-      "summary": "Make the currently logged-in Internet Identity principal an admin (restore admin dashboard access after redeploy)",
-      "reqIds": [],
-      "status": "in_progress"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Add a backend method that allows the currently logged-in Internet Identity caller to become an admin, so the admin dashboard can be accessed after a redeploy resets the admin allowlist.",
+      "id": "AR-3",
+      "summary": "Remove or disable the backend method that was added in version 100 to allow the current caller to become an admin (restore version 99 behavior).",
       "reqIds": [
-        "REQ-1"
+        "REQ-3"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Bootstrap current Internet Identity principal as admin to restore admin dashboard access",
+  "projectName": "Roll back frontend and backend to version 99 behavior",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

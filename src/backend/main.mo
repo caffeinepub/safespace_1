@@ -16,7 +16,9 @@ import AccessControl "authorization/access-control";
 import Storage "blob-storage/Storage";
 import Float "mo:core/Float";
 import Runtime "mo:core/Runtime";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   public type Mood = {
     #happy;
@@ -307,25 +309,6 @@ actor {
   ].values());
 
   var aiIsTyping : Bool = false;
-
-  // Track if any admin has been initialized
-  var adminInitialized : Bool = false;
-
-  public shared ({ caller }) func becomeAdmin() : async () {
-    // Only allow authenticated users (not guests)
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can become admins");
-    };
-    
-    // Only allow the first caller to become admin (one-time initialization after deployment)
-    if (adminInitialized) {
-      Runtime.trap("Unauthorized: Admin has already been initialized. Contact an existing admin for role assignment.");
-    };
-    
-    // Make the caller an admin and mark initialization as complete
-    AccessControl.assignRole(accessControlState, caller, caller, #admin);
-    adminInitialized := true;
-  };
 
   private func logActivity(userId : Text, eventType : { #login; #createMoodEntry; #updateMoodEntry; #pageNavigation; #interaction }, details : Text) {
     let event : ActivityEvent = {

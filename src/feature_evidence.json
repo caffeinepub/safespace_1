@@ -2,12 +2,34 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-frontend-bootstrap-flow-that-after-a-successful-internet-identity-login-attempts-to-set-the-current-principal-as-admin-only-when-needed-and-then-refreshes-admin-gated-ui-state",
-      "featureTitle": "Add a frontend bootstrap flow that, after a successful Internet Identity login, attempts to set the current principal as admin (only when needed) and then refreshes admin-gated UI state.",
+      "featureId": "feature-revert-the-deployed-application-behavior-to-match-version-99-across-both-frontend-and-backend-undoing-the-changes-introduced-in-version-100",
+      "featureTitle": "Revert the deployed application behavior to match version 99 across both frontend and backend, undoing the changes introduced in version 100.",
       "files": [
         "frontend/src/App.tsx",
-        "frontend/src/hooks/useAdminBootstrap.ts",
         "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "blob-storage@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-or-disable-the-version-100-admin-auto-bootstrap-flow-so-that-the-app-no-longer-automatically-attempts-to-claim-admin-rights-after-internet-identity-login-restore-version-99-behavior",
+      "featureTitle": "Remove or disable the version 100 admin auto-bootstrap flow so that the app no longer automatically attempts to claim admin rights after Internet Identity login (restore version 99 behavior).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/hooks/useAdminBootstrap.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",

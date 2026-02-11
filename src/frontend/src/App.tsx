@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster, toast } from 'sonner';
+import { Toaster } from 'sonner';
 import AnonymousLogin from './components/AnonymousLogin';
 import Dashboard from './components/Dashboard';
 import MoodTracker from './components/MoodTracker';
@@ -18,8 +18,7 @@ import { useGuestAuth } from './hooks/useGuestAuth';
 import { useGetCallerUserProfile, useIsCallerAdmin } from './hooks/useQueries';
 import { useSessionTracking } from './hooks/useSessionTracking';
 import { useActivityLogging } from './hooks/useActivityLogging';
-import { useAdminBootstrap } from './hooks/useAdminBootstrap';
-import { Loader2, Heart } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,9 +49,6 @@ function AppContent() {
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
   const { data: isAdmin, isLoading: isAdminLoading } = useIsCallerAdmin();
   const { logPageNavigation } = useActivityLogging();
-  
-  // Bootstrap admin role after Internet Identity login
-  const { error: bootstrapError } = useAdminBootstrap();
 
   const isAuthenticated = !!identity;
 
@@ -62,15 +58,6 @@ function AppContent() {
 
   // Track session duration for analytics
   useSessionTracking(userId || null);
-
-  // Show bootstrap error as toast
-  useEffect(() => {
-    if (bootstrapError) {
-      toast.error(bootstrapError, {
-        duration: 6000,
-      });
-    }
-  }, [bootstrapError]);
 
   // Log admin status for debugging
   useEffect(() => {

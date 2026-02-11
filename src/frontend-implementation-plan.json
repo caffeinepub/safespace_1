@@ -1,32 +1,46 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Frontend admin bootstrap flow after Internet Identity login",
+  "title": "Rollback frontend behavior to match version 99 (remove v100 admin auto-bootstrap)",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "After Internet Identity login, attempt to bootstrap the current principal as admin when needed, refresh admin-gated UI, and show a friendly denial message when an admin already exists.",
+      "id": "REQ-1",
+      "summary": "Restore version 99 user-visible behavior in the frontend by removing version 100 admin auto-bootstrap side effects and ensuring admin gating relies only on existing admin status checks.",
       "acceptanceCriteria": [
-        "A new React Query mutation hook exists to call the new backend admin-claim method.",
-        "On successful Internet Identity login, the app triggers the admin-claim mutation if `useIsCallerAdmin()` is `false` (or unknown) and then invalidates/refetches the `['isCallerAdmin']` query so the Header and admin views update without a manual refresh.",
-        "If the claim fails because an admin already exists, show an English, user-friendly message explaining that this Internet Identity is not an admin and an existing admin must grant access.",
-        "No changes are made to any frontend files listed as immutable in SYSTEM_CONTEXT."
+        "The app builds successfully (frontend + backend) after the rollback changes are applied.",
+        "User-visible behavior matches version 99 rather than version 100 for the main flows (login, navigation, dashboard, and admin access gating).",
+        "No new version-100-only flows remain enabled (e.g., any admin auto-bootstrap/auto-claim logic added in v100 is removed or disabled to match v99)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add a new React Query mutation hook (e.g., `useClaimAdminForCaller`) that calls the backend admin-claim capability via the actor and provides structured success/error handling for the bootstrap flow. Use the authorization component patterns for authenticated calls and React Query cache invalidation; verify the component's usage instructions before implementing. Before editing, confirm this file is not listed in frontend.immutablePaths in SYSTEM_CONTEXT."
+          "description": "Remove the v100 admin auto-bootstrap integration: delete the useAdminBootstrap import/usage and the related toast side-effect so the app no longer attempts any automatic admin claim after Internet Identity login. Ensure admin navigation/access remains gated solely by the existing admin status check (useIsCallerAdmin), consistent with v99. This relies on the existing role-based access control behavior from the authorization component; verify the component's usage instructions before implementing."
         },
         {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Remove the v100-only React Query mutation hook that calls the backend caller self-promotion function (e.g., useClaimAdminForCaller calling becomeAdmin), so no v100 self-promotion flow remains reachable from the frontend. Keep the existing admin status query (useIsCallerAdmin) intact for UI gating. Verify the authorization component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Disable the version 100 admin auto-bootstrap flow after Internet Identity login so admin UI gating is based only on the existing admin status check (v99 behavior).",
+      "acceptanceCriteria": [
+        "The app no longer invokes an admin bootstrap hook after login (e.g., no automatic claim attempt / no toast tied to bootstrap error).",
+        "Admin UI gating is determined only by the existing admin status check, as in version 99."
+      ],
+      "file_operations": [
+        {
           "path": "frontend/src/hooks/useAdminBootstrap.ts",
-          "operation": "create",
-          "description": "Create a small orchestration hook (e.g., `useAdminBootstrapOnLogin`) that: (1) detects successful Internet Identity authentication, (2) checks `useIsCallerAdmin()` state, (3) triggers the admin-claim mutation at most once per identity session when not admin (or admin status is not yet known), (4) invalidates/refetches `['isCallerAdmin']` on success, and (5) normalizes claim errors into user-friendly English messaging for UI display. Use the authorization component guidance around login/logout cache behavior and handling authorization traps gracefully; verify the component's usage instructions before implementing. Before creating, confirm this path is allowed (not blocked by frontend.immutablePaths in SYSTEM_CONTEXT)."
+          "operation": "delete",
+          "description": "Delete the v100 admin bootstrap hook implementation that attempts an automatic admin claim post-login. Ensure all references are removed so the frontend compiles cleanly and no auto-claim behavior occurs. Verify the authorization component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Wire the bootstrap hook into the authenticated app lifecycle so it runs right after Internet Identity login becomes available (identity present) and refreshes admin-gated UI state by ensuring `['isCallerAdmin']` is invalidated/refetched. Ensure failures are surfaced with a user-friendly English message (e.g., via the existing toast system) specifically when the claim is rejected because an admin already exists. Use authorization component guidance for clearing cached data on logout and for handling authorization errors gracefully; verify the component's usage instructions before implementing. Before editing, confirm this file is not listed in frontend.immutablePaths in SYSTEM_CONTEXT."
+          "description": "Update wiring to fully remove any invocation of the deleted admin bootstrap hook and any related UI feedback (e.g., toasts). Confirm that post-login behavior no longer includes any admin claim attempt, and that admin UI elements continue to depend only on the existing isCallerAdmin status. Verify the authorization component's usage instructions before implementing."
         }
       ]
     }

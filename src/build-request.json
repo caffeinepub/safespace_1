@@ -1,62 +1,92 @@
 {
   "kind": "build_request",
-  "title": "Bootstrap current Internet Identity principal as admin to restore admin dashboard access",
+  "title": "Roll back frontend and backend to version 99 behavior",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a backend method that allows the currently logged-in Internet Identity caller to become an admin, so the admin dashboard can be accessed after a redeploy resets the admin allowlist.",
-      "target": "backend",
+      "text": "Revert the deployed application behavior to match version 99 across both frontend and backend, undoing the changes introduced in version 100.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-6",
+          "msg-8",
+          "msg-12"
         ],
         "quotes": [
-          "Do you want me to make your current Internet Identity the admin?",
-          "yes",
-          "build it"
+          "rollback to version 99",
+          "both",
+          "proceed"
         ]
       },
       "acceptanceCriteria": [
-        "Backend exposes a shared update call (e.g., `claimAdminForCaller`/`bootstrapAdmin`) that adds `caller` to the admin allowlist used by `isCallerAdmin()`.",
-        "The method is safe against arbitrary takeover: it succeeds only when there are zero admins configured (or when `caller` is already an admin), and otherwise returns an error/traps with a clear message.",
-        "After calling the method successfully, subsequent calls to `isCallerAdmin()` for the same principal return `true`."
+        "The app builds successfully (frontend + backend) after the rollback changes are applied.",
+        "User-visible behavior matches version 99 rather than version 100 for the main flows (login, navigation, dashboard, and admin access gating).",
+        "No new version-100-only flows remain enabled (e.g., any admin auto-bootstrap/auto-claim logic added in v100 is removed or disabled to match v99)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add a frontend bootstrap flow that, after a successful Internet Identity login, attempts to set the current principal as admin (only when needed) and then refreshes admin-gated UI state.",
+      "text": "Remove or disable the version 100 admin auto-bootstrap flow so that the app no longer automatically attempts to claim admin rights after Internet Identity login (restore version 99 behavior).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-6",
+          "msg-12"
         ],
         "quotes": [
-          "i am not able to login in admin dashboard",
-          "yes",
-          "build it"
+          "rollback to version 99",
+          "proceed"
         ]
       },
       "acceptanceCriteria": [
-        "A new React Query mutation hook exists to call the new backend admin-claim method.",
-        "On successful Internet Identity login, the app triggers the admin-claim mutation if `useIsCallerAdmin()` is `false` (or unknown) and then invalidates/refetches the `['isCallerAdmin']` query so the Header and admin views update without a manual refresh.",
-        "If the claim fails because an admin already exists, show an English, user-friendly message explaining that this Internet Identity is not an admin and an existing admin must grant access.",
-        "No changes are made to any frontend files listed as immutable in SYSTEM_CONTEXT."
+        "The app no longer invokes an admin bootstrap hook after login (e.g., no automatic claim attempt / no toast tied to bootstrap error).",
+        "Admin UI gating is determined only by the existing admin status check, as in version 99."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Remove or disable the backend method that was added in version 100 to allow the current caller to become an admin (restore version 99 behavior).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-6",
+          "msg-8",
+          "msg-12"
+        ],
+        "quotes": [
+          "rollback to version 99",
+          "both",
+          "proceed"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The backend no longer exposes a caller self-promotion admin method introduced in v100 (e.g., becomeAdmin or equivalent), matching v99 behavior.",
+        "Backend authorization for admin-only methods continues to work as it did in v99 (admin-only calls still require admin privileges)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single-actor Motoko canister with all logic in backend/main.mo.",
-    "Do not edit any paths listed in frontend.immutablePaths (compose around them instead).",
-    "Use English for any user-facing text."
+    "Backend must remain a single Motoko actor in backend/main.mo; only introduce backend/migration.mo if an upgrade-safe state migration is required.",
+    "Do not edit frontend files under frontend/src/components/ui or any path listed in frontend.immutablePaths."
   ],
   "nonGoals": [
-    "Implementing third-party authentication providers (only Internet Identity is supported).",
-    "Adding a full admin management UI (e.g., listing admins, removing admins) beyond bootstrapping the current caller as admin.",
-    "Fixing general Internet Identity login issues unrelated to admin authorization (e.g., device clock sync), unless directly required for the bootstrap flow."
+    "Implementing any new features beyond restoring version 99 behavior.",
+    "Introducing new authentication providers or third-party auth (only Internet Identity is supported).",
+    "Redesigning UI/branding unrelated to the rollback."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

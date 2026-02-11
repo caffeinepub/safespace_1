@@ -469,21 +469,6 @@ export function useIsCallerAdmin() {
   });
 }
 
-export function useClaimAdminForCaller() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.becomeAdmin();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
-    },
-  });
-}
-
 export function useGetUserRecords() {
   const { actor, isFetching } = useActor();
 

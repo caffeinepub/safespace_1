@@ -1,41 +1,53 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T06:18:57.538Z",
+  "generatedAt": "2026-02-11T06:40:20.202Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a backend method that allows the currently logged-in Internet Identity caller to become an admin, so the admin dashboard can be accessed after a redeploy resets the admin allowlist.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Revert the deployed application behavior to match version 99 across both frontend and backend, undoing the changes introduced in version 100.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ]
       },
       {
         "id": "REQ-2",
-        "summary": "Add a frontend bootstrap flow that, after a successful Internet Identity login, attempts to set the current principal as admin (only when needed) and then refreshes admin-gated UI state.",
+        "summary": "Remove or disable the version 100 admin auto-bootstrap flow so that the app no longer automatically attempts to claim admin rights after Internet Identity login (restore version 99 behavior).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
           "frontend/src/hooks/useAdminBootstrap.ts",
           "frontend/src/App.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
           "frontend/src/hooks/useAdminBootstrap.ts",
           "frontend/src/App.tsx"
         ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Remove or disable the backend method that was added in version 100 to allow the current caller to become an admin (restore version 99 behavior).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",

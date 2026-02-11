@@ -1,47 +1,54 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T06:18:57.535Z",
-  "summary": "Frontend adds a new `useAdminBootstrap` hook and wires it into `App.tsx` to attempt an admin-claim after Internet Identity login and invalidate the `['isCallerAdmin']` query. However, the diff summary does not provide clear evidence that the required backend bootstrap method (REQ-1) was actually implemented in `backend/main.mo`, nor that the new React Query mutation hook `useClaimAdminForCaller` is implemented in `useQueries.ts` (it is referenced, but the relevant portion is truncated).",
+  "generatedAt": "2026-02-11T06:40:20.198Z",
+  "summary": "Frontend changes appear to remove v100-style admin auto-bootstrap/claim behavior (per App.tsx and hook/query summaries). Backend rollback for the v100 caller self-promotion admin method is not evidenced in the provided backend diff excerpt. Several frontend/UI enhancements and theming changes are described that go beyond a strict v99 rollback, and a migration file was introduced without clear evidence it is required for upgrade-safe state migration.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Add a backend shared update method (e.g., `claimAdminForCaller`/`bootstrapAdmin`) that adds `caller` to the admin allowlist used by `isCallerAdmin()`, only succeeding when there are zero admins configured (or caller already admin), otherwise returning an error with a clear message; subsequent `isCallerAdmin()` returns true.",
-      "reason": "`backend/main.mo` is shown only as a truncated type/boilerplate section; no new shared update method or admin allowlist logic is visible in the provided diff summary, so implementation cannot be confirmed.",
+      "id": "REQ-3",
+      "requirement": "Remove or disable the backend method that was added in version 100 to allow the current caller to become an admin (restore version 99 behavior).",
+      "reason": "The backend diff excerpt for backend/main.mo is truncated and does not show removal/disablement of any v100 self-promotion admin API (e.g., becomeAdmin or equivalent). The only clearly evidenced backend change is introduction of a migration hook/file, not the removal of an admin self-promotion method.",
       "evidence": [
-        "backend/main.mo (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "requirement": "Add a new React Query mutation hook to call the backend admin-claim method.",
-      "reason": "The new hook is referenced (`useClaimAdminForCaller`) from `useAdminBootstrap.ts`, but the `useQueries.ts` diff is truncated before any admin-claim mutation definition is shown, so the mutation hook’s existence/implementation cannot be verified from the provided evidence.",
-      "evidence": [
-        "frontend/src/hooks/useAdminBootstrap.ts",
-        "frontend/src/hooks/useQueries.ts (truncated)"
+        "backend/main.mo (truncated)",
+        "backend/migration.mo"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added debug logging of admin status in the app (`console.log('App - Admin status:', isAdmin)`).",
-      "reason": "The BuildRequest/requirements do not ask for additional debug logging; only bootstrap flow + messaging behavior is requested.",
+      "description": "Added an upgrade migration that drops/ignores prior actor state field adminInitialized.",
+      "reason": "The BuildRequest allows backend/migration.mo only if an upgrade-safe state migration is required. The diff adds backend/migration.mo and wires it in, but the diff summary provides no evidence that such a migration is required for the rollback, making it potentially unrequested scope.",
       "evidence": [
-        "frontend/src/App.tsx (truncated)"
+        "backend/migration.mo",
+        "backend/main.mo (with migration = Migration.run)"
       ]
     },
     {
-      "description": "Updated/added project bookkeeping files (`project_state.json`) and a large `frontend-file-summaries.txt` summary unrelated to implementing the bootstrap feature.",
-      "reason": "These files are not requested by REQ-1/REQ-2 and do not directly implement the specified backend/frontend bootstrap behavior.",
+      "description": "UI/UX and styling redesign work (OKLCH color system, enhanced calendar styles/animations, Tailwind color scales) unrelated to rollback.",
+      "reason": "Non-goal explicitly disallows redesigning UI/branding unrelated to the rollback; these changes read as new/expanded theming rather than a v99 behavior restoration.",
       "evidence": [
-        "project_state.json",
-        "frontend-file-summaries.txt"
+        "frontend-file-summaries.txt (entries for frontend/src/index.css, frontend/tailwind.config.js)"
+      ]
+    },
+    {
+      "description": "New/expanded login flow: \"Enhanced login component with three-step flow (main, profile-setup, guest-name-entry)\".",
+      "reason": "Non-goal disallows implementing new features beyond restoring v99 behavior; an enhanced multi-step login flow is not requested by the rollback requirements.",
+      "evidence": [
+        "frontend-file-summaries.txt (entry for frontend/src/components/AnonymousLogin.tsx)"
+      ]
+    },
+    {
+      "description": "Navigation/header changes including additional links (e.g., AI Companion link) and new UI badges/menus.",
+      "reason": "Not requested by rollback requirements and may constitute UI/feature expansion beyond restoring v99 behavior.",
+      "evidence": [
+        "frontend-file-summaries.txt (entry for frontend/src/components/Header.tsx)"
       ]
     }
   ],
   "confidence": 0.62,
   "changed_files": [
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/src/App.tsx",
     "frontend/src/hooks/useAdminBootstrap.ts",
