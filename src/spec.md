@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the guest login flow so submitting the “Welcome, Guest” name form reliably enters the authenticated app (dashboard) and the guest session persists.
+**Goal:** Restore admin dashboard access after redeploys by allowing the currently logged-in Internet Identity principal to bootstrap itself into the admin allowlist when no admins are configured.
 
 **Planned changes:**
-- Fix guest name submission flow so a valid (non-empty) guest name transitions from login UI to the dashboard without bouncing back to the main login page.
-- Ensure guest session state updates propagate immediately across all components using the guest auth hook (including immediate updates on guest login and logout).
-- Ensure guest session persistence so a browser refresh after guest login keeps the user in the app.
+- Add a backend shared update method (e.g., `bootstrapAdmin` / `claimAdminForCaller`) that adds `caller` to the admin allowlist used by `isCallerAdmin()`, but only if there are zero admins configured (or if `caller` is already an admin); otherwise return a clear error/trap message.
+- Add a frontend bootstrap flow that, after a successful Internet Identity login, calls the new backend method when the user is not (or not yet known to be) an admin, then invalidates/refetches the `['isCallerAdmin']` query so admin-gated UI updates immediately.
+- Show an English, user-friendly message when the bootstrap attempt fails because an admin already exists, explaining that an existing admin must grant access.
 
-**User-visible outcome:** Users can choose “Continue as guest,” enter a name on the “Welcome, Guest” screen, and consistently land in the dashboard; the app stays logged in as a guest on refresh and returns to the login screen immediately on guest logout.
+**User-visible outcome:** After logging in with Internet Identity, the first user to access the app after a redeploy can automatically become admin (when no admins exist) and immediately access the admin dashboard without a manual refresh; non-admin users see a clear message if an admin already exists.

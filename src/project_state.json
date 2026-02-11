@@ -1,32 +1,42 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
+  "summary": "App uses Internet Identity for authentication and has an admin dashboard gated by an admin allowlist; after redeploys the admin allowlist may reset, blocking admin access.",
+  "architectural_notes": [
+    "Admin dashboard access is gated by an isAdmin check (e.g., useIsCallerAdmin) backed by a backend admin allowlist.",
+    "Redeploys can reset the backend admin allowlist unless it is persisted/initialized, causing loss of admin access."
+  ],
   "known_issues": [
-    "Guest login flow regression: user cannot enter the app after completing the guest name screen; it returns to the main login page."
+    "Internet Identity login/admin dashboard access may fail after redeploy because the admin principal allowlist is not recognized/reset."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-the-guest-login-flow-so-that-after-submitting-the-guest-name-form-screen-title-welcome-guest-the-app-reliably-transitions-into-the-authenticated-app-experience-dashboard-instead-of-returning-to-the-main-login-page",
-      "title": "Fix the guest login flow so that after submitting the guest name form (screen title: \"Welcome, Guest\"), the app reliably transitions into the authenticated app experience (dashboard) instead of returning to the main login page.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-guest-session-state-propagation-so-all-components-using-the-guest-auth-hook-observe-guest-session-changes-immediately-after-guest-login-and-logout-even-when-different-components-call-the-hook-independently",
-      "title": "Update guest session state propagation so all components using the guest auth hook observe guest session changes immediately after guest login and logout (even when different components call the hook independently).",
+      "id": "feature-add-a-frontend-bootstrap-flow-that-after-a-successful-internet-identity-login-attempts-to-set-the-current-principal-as-admin-only-when-needed-and-then-refreshes-admin-gated-ui-state",
+      "title": "Add a frontend bootstrap flow that, after a successful Internet Identity login, attempts to set the current principal as admin (only when needed) and then refreshes admin-gated UI state.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Fix guest name screen regression so guest can enter the app",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Make the currently logged-in Internet Identity principal an admin (restore admin dashboard access after redeploy)",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add a backend method that allows the currently logged-in Internet Identity caller to become an admin, so the admin dashboard can be accessed after a redeploy resets the admin allowlist.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Bootstrap current Internet Identity principal as admin to restore admin dashboard access",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

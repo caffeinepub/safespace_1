@@ -1,71 +1,62 @@
 {
   "kind": "build_request",
-  "title": "Fix guest name screen regression so guest can enter the app",
-  "priority": "high",
+  "title": "Bootstrap current Internet Identity principal as admin to restore admin dashboard access",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the guest login flow so that after submitting the guest name form (screen title: \"Welcome, Guest\"), the app reliably transitions into the authenticated app experience (dashboard) instead of returning to the main login page.",
-      "target": "frontend",
+      "text": "Add a backend method that allows the currently logged-in Internet Identity caller to become an admin, so the admin dashboard can be accessed after a redeploy resets the admin allowlist.",
+      "target": "backend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "I am not able to enter the app after guest name screen",
-          "It brings back to main login page....",
-          "Welcome, Guest"
+          "Do you want me to make your current Internet Identity the admin?",
+          "yes",
+          "build it"
         ]
       },
       "acceptanceCriteria": [
-        "From the main login page, clicking \"Continue as guest\" shows the full-page guest name entry step.",
-        "Submitting the guest name form with a non-empty name results in the login UI disappearing and the dashboard rendering.",
-        "After successful guest submit, the login page does not re-appear due to any auth-state effect/rerender.",
-        "Refreshing the browser after guest login keeps the user in the app (guest session persists)."
+        "Backend exposes a shared update call (e.g., `claimAdminForCaller`/`bootstrapAdmin`) that adds `caller` to the admin allowlist used by `isCallerAdmin()`.",
+        "The method is safe against arbitrary takeover: it succeeds only when there are zero admins configured (or when `caller` is already an admin), and otherwise returns an error/traps with a clear message.",
+        "After calling the method successfully, subsequent calls to `isCallerAdmin()` for the same principal return `true`."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update guest session state propagation so all components using the guest auth hook observe guest session changes immediately after guest login and logout (even when different components call the hook independently).",
+      "text": "Add a frontend bootstrap flow that, after a successful Internet Identity login, attempts to set the current principal as admin (only when needed) and then refreshes admin-gated UI state.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "I am not able to enter the app after guest name screen",
-          "It brings back to main login page...."
+          "i am not able to login in admin dashboard",
+          "yes",
+          "build it"
         ]
       },
       "acceptanceCriteria": [
-        "When the guest session is created in the guest name screen, the App-level guest auth state (used to decide whether to show the login screen) updates in the same tick/interaction without requiring a full page reload.",
-        "When the guest session is cleared (guest logout), the App-level guest auth state updates immediately and the login screen is shown.",
-        "Guest session migration behavior (adding missing guestId to old sessions) continues to work."
+        "A new React Query mutation hook exists to call the new backend admin-claim method.",
+        "On successful Internet Identity login, the app triggers the admin-claim mutation if `useIsCallerAdmin()` is `false` (or unknown) and then invalidates/refetches the `['isCallerAdmin']` query so the Header and admin views update without a manual refresh.",
+        "If the claim fails because an admin already exists, show an English, user-friendly message explaining that this Internet Identity is not an admin and an existing admin must grant access.",
+        "No changes are made to any frontend files listed as immutable in SYSTEM_CONTEXT."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (read-only shadcn components).",
-    "Do not modify immutable frontend hook files listed in SYSTEM_CONTEXT.",
-    "Backend must remain single-actor; do not introduce additional backend services."
+    "Backend must remain a single-actor Motoko canister with all logic in backend/main.mo.",
+    "Do not edit any paths listed in frontend.immutablePaths (compose around them instead).",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Changing Internet Identity login behavior beyond ensuring it does not interfere with guest login.",
-    "Adding new backend endpoints or altering backend persistence/state schema.",
-    "Introducing routing libraries or switching to a different navigation architecture."
+    "Implementing third-party authentication providers (only Internet Identity is supported).",
+    "Adding a full admin management UI (e.g., listing admins, removing admins) beyond bootstrapping the current caller as admin.",
+    "Fixing general Internet Identity login issues unrelated to admin authorization (e.g., device clock sync), unless directly required for the bootstrap flow."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

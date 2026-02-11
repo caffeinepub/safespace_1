@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeft, Send, Loader2, RefreshCw } from 'lucide-react';
-import { useMessages, useSendMessage, useChatRooms } from '../hooks/useQueries';
+import { useGetChatMessages, useSendChatMessage, useGetChatRooms } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
@@ -17,9 +17,9 @@ interface ChatRoomProps {
 export default function ChatRoom({ userId, roomId, onBack }: ChatRoomProps) {
   const [message, setMessage] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { data: messages, isLoading, refetch, isFetching } = useMessages(roomId);
-  const { data: chatRooms } = useChatRooms();
-  const sendMessageMutation = useSendMessage();
+  const { data: messages, isLoading, refetch, isFetching } = useGetChatMessages(roomId);
+  const { data: chatRooms } = useGetChatRooms();
+  const sendMessageMutation = useSendChatMessage();
 
   const roomDetails = chatRooms?.find(([id]) => id === roomId);
   const roomInfo = roomDetails?.[1];
@@ -42,8 +42,12 @@ export default function ChatRoom({ userId, roomId, onBack }: ChatRoomProps) {
     try {
       await sendMessageMutation.mutateAsync({
         roomId,
-        userId,
-        message: messageToSend,
+        message: {
+          timestamp: BigInt(Date.now() * 1_000_000),
+          userId,
+          message: messageToSend,
+          profession: undefined,
+        },
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to send message';

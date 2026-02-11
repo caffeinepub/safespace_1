@@ -2,35 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-guest-login-flow-so-that-after-submitting-the-guest-name-form-screen-title-welcome-guest-the-app-reliably-transitions-into-the-authenticated-app-experience-dashboard-instead-of-returning-to-the-main-login-page",
-      "featureTitle": "Fix the guest login flow so that after submitting the guest name form (screen title: \"Welcome, Guest\"), the app reliably transitions into the authenticated app experience (dashboard) instead of returning to the main login page.",
+      "featureId": "feature-add-a-frontend-bootstrap-flow-that-after-a-successful-internet-identity-login-attempts-to-set-the-current-principal-as-admin-only-when-needed-and-then-refreshes-admin-gated-ui-state",
+      "featureTitle": "Add a frontend bootstrap flow that, after a successful Internet Identity login, attempts to set the current principal as admin (only when needed) and then refreshes admin-gated UI state.",
       "files": [
         "frontend/src/App.tsx",
-        "frontend/src/hooks/useGuestAuth.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "authorization@4.0.0",
-        "stripe@3.0.0",
-        "http-outcalls@3.0.0",
-        "blob-storage@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-guest-session-state-propagation-so-all-components-using-the-guest-auth-hook-observe-guest-session-changes-immediately-after-guest-login-and-logout-even-when-different-components-call-the-hook-independently",
-      "featureTitle": "Update guest session state propagation so all components using the guest auth hook observe guest session changes immediately after guest login and logout (even when different components call the hook independently).",
-      "files": [
-        "frontend/src/components/AnonymousLogin.tsx",
-        "frontend/src/hooks/guestAuthStore.ts",
-        "frontend/src/hooks/useGuestAuth.ts"
+        "frontend/src/hooks/useAdminBootstrap.ts",
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",

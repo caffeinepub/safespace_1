@@ -312,6 +312,7 @@ export interface backendInterface {
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    becomeAdmin(): Promise<void>;
     createChatRoom(id: string, name: string, topic: string): Promise<void>;
     createCheckoutSession(items: Array<ShoppingItem>, successUrl: string, cancelUrl: string): Promise<string>;
     createPrivateThread(threadId: string, participant1: Principal, participant2: Principal): Promise<void>;
@@ -480,6 +481,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n8(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async becomeAdmin(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.becomeAdmin();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.becomeAdmin();
             return result;
         }
     }

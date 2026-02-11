@@ -49,8 +49,8 @@ export default function CreateChatRoomDialog({ open, onOpenChange }: CreateChatR
 
     try {
       await createRoomMutation.mutateAsync({
-        roomId,
-        roomName: roomName.trim(),
+        id: roomId,
+        name: roomName.trim(),
         topic,
       });
       toast.success(`Chat room "${roomName}" created successfully!`);

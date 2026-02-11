@@ -1,22 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
-import { useUpdateMood } from '../hooks/useQueries';
+import { useUpdateMood, useGetMoodHistory } from '../hooks/useQueries';
 import { useActor } from '../hooks/useActor';
-import { Mood } from '../backend';
+import { Mood, MoodEntry } from '../backend';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { createNoonLocalDate, dateToICTimestamp } from '@/lib/timestampUtils';
+import { createNoonLocalDate, dateToICTimestamp, timestampToLocalDate } from '@/lib/timestampUtils';
+import { isSameDay } from 'date-fns';
 
 interface MoodEditorProps {
-  userId: string;
   date: Date;
-  existingMood?: Mood;
-  existingNote?: string;
-  onBack: () => void;
+  onClose: () => void;
 }
 
 const moodOptions = [
@@ -35,16 +33,32 @@ const moodOptions = [
   { value: Mood.angry, label: '😠 Angry', color: 'from-red-500 to-orange-600', score: 2 },
 ];
 
-export default function MoodEditor({ userId, date, existingMood, existingNote, onBack }: MoodEditorProps) {
-  const [selectedMood, setSelectedMood] = useState<Mood | ''>(existingMood || '');
-  const [note, setNote] = useState(existingNote || '');
+export default function MoodEditor({ date, onClose }: MoodEditorProps) {
+  const [selectedMood, setSelectedMood] = useState<Mood | ''>('');
+  const [note, setNote] = useState('');
 
   const { actor, isFetching } = useActor();
+  const { data: moodHistory } = useGetMoodHistory();
   const updateMood = useUpdateMood();
 
   // Derive readiness state from available properties
   const isReady = !!actor && !isFetching;
   const isActorUnavailable = !actor && !isFetching;
+
+  // Load existing mood entry for the selected date
+  useEffect(() => {
+    if (moodHistory) {
+      const existingEntry = moodHistory.find((entry: MoodEntry) => {
+        const entryDate = timestampToLocalDate(entry.timestamp);
+        return isSameDay(entryDate, date);
+      });
+
+      if (existingEntry) {
+        setSelectedMood(existingEntry.mood);
+        setNote(existingEntry.note || '');
+      }
+    }
+  }, [moodHistory, date]);
 
   const handleSubmit = async () => {
     if (!selectedMood) {
@@ -74,7 +88,7 @@ export default function MoodEditor({ userId, date, existingMood, existingNote, o
 
     // Only navigate back on success (mutation handles success toast)
     if (!updateMood.isError) {
-      onBack();
+      onClose();
     }
   };
 
@@ -86,7 +100,7 @@ export default function MoodEditor({ userId, date, existingMood, existingNote, o
       <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in-50 duration-500">
         <div className="flex items-center gap-4">
           <Button
-            onClick={onBack}
+            onClick={onClose}
             variant="ghost"
             size="icon"
             className="shrink-0 hover:bg-purple-100 dark:hover:bg-purple-900/30"
@@ -126,7 +140,7 @@ export default function MoodEditor({ userId, date, existingMood, existingNote, o
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in-50 duration-500">
       <div className="flex items-center gap-4">
         <Button
-          onClick={onBack}
+          onClick={onClose}
           variant="ghost"
           size="icon"
           className="shrink-0 hover:bg-purple-100 dark:hover:bg-purple-900/30"

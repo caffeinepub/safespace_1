@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster, toast } from 'sonner';
 import AnonymousLogin from './components/AnonymousLogin';
 import Dashboard from './components/Dashboard';
 import MoodTracker from './components/MoodTracker';
@@ -18,6 +18,7 @@ import { useGuestAuth } from './hooks/useGuestAuth';
 import { useGetCallerUserProfile, useIsCallerAdmin } from './hooks/useQueries';
 import { useSessionTracking } from './hooks/useSessionTracking';
 import { useActivityLogging } from './hooks/useActivityLogging';
+import { useAdminBootstrap } from './hooks/useAdminBootstrap';
 import { Loader2, Heart } from 'lucide-react';
 
 const queryClient = new QueryClient({
@@ -49,6 +50,9 @@ function AppContent() {
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
   const { data: isAdmin, isLoading: isAdminLoading } = useIsCallerAdmin();
   const { logPageNavigation } = useActivityLogging();
+  
+  // Bootstrap admin role after Internet Identity login
+  const { error: bootstrapError } = useAdminBootstrap();
 
   const isAuthenticated = !!identity;
 
@@ -59,6 +63,15 @@ function AppContent() {
   // Track session duration for analytics
   useSessionTracking(userId || null);
 
+  // Show bootstrap error as toast
+  useEffect(() => {
+    if (bootstrapError) {
+      toast.error(bootstrapError, {
+        duration: 6000,
+      });
+    }
+  }, [bootstrapError]);
+
   // Log admin status for debugging
   useEffect(() => {
     if (!isAdminLoading) {
@@ -66,129 +79,136 @@ function AppContent() {
     }
   }, [isAdmin, isAdminLoading]);
 
-  // Handle guest session
+  // Update userId and profession when profile changes
   useEffect(() => {
-    if (isGuest && guestSession) {
-      console.log('Guest session active:', guestSession.userId, 'guestId:', guestId);
-      setUserId(guestSession.userId);
-      setProfession(guestSession.profession || '');
-    }
-  }, [isGuest, guestSession, guestId]);
-
-  // Handle Internet Identity authentication
-  useEffect(() => {
-    if (isAuthenticated && userProfile) {
-      console.log('Authenticated user with profile:', userProfile);
-      setUserId(userProfile.name);
+    if (userProfile) {
+      setUserId(userProfile.userId);
       setProfession(userProfile.profession || '');
     }
-  }, [isAuthenticated, userProfile]);
+  }, [userProfile]);
 
-  const handleProfileSetup = (name: string, prof: string | null) => {
-    console.log('Profile setup completed:', { name, profession: prof });
-    setUserId(name);
-    setProfession(prof || '');
+  // Handle logout
+  const handleLogout = async () => {
+    if (isGuest) {
+      clearGuestSession();
+    } else {
+      await clearIdentity();
+      queryClient.clear();
+    }
+    setUserId('');
+    setProfession('');
     setCurrentView('dashboard');
   };
 
-  const handleLogout = async () => {
-    console.log('Logging out...');
-    try {
-      if (isGuest) {
-        clearGuestSession();
-      } else {
-        await clearIdentity();
-      }
-      queryClient.clear();
-      setUserId('');
-      setProfession('');
-      setCurrentView('dashboard');
-      setCurrentRoomId('');
-      setCurrentThreadId('');
-      console.log('Logout successful');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  // Handle login completion
+  const handleLoginComplete = (newUserId: string, newProfession: string | null) => {
+    setUserId(newUserId);
+    setProfession(newProfession || '');
   };
 
-  const handleNavigate = (view: View, roomId?: string) => {
+  // Handle navigation
+  const handleNavigate = (view: View, roomId?: string, threadId?: string) => {
     setCurrentView(view);
-    if (roomId) {
-      if (view === 'chat') {
-        setCurrentRoomId(roomId);
-      } else if (view === 'privateChat') {
-        setCurrentThreadId(roomId);
-      }
-    }
-
-    // Log page navigation
-    const viewNames: Record<View, string> = {
-      dashboard: 'Dashboard',
-      mood: 'Mood Tracker',
-      history: 'Mood History',
-      chat: 'Group Chat',
-      privateChat: 'Private Chat',
-      aiChat: 'AI Companion',
-      analytics: 'Admin Analytics',
-      appMarket: 'App Market',
-      presentation: 'Presentation',
-    };
-    logPageNavigation(viewNames[view]);
+    if (roomId) setCurrentRoomId(roomId);
+    if (threadId) setCurrentThreadId(threadId);
+    logPageNavigation(view);
   };
 
-  if (isInitializing) {
+  // Show login screen
+  if (showLogin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900">
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-lavender-50 via-blush-50 to-sky-50">
+        <Header
+          userId=""
+          profession={null}
+          currentView={currentView}
+          isAdmin={false}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+        />
+        <main className="flex-1 flex items-center justify-center p-4">
+          <AnonymousLogin onLogin={handleLoginComplete} />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show loading while initializing
+  if (isInitializing || (isAuthenticated && profileLoading && !isFetched)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-lavender-50 via-blush-50 to-sky-50">
         <div className="text-center space-y-4">
-          <div className="relative">
-            <Heart className="w-16 h-16 text-purple-600 dark:text-purple-400 animate-pulse mx-auto" fill="currentColor" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Loader2 className="w-8 h-8 text-white animate-spin" />
-            </div>
-          </div>
-          <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
-            Initializing SafeSpace...
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Creating your safe space
-          </p>
+          <Loader2 className="w-12 h-12 animate-spin text-lavender-600 mx-auto" />
+          <p className="text-lavender-700 font-medium">Loading SafeSpace...</p>
         </div>
       </div>
     );
   }
 
-  if (showLogin || showProfileSetup) {
+  // Show profile setup for authenticated users without profile
+  if (showProfileSetup) {
     return (
-      <QueryClientProvider client={queryClient}>
-        <AnonymousLogin onLogin={handleProfileSetup} />
-        <Toaster position="top-right" />
-      </QueryClientProvider>
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-lavender-50 via-blush-50 to-sky-50">
+        <Header
+          userId=""
+          profession={null}
+          currentView={currentView}
+          isAdmin={false}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+        />
+        <main className="flex-1 flex items-center justify-center p-4">
+          <AnonymousLogin onLogin={handleLoginComplete} />
+        </main>
+        <Footer />
+      </div>
     );
   }
 
+  // Render main application
+  const renderView = () => {
+    switch (currentView) {
+      case 'mood':
+        return <MoodTracker onBack={() => handleNavigate('dashboard')} />;
+      case 'history':
+        return <MoodHistory onBack={() => handleNavigate('dashboard')} />;
+      case 'chat':
+        return <ChatRoom userId={userId} roomId={currentRoomId} onBack={() => handleNavigate('dashboard')} />;
+      case 'privateChat':
+        return <PrivateChat threadId={currentThreadId} onBack={() => handleNavigate('dashboard')} />;
+      case 'aiChat':
+        return <AIChat userId={userId} onBack={() => handleNavigate('dashboard')} />;
+      case 'analytics':
+        return <AnalyticsDashboard onBack={() => handleNavigate('dashboard')} />;
+      case 'appMarket':
+        return <AppMarketSettings onBack={() => handleNavigate('dashboard')} />;
+      case 'presentation':
+        return <PresentationViewer onBack={() => handleNavigate('dashboard')} />;
+      default:
+        return (
+          <Dashboard
+            onNavigate={handleNavigate}
+            userId={userId}
+          />
+        );
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-lavender-50 via-blush-50 to-sky-50">
       <Header
         userId={userId}
-        profession={profession}
+        profession={profession || null}
+        currentView={currentView}
         isAdmin={isAdmin || false}
         onLogout={handleLogout}
         onNavigate={handleNavigate}
-        currentView={currentView}
       />
       <main className="flex-1 container mx-auto px-4 py-8">
-        {currentView === 'dashboard' && <Dashboard userId={userId} onNavigate={handleNavigate} />}
-        {currentView === 'mood' && <MoodTracker userId={userId} onBack={() => handleNavigate('dashboard')} />}
-        {currentView === 'history' && <MoodHistory userId={userId} onBack={() => handleNavigate('dashboard')} />}
-        {currentView === 'chat' && <ChatRoom roomId={currentRoomId} userId={userId} onBack={() => handleNavigate('dashboard')} />}
-        {currentView === 'privateChat' && <PrivateChat threadId={currentThreadId} onBack={() => handleNavigate('dashboard')} />}
-        {currentView === 'aiChat' && <AIChat userId={userId} onBack={() => handleNavigate('dashboard')} />}
-        {currentView === 'analytics' && isAdmin && <AnalyticsDashboard onBack={() => handleNavigate('dashboard')} />}
-        {currentView === 'appMarket' && isAdmin && <AppMarketSettings onBack={() => handleNavigate('dashboard')} />}
-        {currentView === 'presentation' && isAdmin && <PresentationViewer onBack={() => handleNavigate('dashboard')} />}
+        {renderView()}
       </main>
       <Footer />
-      <Toaster position="top-right" />
     </div>
   );
 }
@@ -197,6 +217,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppContent />
+      <Toaster position="top-right" />
     </QueryClientProvider>
   );
 }

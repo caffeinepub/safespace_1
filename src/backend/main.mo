@@ -3,21 +3,19 @@ import Map "mo:core/Map";
 import Array "mo:core/Array";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
-import Nat "mo:core/Nat";
 import Int "mo:core/Int";
 import Order "mo:core/Order";
 import Stripe "stripe/stripe";
 import OutCall "http-outcalls/outcall";
+import Nat "mo:core/Nat";
 import Principal "mo:core/Principal";
-import Runtime "mo:core/Runtime";
 import Iter "mo:core/Iter";
 import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import AccessControl "authorization/access-control";
 import Storage "blob-storage/Storage";
 import Float "mo:core/Float";
-
-
+import Runtime "mo:core/Runtime";
 
 actor {
   public type Mood = {
@@ -310,6 +308,25 @@ actor {
 
   var aiIsTyping : Bool = false;
 
+  // Track if any admin has been initialized
+  var adminInitialized : Bool = false;
+
+  public shared ({ caller }) func becomeAdmin() : async () {
+    // Only allow authenticated users (not guests)
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can become admins");
+    };
+    
+    // Only allow the first caller to become admin (one-time initialization after deployment)
+    if (adminInitialized) {
+      Runtime.trap("Unauthorized: Admin has already been initialized. Contact an existing admin for role assignment.");
+    };
+    
+    // Make the caller an admin and mark initialization as complete
+    AccessControl.assignRole(accessControlState, caller, caller, #admin);
+    adminInitialized := true;
+  };
+
   private func logActivity(userId : Text, eventType : { #login; #createMoodEntry; #updateMoodEntry; #pageNavigation; #interaction }, details : Text) {
     let event : ActivityEvent = {
       timestamp = Time.now();
@@ -473,6 +490,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can save mood entries");
     };
+
     let currentHistory = switch (userMoodHistory.get(caller)) {
       case (null) { List.empty<MoodEntry>() };
       case (?history) { history };
@@ -491,6 +509,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can update mood entries");
     };
+
     let currentHistory = switch (userMoodHistory.get(caller)) {
       case (null) { List.empty<MoodEntry>() };
       case (?history) { history };
@@ -508,6 +527,10 @@ actor {
   };
 
   public query ({ caller }) func getMoodHistory() : async [MoodEntry] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view mood history");
+    };
+
     switch (userMoodHistory.get(caller)) {
       case (null) { [] };
       case (?history) {
@@ -521,6 +544,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can save daily analysis");
     };
+
     let currentAnalysis = switch (userDailyAnalysis.get(caller)) {
       case (null) { List.empty<DailyAnalysisEntry>() };
       case (?analysis) { analysis };
@@ -533,6 +557,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view daily analysis");
     };
+
     switch (userDailyAnalysis.get(caller)) {
       case (null) { [] };
       case (?analysis) { analysis.toArray() };
@@ -543,6 +568,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can save weekly analysis");
     };
+
     let currentAnalysis = switch (userWeeklyAnalysis.get(caller)) {
       case (null) { List.empty<WeeklyMoodAnalysis>() };
       case (?analyses) { analyses };
@@ -555,6 +581,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view weekly mood chart data");
     };
+
     switch (userMoodHistory.get(caller)) {
       case (null) { Runtime.trap("No mood entries found") };
       case (?history) {
@@ -695,11 +722,7 @@ actor {
     "Daily analysis saved successfully for guest " # guestId;
   };
 
-  public query ({ caller }) func getDailyAnalysisGuest(guestId : Text) : async ?DailyAnalysisEntry {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can access guest daily analysis");
-    };
-    validateGuestAccess(guestId);
+  public query func getDailyAnalysisGuest(guestId : Text) : async ?DailyAnalysisEntry {
     guestDailyAnalysis.get(guestId);
   };
 
@@ -712,7 +735,7 @@ actor {
 
   public query ({ caller }) func getUserProfile(user : Principal.Principal) : async ?UserProfile {
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only view your own profile");
+      Runtime.trap("Unauthorized: Can only view your own profile unless you are an admin");
     };
     userProfiles.get(user);
   };
@@ -857,10 +880,6 @@ actor {
   };
 
   public shared ({ caller }) func sendAIMessage(sessionId : Text, message : Text) : async AIResponse {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can send AI messages");
-    };
-
     let aiMessage : AIMessage = {
       timestamp = Time.now();
       sender = #user;
@@ -896,9 +915,6 @@ actor {
   };
 
   public query ({ caller }) func getAIConversation(sessionId : Text) : async [AIMessage] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view AI conversations");
-    };
     switch (aiResponses.get(sessionId)) {
       case (null) { [] };
       case (?messages) {
@@ -997,7 +1013,7 @@ actor {
 
   public query ({ caller }) func getAggregatedAnalytics() : async AnalyticsData {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can access analytics");
+      Runtime.trap("Unauthorized: Only admins can access aggregated analytics");
     };
 
     switch (analyticsData.get("global")) {
@@ -1014,7 +1030,7 @@ actor {
 
   public query ({ caller }) func getAllUserData() : async [UserData] {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can access user data");
+      Runtime.trap("Unauthorized: Only admins can access all user data");
     };
 
     let profiles = userProfiles.entries();
@@ -1051,7 +1067,7 @@ actor {
 
   public query ({ caller }) func getAllMoodLogs() : async [MoodLogEntry] {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can access mood logs");
+      Runtime.trap("Unauthorized: Only admins can access all mood logs");
     };
 
     let allMoods = userMoodHistory.entries();
@@ -1082,7 +1098,7 @@ actor {
 
   public query ({ caller }) func getWeeklyMoodInsights() : async [WeeklyMoodAnalysis] {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can access weekly insights");
+      Runtime.trap("Unauthorized: Only admins can access weekly mood insights");
     };
 
     let allAnalyses = userWeeklyAnalysis.entries();
@@ -1128,10 +1144,6 @@ actor {
   };
 
   public shared ({ caller }) func recordCloneRequest(amount : Nat) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can record clone requests");
-    };
-
     let request : CloneRequest = {
       timestamp = Time.now();
       buyer = caller;
@@ -1147,10 +1159,6 @@ actor {
   };
 
   public shared ({ caller }) func incrementAppViews() : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can increment app views");
-    };
-
     marketAnalytics := {
       totalViews = marketAnalytics.totalViews + 1;
       totalClones = marketAnalytics.totalClones;
@@ -1189,14 +1197,11 @@ actor {
     };
   };
 
-  public func getStripeSessionStatus(sessionId : Text) : async Stripe.StripeSessionStatus {
+  public shared ({ caller }) func getStripeSessionStatus(sessionId : Text) : async Stripe.StripeSessionStatus {
     await Stripe.getSessionStatus(getStripeConfiguration(), sessionId, transform);
   };
 
   public shared ({ caller }) func createCheckoutSession(items : [Stripe.ShoppingItem], successUrl : Text, cancelUrl : Text) : async Text {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can create checkout sessions");
-    };
     await Stripe.createCheckoutSession(getStripeConfiguration(), caller, items, successUrl, cancelUrl, transform);
   };
 

@@ -1,79 +1,34 @@
-/**
- * Mood error classification and user-friendly messaging utility.
- * Categorizes mood-related failures into permission, availability, and unexpected errors.
- */
-
-export enum MoodErrorType {
-  Permission = 'permission',
+export enum MoodError {
   Availability = 'availability',
-  Unexpected = 'unexpected',
+  Permission = 'permission',
+  Unknown = 'unknown',
 }
 
-export interface MoodError {
-  type: MoodErrorType;
-  userMessage: string;
-  debugMessage: string;
-  originalError?: unknown;
-}
-
-/**
- * Classifies mood-related errors and provides user-friendly English messages.
- * Preserves original error for debugging without swallowing backend traps.
- */
 export function classifyMoodError(error: unknown): MoodError {
-  const errorMessage = error instanceof Error ? error.message : String(error);
-  const lowerMessage = errorMessage.toLowerCase();
+  const errorString = error?.toString().toLowerCase() || '';
 
-  // Permission/Unauthorized errors
+  // Check for transient availability/connectivity issues
   if (
-    lowerMessage.includes('unauthorized') ||
-    lowerMessage.includes('permission') ||
-    lowerMessage.includes('not allowed')
+    errorString.includes('unavailable') ||
+    errorString.includes('replica') ||
+    errorString.includes('canister') ||
+    errorString.includes('connection') ||
+    errorString.includes('network') ||
+    errorString.includes('timeout')
   ) {
-    return {
-      type: MoodErrorType.Permission,
-      userMessage: 'You do not have permission to perform this action. Please log in and try again.',
-      debugMessage: `Permission error: ${errorMessage}`,
-      originalError: error,
-    };
+    return MoodError.Availability;
   }
 
-  // Availability/initialization errors - extended to recognize transient connectivity issues
+  // Check for permission/authorization issues
   if (
-    lowerMessage.includes('not available') ||
-    lowerMessage.includes('not initialized') ||
-    lowerMessage.includes('actor not available') ||
-    lowerMessage.includes('mood tracking not available') ||
-    lowerMessage.includes('network') ||
-    lowerMessage.includes('timeout') ||
-    lowerMessage.includes('replica') ||
-    lowerMessage.includes('canister') ||
-    lowerMessage.includes('connection') ||
-    lowerMessage.includes('unavailable')
+    errorString.includes('unauthorized') ||
+    errorString.includes('permission') ||
+    errorString.includes('access denied') ||
+    errorString.includes('forbidden')
   ) {
-    return {
-      type: MoodErrorType.Availability,
-      userMessage: 'Mood tracking is temporarily unavailable. Please wait a moment and try again.',
-      debugMessage: `Availability error: ${errorMessage}`,
-      originalError: error,
-    };
+    return MoodError.Permission;
   }
 
-  // Unexpected errors (preserve for debugging)
-  return {
-    type: MoodErrorType.Unexpected,
-    userMessage: 'An unexpected error occurred. Please try again in a moment.',
-    debugMessage: `Unexpected error: ${errorMessage}`,
-    originalError: error,
-  };
-}
-
-/**
- * Logs mood error to console for debugging while preserving stack trace.
- */
-export function logMoodError(moodError: MoodError, context: string): void {
-  console.error(`[${context}] ${moodError.debugMessage}`);
-  if (moodError.originalError) {
-    console.error('Original error:', moodError.originalError);
-  }
+  // Default to unknown error
+  return MoodError.Unknown;
 }

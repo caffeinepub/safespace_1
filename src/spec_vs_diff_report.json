@@ -1,35 +1,51 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T20:00:57.484Z",
-  "summary": "The diff implements a shared guest session store with pub/sub and updates the guest auth hook and App-level login gating to rely on shared guest auth state, addressing immediate propagation and reducing regressions where the login screen reappears. Persistence via localStorage and migration for missing guestId are present. Some guest-name-submit UI/behavior details are truncated, so full verification of the guest name screen’s submit behavior and title cannot be confirmed from the provided diff.",
+  "generatedAt": "2026-02-11T06:18:57.535Z",
+  "summary": "Frontend adds a new `useAdminBootstrap` hook and wires it into `App.tsx` to attempt an admin-claim after Internet Identity login and invalidate the `['isCallerAdmin']` query. However, the diff summary does not provide clear evidence that the required backend bootstrap method (REQ-1) was actually implemented in `backend/main.mo`, nor that the new React Query mutation hook `useClaimAdminForCaller` is implemented in `useQueries.ts` (it is referenced, but the relevant portion is truncated).",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Submitting the guest name form with a non-empty name results in the login UI disappearing and the dashboard rendering (and does not regress back to the login page due to auth-state effects/rerenders).",
-      "reason": "The key handler that submits the guest name form and triggers the guest session creation/transition is truncated in the AnonymousLogin diff, so it is not verifiable that a non-empty name submission reliably calls guest login and causes the app to render the dashboard instead of returning to the main login screen.",
+      "requirement": "Add a backend shared update method (e.g., `claimAdminForCaller`/`bootstrapAdmin`) that adds `caller` to the admin allowlist used by `isCallerAdmin()`, only succeeding when there are zero admins configured (or caller already admin), otherwise returning an error with a clear message; subsequent `isCallerAdmin()` returns true.",
+      "reason": "`backend/main.mo` is shown only as a truncated type/boilerplate section; no new shared update method or admin allowlist logic is visible in the provided diff summary, so implementation cannot be confirmed.",
       "evidence": [
-        "frontend/src/components/AnonymousLogin.tsx (truncated at handleGuestNameSubmit)",
-        "frontend/src/App.tsx (login gating shown, but transition depends on truncated submit logic)"
+        "backend/main.mo (truncated)"
       ]
     },
     {
-      "id": "REQ-1",
-      "requirement": "The guest name entry step is a full-page screen with title \"Welcome, Guest\" when clicking \"Continue as guest\" from the main login page.",
-      "reason": "While the step state includes 'guest-name-entry', the rendered UI (including screen title and full-page layout) is not visible in the truncated AnonymousLogin diff.",
+      "id": "REQ-2",
+      "requirement": "Add a new React Query mutation hook to call the backend admin-claim method.",
+      "reason": "The new hook is referenced (`useClaimAdminForCaller`) from `useAdminBootstrap.ts`, but the `useQueries.ts` diff is truncated before any admin-claim mutation definition is shown, so the mutation hook’s existence/implementation cannot be verified from the provided evidence.",
       "evidence": [
-        "frontend/src/components/AnonymousLogin.tsx (step state present, render not fully shown due to truncation)"
+        "frontend/src/hooks/useAdminBootstrap.ts",
+        "frontend/src/hooks/useQueries.ts (truncated)"
       ]
     }
   ],
-  "hallucinated_features": [],
+  "hallucinated_features": [
+    {
+      "description": "Added debug logging of admin status in the app (`console.log('App - Admin status:', isAdmin)`).",
+      "reason": "The BuildRequest/requirements do not ask for additional debug logging; only bootstrap flow + messaging behavior is requested.",
+      "evidence": [
+        "frontend/src/App.tsx (truncated)"
+      ]
+    },
+    {
+      "description": "Updated/added project bookkeeping files (`project_state.json`) and a large `frontend-file-summaries.txt` summary unrelated to implementing the bootstrap feature.",
+      "reason": "These files are not requested by REQ-1/REQ-2 and do not directly implement the specified backend/frontend bootstrap behavior.",
+      "evidence": [
+        "project_state.json",
+        "frontend-file-summaries.txt"
+      ]
+    }
+  ],
   "confidence": 0.62,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
     "frontend/src/App.tsx",
-    "frontend/src/components/AnonymousLogin.tsx",
-    "frontend/src/hooks/guestAuthStore.ts",
-    "frontend/src/hooks/useGuestAuth.ts",
+    "frontend/src/hooks/useAdminBootstrap.ts",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]
 }

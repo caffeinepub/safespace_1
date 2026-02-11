@@ -219,6 +219,7 @@ export enum Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodE
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    becomeAdmin(): Promise<void>;
     createChatRoom(id: string, name: string, topic: string): Promise<void>;
     createCheckoutSession(items: Array<ShoppingItem>, successUrl: string, cancelUrl: string): Promise<string>;
     createPrivateThread(threadId: string, participant1: Principal, participant2: Principal): Promise<void>;

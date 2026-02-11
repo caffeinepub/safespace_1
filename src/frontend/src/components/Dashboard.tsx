@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Smile, History, Users, Heart, Calendar, Plus, MessageSquare, Sparkles } from 'lucide-react';
-import { useChatRooms, usePrivateThreads } from '../hooks/useQueries';
+import { useGetChatRooms, useGetMyPrivateThreads } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { View } from '../App';
 import { useState, useEffect } from 'react';
@@ -15,8 +15,8 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ userId, onNavigate }: DashboardProps) {
-  const { data: chatRooms, isLoading: loadingRooms } = useChatRooms();
-  const { data: privateThreads, isLoading: loadingThreads } = usePrivateThreads();
+  const { data: chatRooms, isLoading: loadingRooms } = useGetChatRooms();
+  const { data: privateThreads, isLoading: loadingThreads } = useGetMyPrivateThreads();
   const { identity } = useInternetIdentity();
   const [currentDate, setCurrentDate] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -140,114 +140,38 @@ export default function Dashboard({ userId, onNavigate }: DashboardProps) {
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center mb-2">
               <History className="w-6 h-6 text-white" />
             </div>
-            <CardTitle>View History</CardTitle>
+            <CardTitle>Mood History</CardTitle>
             <CardDescription>
-              Reflect on your emotional journey and patterns
+              View your mood patterns and insights over time
             </CardDescription>
           </CardHeader>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow border-2 hover:border-indigo-300 dark:hover:border-indigo-700">
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-green-300 dark:hover:border-green-700" onClick={() => onNavigate('chat')}>
           <CardHeader>
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center mb-2">
-              <Heart className="w-6 h-6 text-white" fill="currentColor" />
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-teal-400 flex items-center justify-center mb-2">
+              <MessageCircle className="w-6 h-6 text-white" />
             </div>
-            <CardTitle>Anonymous & Safe</CardTitle>
+            <CardTitle>Community Chat</CardTitle>
             <CardDescription>
-              Your privacy is protected. Share freely without judgment
+              Join supportive group conversations
             </CardDescription>
           </CardHeader>
         </Card>
       </div>
 
-      {/* Community Interaction Section */}
-      <div className="space-y-6">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-            Community Connection
-          </h2>
-          <p className="text-muted-foreground">
-            Connect with others through supportive conversations
-          </p>
-        </div>
-
-        {/* Private Conversations */}
-        <div className="space-y-4">
+      {/* Chat Rooms Section */}
+      <Card className="shadow-lg border-2 border-purple-100 dark:border-purple-900">
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="w-6 h-6 text-pink-600" />
-              <h3 className="text-xl font-bold">Private Conversations</h3>
-            </div>
-            <Button
-              onClick={() => setShowPrivateChatDialog(true)}
-              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Start Private Chat
-            </Button>
-          </div>
-          
-          {loadingThreads ? (
-            <div className="grid md:grid-cols-2 gap-4">
-              {[1, 2].map((i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-4 w-full" />
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          ) : privateThreads && privateThreads.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-4">
-              {privateThreads.map((threadId) => {
-                return (
-                  <Card key={threadId} className="hover:shadow-lg transition-shadow border-2 hover:border-pink-300 dark:hover:border-pink-700">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <MessageSquare className="w-5 h-5 text-pink-600" />
-                        Private Chat
-                      </CardTitle>
-                      <CardDescription className="text-xs truncate">
-                        Thread: {threadId.substring(0, 20)}...
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button
-                        onClick={() => onNavigate('privateChat', threadId)}
-                        className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
-                      >
-                        Open Chat
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground mb-4">
-                  No private conversations yet. Start a supportive one-on-one chat!
-                </p>
-                <Button
-                  onClick={() => setShowPrivateChatDialog(true)}
-                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Start Your First Private Chat
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Topic-Based Group Chats */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Users className="w-6 h-6 text-purple-600" />
-              <h3 className="text-xl font-bold">Topic-Based Group Chats</h3>
+            <div className="flex items-center gap-3">
+              <Users className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+              <div>
+                <CardTitle className="text-2xl">Active Chat Rooms</CardTitle>
+                <CardDescription className="mt-1">
+                  Join a conversation or create your own supportive space
+                </CardDescription>
+              </div>
             </div>
             <Button
               onClick={() => setShowCreateDialog(true)}
@@ -257,75 +181,137 @@ export default function Dashboard({ userId, onNavigate }: DashboardProps) {
               Create Room
             </Button>
           </div>
-          
+        </CardHeader>
+        <CardContent className="pt-6">
           {loadingRooms ? (
-            <div className="grid md:grid-cols-2 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <Card key={i}>
-                  <CardHeader>
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-4 w-full" />
-                  </CardHeader>
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-20 w-full" />
+              ))}
+            </div>
+          ) : chatRooms && chatRooms.length > 0 ? (
+            <div className="grid gap-4">
+              {chatRooms.map(([roomId, roomInfo]) => (
+                <Card
+                  key={roomId}
+                  className="cursor-pointer hover:shadow-md transition-all border-2 hover:border-purple-300 dark:hover:border-purple-700"
+                  onClick={() => onNavigate('chat', roomId)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg mb-1">{roomInfo.name}</h3>
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                          <span className="inline-flex items-center gap-1">
+                            <MessageSquare className="w-4 h-4" />
+                            {roomInfo.topic}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Users className="w-4 h-4" />
+                            {roomInfo.participantCount.toString()} participants
+                          </span>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon">
+                        <MessageCircle className="w-5 h-5" />
+                      </Button>
+                    </div>
+                  </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 gap-4">
-              {chatRooms && chatRooms.length > 0 ? (
-                chatRooms.map(([roomId, roomInfo]) => (
-                  <Card key={roomId} className="hover:shadow-lg transition-shadow border-2 hover:border-purple-300 dark:hover:border-purple-700">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <MessageCircle className="w-5 h-5 text-purple-600" />
-                        {roomInfo.name}
-                      </CardTitle>
-                      <CardDescription>
-                        <span className="inline-block px-2 py-1 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium mb-2">
-                          {roomInfo.topic || 'General Support'}
-                        </span>
-                        <br />
-                        {Number(roomInfo.participantCount)} {Number(roomInfo.participantCount) === 1 ? 'participant' : 'participants'}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button
-                        onClick={() => onNavigate('chat', roomId)}
-                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                      >
-                        Join Room
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <Card className="col-span-2">
-                  <CardContent className="py-8 text-center">
-                    <p className="text-muted-foreground mb-4">
-                      No chat rooms available yet. Be the first to create one!
-                    </p>
-                    <Button
-                      onClick={() => setShowCreateDialog(true)}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Your First Room
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
+            <div className="text-center py-12">
+              <Users className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
+              <p className="text-muted-foreground mb-4">No chat rooms available yet</p>
+              <Button
+                onClick={() => setShowCreateDialog(true)}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create the First Room
+              </Button>
             </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      <CreateChatRoomDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-      />
-      <StartPrivateChatDialog
-        open={showPrivateChatDialog}
-        onOpenChange={setShowPrivateChatDialog}
-      />
+      {/* Private Messages Section */}
+      {myPrincipal && (
+        <Card className="shadow-lg border-2 border-blue-100 dark:border-blue-900">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <MessageSquare className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <div>
+                  <CardTitle className="text-2xl">Private Messages</CardTitle>
+                  <CardDescription className="mt-1">
+                    One-on-one conversations with other users
+                  </CardDescription>
+                </div>
+              </div>
+              <Button
+                onClick={() => setShowPrivateChatDialog(true)}
+                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                New Chat
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {loadingThreads ? (
+              <div className="space-y-3">
+                {[1, 2].map((i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            ) : privateThreads && privateThreads.length > 0 ? (
+              <div className="grid gap-3">
+                {privateThreads.map((threadId) => (
+                  <Card
+                    key={threadId}
+                    className="cursor-pointer hover:shadow-md transition-all border-2 hover:border-blue-300 dark:hover:border-blue-700"
+                    onClick={() => onNavigate('privateChat', threadId)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center">
+                            <MessageSquare className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-medium">Private Conversation</p>
+                            <p className="text-xs text-muted-foreground">{threadId}</p>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="icon">
+                          <MessageCircle className="w-5 h-5" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <MessageSquare className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
+                <p className="text-muted-foreground mb-4">No private conversations yet</p>
+                <Button
+                  onClick={() => setShowPrivateChatDialog(true)}
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Start a Private Chat
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <CreateChatRoomDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} />
+      <StartPrivateChatDialog open={showPrivateChatDialog} onOpenChange={setShowPrivateChatDialog} />
     </div>
   );
 }
