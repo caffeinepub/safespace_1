@@ -1,46 +1,317 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Rollback frontend behavior to match version 99 (remove v100 admin auto-bootstrap)",
+  "title": "SafeSpace frontend reconnection and legacy hook restoration",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Restore version 99 user-visible behavior in the frontend by removing version 100 admin auto-bootstrap side effects and ensuring admin gating relies only on existing admin status checks.",
+      "id": "REQ-3",
+      "summary": "Remove the backend-restoration blocking screen and render the legacy SafeSpace UI with navigation and admin-only guards.",
       "acceptanceCriteria": [
-        "The app builds successfully (frontend + backend) after the rollback changes are applied.",
-        "User-visible behavior matches version 99 rather than version 100 for the main flows (login, navigation, dashboard, and admin access gating).",
-        "No new version-100-only flows remain enabled (e.g., any admin auto-bootstrap/auto-claim logic added in v100 is removed or disabled to match v99)."
+        "When the backend APIs are present, the app loads past the current restoration status card and renders the normal SafeSpace UI.",
+        "Guest and Internet Identity users can reach the dashboard and navigate to Mood Tracker and Mood History without seeing a backend-restoration warning page.",
+        "Admin-only pages (Analytics Dashboard, App Market Settings, Presentation Viewer) are accessible only when `isCallerAdmin` returns true; non-admins see an access denied UI."
       ],
       "file_operations": [
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Remove the v100 admin auto-bootstrap integration: delete the useAdminBootstrap import/usage and the related toast side-effect so the app no longer attempts any automatic admin claim after Internet Identity login. Ensure admin navigation/access remains gated solely by the existing admin status check (useIsCallerAdmin), consistent with v99. This relies on the existing role-based access control behavior from the authorization component; verify the component's usage instructions before implementing."
+          "description": "Remove the hard-coded “Backend Restoration Required” card and wire the real SafeSpace UI shell: render Header/Footer, provide in-app navigation to Dashboard, Mood Tracker, Mood History, Mood Editor, Group Chat, Private Chat, AI Companion, Weekly Insights, and wrap admin-only views behind an `isCallerAdmin` check that shows AccessDeniedScreen when unauthorized. Use existing shadcn-ui primitives (e.g., Button/Card) for layout; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/components/AccessDeniedScreen.tsx",
           "operation": "modify",
-          "description": "Remove the v100-only React Query mutation hook that calls the backend caller self-promotion function (e.g., useClaimAdminForCaller calling becomeAdmin), so no v100 self-promotion flow remains reachable from the frontend. Keep the existing admin status query (useIsCallerAdmin) intact for UI gating. Verify the authorization component's usage instructions before implementing."
+          "description": "Implement a user-facing Access Denied UI (English text) with a clear message and a navigation action back to the dashboard. Compose from existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Implement the application header/navigation used by App: include primary navigation controls to required sections and show current auth/admin status provided by App. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/Footer.tsx",
+          "operation": "modify",
+          "description": "Implement a simple footer used by App (English text), avoiding branding/theme changes beyond what’s required to restore navigation/UX. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/Dashboard.tsx",
+          "operation": "modify",
+          "description": "Implement the legacy dashboard view container and wire it to the restored query hooks (chat lists, private threads, recent mood summary, weekly insight preview). Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/MoodTracker.tsx",
+          "operation": "modify",
+          "description": "Implement the Mood Tracker UI (create/update mood) using restored mood mutations and invalidate relevant queries (mood history, summaries). Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/MoodHistory.tsx",
+          "operation": "modify",
+          "description": "Implement Mood History UI using restored mood history queries, including basic empty/loading/error states. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/MoodEditor.tsx",
+          "operation": "modify",
+          "description": "Implement Mood Editor view for editing an existing mood entry and wiring to update mutations; reuse existing query cache keys to refresh dependent views. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/MoodCalendar.tsx",
+          "operation": "modify",
+          "description": "Implement a calendar-style mood view backed by the mood history query to support date-based navigation used by the legacy UI. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/ChatRoom.tsx",
+          "operation": "modify",
+          "description": "Implement group chat room UI (room selection, message list, send message) using restored chat room/message hooks and stable query keys. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/CreateChatRoomDialog.tsx",
+          "operation": "modify",
+          "description": "Implement a dialog to create chat rooms and refresh the rooms list on success. Compose with existing shadcn-ui Dialog/Button/Form primitives; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/PrivateChat.tsx",
+          "operation": "modify",
+          "description": "Implement private threads UI (thread list, message list, send message) using restored private chat hooks and stable query keys. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/StartPrivateChatDialog.tsx",
+          "operation": "modify",
+          "description": "Implement a dialog to start a private chat thread and refresh the thread list on success. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/AIChat.tsx",
+          "operation": "modify",
+          "description": "Implement AI companion session UI: create/select session, append messages, render transcript, and show typing indicator when available, using restored AI session hooks and stable query keys. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/WeeklyMoodInsights.tsx",
+          "operation": "modify",
+          "description": "Implement weekly insights UI driven by restored weekly analysis hooks, including summary and trendline components as needed by the legacy flow. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/WeeklyMoodSummary.tsx",
+          "operation": "modify",
+          "description": "Implement weekly mood summary visualization using restored weekly analysis data and shared query keys. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/WeeklyMoodTrendline.tsx",
+          "operation": "modify",
+          "description": "Implement weekly trendline UI for mood insights; keep calculations client-side unless already provided by restored analysis queries. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/AnalyticsDashboard.tsx",
+          "operation": "modify",
+          "description": "Implement the admin analytics dashboard UI and wire it to admin-only analytics hooks; ensure it is only reachable/rendered when `isCallerAdmin` is true, otherwise show AccessDeniedScreen. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/admin/DailyMoodCountsSection.tsx",
+          "operation": "modify",
+          "description": "Implement the admin Daily Mood Counts section used by AnalyticsDashboard, backed by restored analytics hooks. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/admin/WeeklyAveragesSection.tsx",
+          "operation": "modify",
+          "description": "Implement the admin Weekly Averages section used by AnalyticsDashboard, backed by restored analytics hooks. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/admin/UserTrendsSection.tsx",
+          "operation": "modify",
+          "description": "Implement the admin User Trends section used by AnalyticsDashboard, backed by restored analytics/user activity hooks. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/AdminUserDrilldown.tsx",
+          "operation": "modify",
+          "description": "Implement an admin-only user drilldown view (navigation from analytics dashboard) and wire it to the appropriate admin analytics/profile hooks; guard behind admin access. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/AdminUserDrilldownMoodHistory.tsx",
+          "operation": "modify",
+          "description": "Implement an admin-only mood history review panel for a selected user (as used by drilldown). Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/AppMarketSettings.tsx",
+          "operation": "modify",
+          "description": "Implement admin-only market settings UI (metadata/pricing/analytics/clone/subscription flows) using restored market hooks; guard behind admin access and show AccessDeniedScreen to non-admins. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/PresentationViewer.tsx",
+          "operation": "modify",
+          "description": "Implement admin-only presentation viewer UI that consumes restored PDF/blob storage capabilities (listing/selecting and viewing stored blobs via ExternalBlob direct URLs when applicable). Guard behind admin access. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/AnonymousLogin.tsx",
+          "operation": "modify",
+          "description": "Implement a simple optional guest-entry UI (continue as guest vs login) that works with the existing anonymous actor behavior and does not require editing useInternetIdentity/useActor. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Disable the version 100 admin auto-bootstrap flow after Internet Identity login so admin UI gating is based only on the existing admin status check (v99 behavior).",
+      "id": "REQ-4",
+      "summary": "Restore/implement legacy React Query hooks and TypeScript backend bindings required by existing SafeSpace components.",
       "acceptanceCriteria": [
-        "The app no longer invokes an admin bootstrap hook after login (e.g., no automatic claim attempt / no toast tied to bootstrap error).",
-        "Admin UI gating is determined only by the existing admin status check, as in version 99."
+        "All previously referenced hooks used by core components (dashboard, mood tracker/history, chat room, private chat, AI chat, weekly insights, admin dashboards, app market) exist and compile.",
+        "Hook query keys are stable and do not cause infinite refetch loops; hooks are disabled until the backend actor is ready (consistent with `useActor`).",
+        "The TypeScript frontend builds without missing-export or type errors related to backend calls."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useAdminBootstrap.ts",
-          "operation": "delete",
-          "description": "Delete the v100 admin bootstrap hook implementation that attempts an automatic admin claim post-login. Ensure all references are removed so the frontend compiles cleanly and no auto-claim behavior occurs. Verify the authorization component's usage instructions before implementing."
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Expand the hook surface beyond `useIsCallerAdmin` to include the legacy queries/mutations required by the UI: moods (create/update/get/history), group chat rooms/messages, private threads/messages, AI sessions (create/append/transcript/typing), profiles & user-id mapping, activity logging, analytics/session tracking, weekly analysis/insights, market metadata/pricing/analytics/clone/subscription flows, and presentation/PDF/blob metadata lookups. Ensure all hooks are `enabled` only when `actor` exists and `useActor().isFetching` is false; keep query keys stable. Compose any UI-facing hook states with existing React Query patterns; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/hooks/useActivityLogging.ts",
           "operation": "modify",
-          "description": "Update wiring to fully remove any invocation of the deleted admin bootstrap hook and any related UI feedback (e.g., toasts). Confirm that post-login behavior no longer includes any admin claim attempt, and that admin UI elements continue to depend only on the existing isCallerAdmin status. Verify the authorization component's usage instructions before implementing."
+          "description": "Implement activity logging and event capture helpers that call restored backend activity logging capabilities for both guest and authenticated users, and expose a lightweight API for components to record events. Ensure calls are guarded on actor readiness and failures are handled without crashing the UI."
+        },
+        {
+          "path": "frontend/src/hooks/useSessionTracking.ts",
+          "operation": "modify",
+          "description": "Implement session tracking hook(s) expected by analytics/admin views: initialize a session, periodically/appropriately record activity, and provide teardown/flush behavior on navigation/unmount. Ensure it is safe for guests and does not require modifying useInternetIdentity/useActor."
+        },
+        {
+          "path": "frontend/src/hooks/guestAuthStore.ts",
+          "operation": "modify",
+          "description": "Implement a minimal guest auth/session persistence store (localStorage-backed) expected by the legacy guest flow components, keeping it compatible with the existing anonymous actor approach and resetAppBrowserStorage behavior."
+        },
+        {
+          "path": "frontend/src/hooks/useGuestAuth.ts",
+          "operation": "modify",
+          "description": "Implement guest auth helper hook used by guest entry flows (create/restore/clear guest session identifiers if applicable) and integrate with guestAuthStore. Ensure it works without adding new authentication mechanisms."
+        },
+        {
+          "path": "frontend/src/hooks/useAdminBootstrap.ts",
+          "operation": "modify",
+          "description": "Implement admin bootstrap logic used by admin pages (e.g., preloading admin analytics/market/presentation viewer data) while respecting `isCallerAdmin` gating and avoiding unnecessary refetch loops."
+        },
+        {
+          "path": "frontend/src/types/backend-extended.ts",
+          "operation": "modify",
+          "description": "Define the additional legacy backend types used by the frontend (mood entries, chat room/thread/message models, AI session types, analytics aggregates, weekly insights structures, market models, presentation/blob metadata) and any helper type guards/converters needed by the hooks and components."
+        },
+        {
+          "path": "frontend/src/backend.d.ts",
+          "operation": "create",
+          "description": "Add/restore frontend TypeScript backend bindings that include the legacy callable functions needed by restored hooks and components (in addition to the current minimal interface). Keep the definitions aligned with the restored Candid interface once available, so the frontend compiles cleanly against the actor."
+        },
+        {
+          "path": "frontend/src/lib/adminMoodAnalytics.ts",
+          "operation": "modify",
+          "description": "Implement admin analytics utility functions used by AnalyticsDashboard sections (aggregation helpers, formatting) in a way that matches the restored analytics hook outputs and avoids heavy recomputation (memoize where appropriate)."
+        },
+        {
+          "path": "frontend/src/lib/timestampUtils.ts",
+          "operation": "modify",
+          "description": "Implement timestamp/date utilities required by mood history, weekly insights, and analytics components (formatting, week boundaries), ensuring consistent behavior for guest and authenticated users."
+        },
+        {
+          "path": "frontend/src/lib/weekUtils.ts",
+          "operation": "modify",
+          "description": "Implement week calculation helpers used by weekly analysis views (week start/end, labels) to support WeeklyMoodInsights and related components."
+        },
+        {
+          "path": "frontend/src/lib/weeklySummaryText.ts",
+          "operation": "modify",
+          "description": "Implement English weekly summary text generation helpers used by WeeklyMoodSummary/Insights, based on restored weekly analysis data."
+        },
+        {
+          "path": "frontend/src/lib/moodErrors.ts",
+          "operation": "modify",
+          "description": "Implement mood-related error normalization helpers so authorization traps and backend errors are displayed as friendly English messages in the UI."
+        },
+        {
+          "path": "frontend/src/lib/linearRegression.ts",
+          "operation": "modify",
+          "description": "Implement lightweight regression/trend utilities used by mood trend components (overall/monthly/weekly), keeping them deterministic and unit-test friendly."
+        },
+        {
+          "path": "frontend/src/components/MonthlyMoodTrendChart.tsx",
+          "operation": "modify",
+          "description": "Implement a monthly mood trend visualization component that consumes restored mood history hooks and uses shared utilities (timestamp/week/regression). Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/OverallMoodTrendChart.tsx",
+          "operation": "modify",
+          "description": "Implement overall mood trend visualization component used by dashboard/insights, backed by restored mood history hooks and shared utilities. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/mindfulai/EmotionBadge.tsx",
+          "operation": "modify",
+          "description": "Implement EmotionBadge UI used by the AI companion/mindful AI UX (if referenced by the legacy AI chat flow). Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/mindfulai/NudgeToast.tsx",
+          "operation": "modify",
+          "description": "Implement NudgeToast UI for AI/mindful nudges (if referenced), integrating with the existing toast system and using English text. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/mindfulai/ProgressBar.tsx",
+          "operation": "modify",
+          "description": "Implement ProgressBar UI used by AI session UX (if referenced). Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/mindfulai/QuickPills.tsx",
+          "operation": "modify",
+          "description": "Implement QuickPills UI used by AI/mindful flows (if referenced), wired to existing AI helper utilities. Compose with existing shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/ai/types.ts",
+          "operation": "modify",
+          "description": "Implement AI-related frontend types needed by AIChat and AI session hooks, aligning with restored backend AI session transcript/message structures."
+        },
+        {
+          "path": "frontend/src/lib/ai/sessionContext.ts",
+          "operation": "modify",
+          "description": "Implement AI session context utilities used by AIChat to manage local session state and interoperability with backend session persistence."
+        },
+        {
+          "path": "frontend/src/lib/ai/routing.ts",
+          "operation": "modify",
+          "description": "Implement AI routing helpers (e.g., mapping UI actions to backend AI session operations) as required by existing components."
+        },
+        {
+          "path": "frontend/src/lib/ai/templates.ts",
+          "operation": "modify",
+          "description": "Implement AI prompt/template utilities if referenced by the legacy AI chat flow, ensuring all user-facing strings are English."
+        },
+        {
+          "path": "frontend/src/lib/ai/templateUtils.ts",
+          "operation": "modify",
+          "description": "Implement supporting AI template helpers required by AIChat/mindful AI utilities."
+        },
+        {
+          "path": "frontend/src/lib/ai/constraints.ts",
+          "operation": "modify",
+          "description": "Implement any client-side AI safety/UX constraints used by the legacy AI companion UI (pure frontend validation/guardrails only)."
+        },
+        {
+          "path": "frontend/src/lib/mindfulai/types.ts",
+          "operation": "modify",
+          "description": "Implement mindful AI type definitions used by mindful AI components and hooks."
+        },
+        {
+          "path": "frontend/src/lib/mindfulai/emotionDetection.ts",
+          "operation": "modify",
+          "description": "Implement minimal client-side emotion detection helpers (if referenced) to support EmotionBadge/insights rendering without introducing new external integrations."
+        },
+        {
+          "path": "frontend/src/lib/mindfulai/engagement.ts",
+          "operation": "modify",
+          "description": "Implement mindful AI engagement scoring/helpers used by nudges/UX (if referenced), keeping it deterministic and local."
+        },
+        {
+          "path": "frontend/src/lib/mindfulai/nudges.ts",
+          "operation": "modify",
+          "description": "Implement nudge generation helpers (English text) used by mindful AI UI (if referenced) without adding new product features beyond restoration."
+        },
+        {
+          "path": "frontend/src/lib/mindfulai/quickPills.ts",
+          "operation": "modify",
+          "description": "Implement quick pill suggestion helpers used by QuickPills (if referenced), using only existing/restored data."
+        },
+        {
+          "path": "frontend/src/lib/mindfulai/sessionUX.ts",
+          "operation": "modify",
+          "description": "Implement session UX helpers for AI chat (typing indicator timing, optimistic append) in a way that aligns with restored backend typing flags and transcript queries."
         }
       ]
     }

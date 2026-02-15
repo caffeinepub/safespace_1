@@ -1,34 +1,19 @@
 export enum MoodError {
-  Availability = 'availability',
-  Permission = 'permission',
-  Unknown = 'unknown',
+  AVAILABILITY = 'availability',
+  PERMISSION = 'permission',
+  UNKNOWN = 'unknown',
 }
 
-export function classifyMoodError(error: unknown): MoodError {
-  const errorString = error?.toString().toLowerCase() || '';
-
-  // Check for transient availability/connectivity issues
-  if (
-    errorString.includes('unavailable') ||
-    errorString.includes('replica') ||
-    errorString.includes('canister') ||
-    errorString.includes('connection') ||
-    errorString.includes('network') ||
-    errorString.includes('timeout')
-  ) {
-    return MoodError.Availability;
+export function classifyMoodError(error: Error): MoodError {
+  const message = error.message.toLowerCase();
+  
+  if (message.includes('unauthorized') || message.includes('permission')) {
+    return MoodError.PERMISSION;
   }
-
-  // Check for permission/authorization issues
-  if (
-    errorString.includes('unauthorized') ||
-    errorString.includes('permission') ||
-    errorString.includes('access denied') ||
-    errorString.includes('forbidden')
-  ) {
-    return MoodError.Permission;
+  
+  if (message.includes('not available') || message.includes('not found')) {
+    return MoodError.AVAILABILITY;
   }
-
-  // Default to unknown error
-  return MoodError.Unknown;
+  
+  return MoodError.UNKNOWN;
 }

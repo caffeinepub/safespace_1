@@ -31,99 +31,6 @@ export const ShoppingItem = IDL.Record({
   'priceInCents' : IDL.Nat,
   'productDescription' : IDL.Text,
 });
-export const Principal = IDL.Principal;
-export const Time = IDL.Int;
-export const AIMessage = IDL.Record({
-  'sender' : IDL.Variant({ 'ai' : IDL.Null, 'user' : IDL.Null }),
-  'message' : IDL.Text,
-  'timestamp' : Time,
-});
-export const AnalyticsData = IDL.Record({
-  'totalSessionDuration' : Time,
-  'averageSessionDuration' : Time,
-  'totalSessions' : IDL.Nat,
-});
-export const Mood = IDL.Variant({
-  'sad' : IDL.Null,
-  'hopeful' : IDL.Null,
-  'inspired' : IDL.Null,
-  'content' : IDL.Null,
-  'anxious' : IDL.Null,
-  'happy' : IDL.Null,
-  'angry' : IDL.Null,
-  'calm' : IDL.Null,
-  'relaxed' : IDL.Null,
-  'grateful' : IDL.Null,
-  'lonely' : IDL.Null,
-  'overwhelmed' : IDL.Null,
-  'stressed' : IDL.Null,
-});
-export const MoodLogEntry = IDL.Record({
-  'principal' : Principal,
-  'userId' : IDL.Text,
-  'mood' : Mood,
-  'note' : IDL.Opt(IDL.Text),
-  'timestamp' : Time,
-});
-export const UserData = IDL.Record({
-  'principal' : Principal,
-  'moodEntryCount' : IDL.Nat,
-  'userId' : IDL.Text,
-  'lastActivity' : IDL.Opt(Time),
-  'profession' : IDL.Opt(IDL.Text),
-});
-export const AppMarketMetadata = IDL.Record({
-  'screenshotUrls' : IDL.Vec(IDL.Text),
-  'title' : IDL.Text,
-  'tags' : IDL.Vec(IDL.Text),
-  'description' : IDL.Text,
-  'language' : IDL.Text,
-  'logoUrl' : IDL.Opt(IDL.Text),
-  'category' : IDL.Text,
-});
-export const UserProfile = IDL.Record({
-  'userId' : IDL.Text,
-  'name' : IDL.Text,
-  'profession' : IDL.Opt(IDL.Text),
-});
-export const ChatMessage = IDL.Record({
-  'userId' : IDL.Text,
-  'profession' : IDL.Opt(IDL.Text),
-  'message' : IDL.Text,
-  'timestamp' : Time,
-});
-export const DailyAnalysisEntry = IDL.Record({
-  'mood' : Mood,
-  'note' : IDL.Opt(IDL.Text),
-  'timestamp' : Time,
-  'moodScore' : IDL.Nat,
-  'stepCount' : IDL.Nat,
-  'sleepHours' : IDL.Nat,
-});
-export const MarketAnalytics = IDL.Record({
-  'totalViews' : IDL.Nat,
-  'totalSubscriptions' : IDL.Nat,
-  'totalRevenue' : IDL.Nat,
-  'totalClones' : IDL.Nat,
-});
-export const MoodEntry = IDL.Record({
-  'mood' : Mood,
-  'note' : IDL.Opt(IDL.Text),
-  'timestamp' : Time,
-  'moodScore' : IDL.Nat,
-});
-export const ExternalBlob = IDL.Vec(IDL.Nat8);
-export const PricingConfig = IDL.Record({
-  'oisyWalletAddress' : IDL.Opt(IDL.Text),
-  'currency' : IDL.Text,
-  'priceUSDC' : IDL.Nat,
-});
-export const PrivateMessage = IDL.Record({
-  'profession' : IDL.Opt(IDL.Text),
-  'sender' : Principal,
-  'message' : IDL.Text,
-  'timestamp' : Time,
-});
 export const StripeSessionStatus = IDL.Variant({
   'completed' : IDL.Record({
     'userPrincipal' : IDL.Opt(IDL.Text),
@@ -131,65 +38,13 @@ export const StripeSessionStatus = IDL.Variant({
   }),
   'failed' : IDL.Record({ 'error' : IDL.Text }),
 });
-export const AuthType = IDL.Variant({
-  'internetIdentity' : IDL.Null,
-  'guest' : IDL.Null,
-});
-export const ActivityEvent = IDL.Record({
-  'timestamp' : Time,
-  'details' : IDL.Text,
-  'eventType' : IDL.Variant({
-    'pageNavigation' : IDL.Null,
-    'interaction' : IDL.Null,
-    'createMoodEntry' : IDL.Null,
-    'login' : IDL.Null,
-    'updateMoodEntry' : IDL.Null,
-  }),
-});
-export const UserRecord = IDL.Record({
-  'id' : IDL.Text,
-  'authType' : AuthType,
-  'moodEntries' : IDL.Vec(MoodEntry),
-  'weeklyAverageMood' : IDL.Float64,
-  'activityLog' : IDL.Vec(ActivityEvent),
-});
-export const DailyMoodEntry = IDL.Record({
-  'dayOfWeek' : IDL.Nat,
-  'moodScore' : IDL.Nat,
-});
-export const WeeklyMoodChartData = IDL.Record({
-  'weeklyAverage' : IDL.Float64,
-  'weeklyEntries' : IDL.Vec(DailyMoodEntry),
-  'averageLabel' : IDL.Text,
-  'weeklyInsight' : IDL.Text,
-});
-export const Anomaly = IDL.Record({
-  'typeText' : IDL.Text,
-  'weekStart' : Time,
-});
-export const WeeklySummary = IDL.Record({
-  'weeklyMoodAverage' : IDL.Float64,
-  'averageSleepHours' : IDL.Float64,
-  'totalSteps' : IDL.Nat,
-  'weekStart' : Time,
-  'averageMoodScore' : IDL.Float64,
-});
-export const WeeklyCluster = IDL.Record({
-  'clusterId' : IDL.Nat,
-  'weekStart' : Time,
-});
-export const WeeklyMoodAnalysis = IDL.Record({
-  'anomalies' : IDL.Vec(Anomaly),
-  'weeklySummaries' : IDL.Vec(WeeklySummary),
-  'clusters' : IDL.Vec(WeeklyCluster),
-});
-export const AIResponse = IDL.Record({
-  'suggestions' : IDL.Vec(IDL.Text),
-  'reflectiveListening' : IDL.Text,
-  'patterns' : IDL.Vec(IDL.Text),
-  'gentleIntakeQuestions' : IDL.Vec(IDL.Text),
-  'response' : IDL.Text,
-  'guidance' : IDL.Text,
+export const SmokeTestResult = IDL.Record({
+  'returnToDashboard' : IDL.Bool,
+  'moodTrackerNavigation' : IDL.Bool,
+  'internetIdentityLogin' : IDL.Bool,
+  'moodHistoryNavigation' : IDL.Bool,
+  'guestLogin' : IDL.Bool,
+  'dashboardRender' : IDL.Bool,
 });
 export const StripeConfiguration = IDL.Record({
   'allowedCountries' : IDL.Vec(IDL.Text),
@@ -243,127 +98,22 @@ export const idlService = IDL.Service({
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-  'createChatRoom' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
   'createCheckoutSession' : IDL.Func(
       [IDL.Vec(ShoppingItem), IDL.Text, IDL.Text],
       [IDL.Text],
       [],
     ),
-  'createPrivateThread' : IDL.Func([IDL.Text, Principal, Principal], [], []),
-  'getAIConversation' : IDL.Func([IDL.Text], [IDL.Vec(AIMessage)], ['query']),
-  'getAggregatedAnalytics' : IDL.Func([], [AnalyticsData], ['query']),
-  'getAllMoodLogs' : IDL.Func([], [IDL.Vec(MoodLogEntry)], ['query']),
-  'getAllUserData' : IDL.Func([], [IDL.Vec(UserData)], ['query']),
-  'getAppMarketMetadata' : IDL.Func(
-      [],
-      [IDL.Opt(AppMarketMetadata)],
-      ['query'],
-    ),
-  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-  'getChatMessages' : IDL.Func([IDL.Text], [IDL.Vec(ChatMessage)], ['query']),
-  'getChatRooms' : IDL.Func(
-      [],
-      [
-        IDL.Vec(
-          IDL.Tuple(
-            IDL.Text,
-            IDL.Record({
-              'id' : IDL.Text,
-              'topic' : IDL.Text,
-              'name' : IDL.Text,
-              'participantCount' : IDL.Nat,
-            }),
-          )
-        ),
-      ],
-      ['query'],
-    ),
-  'getDailyAnalysis' : IDL.Func([], [IDL.Vec(DailyAnalysisEntry)], ['query']),
-  'getDailyAnalysisGuest' : IDL.Func(
-      [IDL.Text],
-      [IDL.Opt(DailyAnalysisEntry)],
-      ['query'],
-    ),
-  'getMarketAnalytics' : IDL.Func([], [MarketAnalytics], ['query']),
-  'getMoodHistory' : IDL.Func([], [IDL.Vec(MoodEntry)], ['query']),
-  'getMoodHistoryGuest' : IDL.Func([IDL.Text], [IDL.Vec(MoodEntry)], ['query']),
-  'getMyPrivateThreads' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
-  'getPDF' : IDL.Func([IDL.Text], [IDL.Opt(ExternalBlob)], ['query']),
-  'getPricingConfig' : IDL.Func([], [IDL.Opt(PricingConfig)], ['query']),
-  'getPrivateMessages' : IDL.Func(
-      [IDL.Text],
-      [IDL.Vec(PrivateMessage)],
-      ['query'],
-    ),
   'getStripeSessionStatus' : IDL.Func([IDL.Text], [StripeSessionStatus], []),
-  'getUserProfile' : IDL.Func([Principal], [IDL.Opt(UserProfile)], ['query']),
-  'getUserRecordById' : IDL.Func([IDL.Text], [IDL.Opt(UserRecord)], ['query']),
-  'getUserRecords' : IDL.Func([], [IDL.Vec(UserRecord)], ['query']),
-  'getWeeklyMoodChartData' : IDL.Func([], [WeeklyMoodChartData], ['query']),
-  'getWeeklyMoodInsights' : IDL.Func(
-      [],
-      [IDL.Vec(WeeklyMoodAnalysis)],
-      ['query'],
-    ),
-  'incrementAppViews' : IDL.Func([], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'isStripeConfigured' : IDL.Func([], [IDL.Bool], ['query']),
-  'joinChatRoom' : IDL.Func([IDL.Text, IDL.Text], [], []),
-  'logGuestActivityPublic' : IDL.Func(
-      [
-        IDL.Text,
-        IDL.Variant({
-          'pageNavigation' : IDL.Null,
-          'interaction' : IDL.Null,
-          'createMoodEntry' : IDL.Null,
-          'login' : IDL.Null,
-          'updateMoodEntry' : IDL.Null,
-        }),
-        IDL.Text,
-      ],
-      [],
-      [],
-    ),
-  'logUserActivity' : IDL.Func(
-      [
-        IDL.Variant({
-          'pageNavigation' : IDL.Null,
-          'interaction' : IDL.Null,
-          'createMoodEntry' : IDL.Null,
-          'login' : IDL.Null,
-          'updateMoodEntry' : IDL.Null,
-        }),
-        IDL.Text,
-      ],
-      [],
-      [],
-    ),
-  'recordCloneRequest' : IDL.Func([IDL.Nat], [], []),
-  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-  'saveDailyAnalysis' : IDL.Func([DailyAnalysisEntry], [], []),
-  'saveDailyAnalysisGuest' : IDL.Func(
-      [IDL.Text, DailyAnalysisEntry],
-      [IDL.Text],
-      [],
-    ),
-  'saveMood' : IDL.Func([MoodEntry], [], []),
-  'saveMoodGuest' : IDL.Func([IDL.Text, MoodEntry], [IDL.Text], []),
-  'saveWeeklyAnalysis' : IDL.Func([WeeklyMoodAnalysis], [], []),
-  'sendAIMessage' : IDL.Func([IDL.Text, IDL.Text], [AIResponse], []),
-  'sendChatMessage' : IDL.Func([IDL.Text, ChatMessage], [], []),
-  'sendPrivateMessage' : IDL.Func([IDL.Text, PrivateMessage], [], []),
-  'setAppMarketMetadata' : IDL.Func([AppMarketMetadata], [], []),
-  'setPricingConfig' : IDL.Func([PricingConfig], [], []),
+  'runSmokeTest' : IDL.Func([], [SmokeTestResult], []),
   'setStripeConfiguration' : IDL.Func([StripeConfiguration], [], []),
   'transform' : IDL.Func(
       [TransformationInput],
       [TransformationOutput],
       ['query'],
     ),
-  'updateMood' : IDL.Func([Time, MoodEntry], [], []),
-  'updateMoodGuest' : IDL.Func([IDL.Text, Time, MoodEntry], [IDL.Text], []),
-  'uploadPDF' : IDL.Func([IDL.Text, ExternalBlob], [], []),
 });
 
 export const idlInitArgs = [];
@@ -392,99 +142,6 @@ export const idlFactory = ({ IDL }) => {
     'priceInCents' : IDL.Nat,
     'productDescription' : IDL.Text,
   });
-  const Principal = IDL.Principal;
-  const Time = IDL.Int;
-  const AIMessage = IDL.Record({
-    'sender' : IDL.Variant({ 'ai' : IDL.Null, 'user' : IDL.Null }),
-    'message' : IDL.Text,
-    'timestamp' : Time,
-  });
-  const AnalyticsData = IDL.Record({
-    'totalSessionDuration' : Time,
-    'averageSessionDuration' : Time,
-    'totalSessions' : IDL.Nat,
-  });
-  const Mood = IDL.Variant({
-    'sad' : IDL.Null,
-    'hopeful' : IDL.Null,
-    'inspired' : IDL.Null,
-    'content' : IDL.Null,
-    'anxious' : IDL.Null,
-    'happy' : IDL.Null,
-    'angry' : IDL.Null,
-    'calm' : IDL.Null,
-    'relaxed' : IDL.Null,
-    'grateful' : IDL.Null,
-    'lonely' : IDL.Null,
-    'overwhelmed' : IDL.Null,
-    'stressed' : IDL.Null,
-  });
-  const MoodLogEntry = IDL.Record({
-    'principal' : Principal,
-    'userId' : IDL.Text,
-    'mood' : Mood,
-    'note' : IDL.Opt(IDL.Text),
-    'timestamp' : Time,
-  });
-  const UserData = IDL.Record({
-    'principal' : Principal,
-    'moodEntryCount' : IDL.Nat,
-    'userId' : IDL.Text,
-    'lastActivity' : IDL.Opt(Time),
-    'profession' : IDL.Opt(IDL.Text),
-  });
-  const AppMarketMetadata = IDL.Record({
-    'screenshotUrls' : IDL.Vec(IDL.Text),
-    'title' : IDL.Text,
-    'tags' : IDL.Vec(IDL.Text),
-    'description' : IDL.Text,
-    'language' : IDL.Text,
-    'logoUrl' : IDL.Opt(IDL.Text),
-    'category' : IDL.Text,
-  });
-  const UserProfile = IDL.Record({
-    'userId' : IDL.Text,
-    'name' : IDL.Text,
-    'profession' : IDL.Opt(IDL.Text),
-  });
-  const ChatMessage = IDL.Record({
-    'userId' : IDL.Text,
-    'profession' : IDL.Opt(IDL.Text),
-    'message' : IDL.Text,
-    'timestamp' : Time,
-  });
-  const DailyAnalysisEntry = IDL.Record({
-    'mood' : Mood,
-    'note' : IDL.Opt(IDL.Text),
-    'timestamp' : Time,
-    'moodScore' : IDL.Nat,
-    'stepCount' : IDL.Nat,
-    'sleepHours' : IDL.Nat,
-  });
-  const MarketAnalytics = IDL.Record({
-    'totalViews' : IDL.Nat,
-    'totalSubscriptions' : IDL.Nat,
-    'totalRevenue' : IDL.Nat,
-    'totalClones' : IDL.Nat,
-  });
-  const MoodEntry = IDL.Record({
-    'mood' : Mood,
-    'note' : IDL.Opt(IDL.Text),
-    'timestamp' : Time,
-    'moodScore' : IDL.Nat,
-  });
-  const ExternalBlob = IDL.Vec(IDL.Nat8);
-  const PricingConfig = IDL.Record({
-    'oisyWalletAddress' : IDL.Opt(IDL.Text),
-    'currency' : IDL.Text,
-    'priceUSDC' : IDL.Nat,
-  });
-  const PrivateMessage = IDL.Record({
-    'profession' : IDL.Opt(IDL.Text),
-    'sender' : Principal,
-    'message' : IDL.Text,
-    'timestamp' : Time,
-  });
   const StripeSessionStatus = IDL.Variant({
     'completed' : IDL.Record({
       'userPrincipal' : IDL.Opt(IDL.Text),
@@ -492,62 +149,13 @@ export const idlFactory = ({ IDL }) => {
     }),
     'failed' : IDL.Record({ 'error' : IDL.Text }),
   });
-  const AuthType = IDL.Variant({
-    'internetIdentity' : IDL.Null,
-    'guest' : IDL.Null,
-  });
-  const ActivityEvent = IDL.Record({
-    'timestamp' : Time,
-    'details' : IDL.Text,
-    'eventType' : IDL.Variant({
-      'pageNavigation' : IDL.Null,
-      'interaction' : IDL.Null,
-      'createMoodEntry' : IDL.Null,
-      'login' : IDL.Null,
-      'updateMoodEntry' : IDL.Null,
-    }),
-  });
-  const UserRecord = IDL.Record({
-    'id' : IDL.Text,
-    'authType' : AuthType,
-    'moodEntries' : IDL.Vec(MoodEntry),
-    'weeklyAverageMood' : IDL.Float64,
-    'activityLog' : IDL.Vec(ActivityEvent),
-  });
-  const DailyMoodEntry = IDL.Record({
-    'dayOfWeek' : IDL.Nat,
-    'moodScore' : IDL.Nat,
-  });
-  const WeeklyMoodChartData = IDL.Record({
-    'weeklyAverage' : IDL.Float64,
-    'weeklyEntries' : IDL.Vec(DailyMoodEntry),
-    'averageLabel' : IDL.Text,
-    'weeklyInsight' : IDL.Text,
-  });
-  const Anomaly = IDL.Record({ 'typeText' : IDL.Text, 'weekStart' : Time });
-  const WeeklySummary = IDL.Record({
-    'weeklyMoodAverage' : IDL.Float64,
-    'averageSleepHours' : IDL.Float64,
-    'totalSteps' : IDL.Nat,
-    'weekStart' : Time,
-    'averageMoodScore' : IDL.Float64,
-  });
-  const WeeklyCluster = IDL.Record({
-    'clusterId' : IDL.Nat,
-    'weekStart' : Time,
-  });
-  const WeeklyMoodAnalysis = IDL.Record({
-    'anomalies' : IDL.Vec(Anomaly),
-    'weeklySummaries' : IDL.Vec(WeeklySummary),
-    'clusters' : IDL.Vec(WeeklyCluster),
-  });
-  const AIResponse = IDL.Record({
-    'suggestions' : IDL.Vec(IDL.Text),
-    'reflectiveListening' : IDL.Text,
-    'patterns' : IDL.Vec(IDL.Text),
-    'gentleIntakeQuestions' : IDL.Vec(IDL.Text),
-    'response' : IDL.Text,
-    'guidance' : IDL.Text,
+  const SmokeTestResult = IDL.Record({
+    'returnToDashboard' : IDL.Bool,
+    'moodTrackerNavigation' : IDL.Bool,
+    'internetIdentityLogin' : IDL.Bool,
+    'moodHistoryNavigation' : IDL.Bool,
+    'guestLogin' : IDL.Bool,
+    'dashboardRender' : IDL.Bool,
   });
   const StripeConfiguration = IDL.Record({
     'allowedCountries' : IDL.Vec(IDL.Text),
@@ -598,135 +206,22 @@ export const idlFactory = ({ IDL }) => {
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-    'createChatRoom' : IDL.Func([IDL.Text, IDL.Text, IDL.Text], [], []),
     'createCheckoutSession' : IDL.Func(
         [IDL.Vec(ShoppingItem), IDL.Text, IDL.Text],
         [IDL.Text],
         [],
       ),
-    'createPrivateThread' : IDL.Func([IDL.Text, Principal, Principal], [], []),
-    'getAIConversation' : IDL.Func([IDL.Text], [IDL.Vec(AIMessage)], ['query']),
-    'getAggregatedAnalytics' : IDL.Func([], [AnalyticsData], ['query']),
-    'getAllMoodLogs' : IDL.Func([], [IDL.Vec(MoodLogEntry)], ['query']),
-    'getAllUserData' : IDL.Func([], [IDL.Vec(UserData)], ['query']),
-    'getAppMarketMetadata' : IDL.Func(
-        [],
-        [IDL.Opt(AppMarketMetadata)],
-        ['query'],
-      ),
-    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
-    'getChatMessages' : IDL.Func([IDL.Text], [IDL.Vec(ChatMessage)], ['query']),
-    'getChatRooms' : IDL.Func(
-        [],
-        [
-          IDL.Vec(
-            IDL.Tuple(
-              IDL.Text,
-              IDL.Record({
-                'id' : IDL.Text,
-                'topic' : IDL.Text,
-                'name' : IDL.Text,
-                'participantCount' : IDL.Nat,
-              }),
-            )
-          ),
-        ],
-        ['query'],
-      ),
-    'getDailyAnalysis' : IDL.Func([], [IDL.Vec(DailyAnalysisEntry)], ['query']),
-    'getDailyAnalysisGuest' : IDL.Func(
-        [IDL.Text],
-        [IDL.Opt(DailyAnalysisEntry)],
-        ['query'],
-      ),
-    'getMarketAnalytics' : IDL.Func([], [MarketAnalytics], ['query']),
-    'getMoodHistory' : IDL.Func([], [IDL.Vec(MoodEntry)], ['query']),
-    'getMoodHistoryGuest' : IDL.Func(
-        [IDL.Text],
-        [IDL.Vec(MoodEntry)],
-        ['query'],
-      ),
-    'getMyPrivateThreads' : IDL.Func([], [IDL.Vec(IDL.Text)], ['query']),
-    'getPDF' : IDL.Func([IDL.Text], [IDL.Opt(ExternalBlob)], ['query']),
-    'getPricingConfig' : IDL.Func([], [IDL.Opt(PricingConfig)], ['query']),
-    'getPrivateMessages' : IDL.Func(
-        [IDL.Text],
-        [IDL.Vec(PrivateMessage)],
-        ['query'],
-      ),
     'getStripeSessionStatus' : IDL.Func([IDL.Text], [StripeSessionStatus], []),
-    'getUserProfile' : IDL.Func([Principal], [IDL.Opt(UserProfile)], ['query']),
-    'getUserRecordById' : IDL.Func(
-        [IDL.Text],
-        [IDL.Opt(UserRecord)],
-        ['query'],
-      ),
-    'getUserRecords' : IDL.Func([], [IDL.Vec(UserRecord)], ['query']),
-    'getWeeklyMoodChartData' : IDL.Func([], [WeeklyMoodChartData], ['query']),
-    'getWeeklyMoodInsights' : IDL.Func(
-        [],
-        [IDL.Vec(WeeklyMoodAnalysis)],
-        ['query'],
-      ),
-    'incrementAppViews' : IDL.Func([], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'isStripeConfigured' : IDL.Func([], [IDL.Bool], ['query']),
-    'joinChatRoom' : IDL.Func([IDL.Text, IDL.Text], [], []),
-    'logGuestActivityPublic' : IDL.Func(
-        [
-          IDL.Text,
-          IDL.Variant({
-            'pageNavigation' : IDL.Null,
-            'interaction' : IDL.Null,
-            'createMoodEntry' : IDL.Null,
-            'login' : IDL.Null,
-            'updateMoodEntry' : IDL.Null,
-          }),
-          IDL.Text,
-        ],
-        [],
-        [],
-      ),
-    'logUserActivity' : IDL.Func(
-        [
-          IDL.Variant({
-            'pageNavigation' : IDL.Null,
-            'interaction' : IDL.Null,
-            'createMoodEntry' : IDL.Null,
-            'login' : IDL.Null,
-            'updateMoodEntry' : IDL.Null,
-          }),
-          IDL.Text,
-        ],
-        [],
-        [],
-      ),
-    'recordCloneRequest' : IDL.Func([IDL.Nat], [], []),
-    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-    'saveDailyAnalysis' : IDL.Func([DailyAnalysisEntry], [], []),
-    'saveDailyAnalysisGuest' : IDL.Func(
-        [IDL.Text, DailyAnalysisEntry],
-        [IDL.Text],
-        [],
-      ),
-    'saveMood' : IDL.Func([MoodEntry], [], []),
-    'saveMoodGuest' : IDL.Func([IDL.Text, MoodEntry], [IDL.Text], []),
-    'saveWeeklyAnalysis' : IDL.Func([WeeklyMoodAnalysis], [], []),
-    'sendAIMessage' : IDL.Func([IDL.Text, IDL.Text], [AIResponse], []),
-    'sendChatMessage' : IDL.Func([IDL.Text, ChatMessage], [], []),
-    'sendPrivateMessage' : IDL.Func([IDL.Text, PrivateMessage], [], []),
-    'setAppMarketMetadata' : IDL.Func([AppMarketMetadata], [], []),
-    'setPricingConfig' : IDL.Func([PricingConfig], [], []),
+    'runSmokeTest' : IDL.Func([], [SmokeTestResult], []),
     'setStripeConfiguration' : IDL.Func([StripeConfiguration], [], []),
     'transform' : IDL.Func(
         [TransformationInput],
         [TransformationOutput],
         ['query'],
       ),
-    'updateMood' : IDL.Func([Time, MoodEntry], [], []),
-    'updateMoodGuest' : IDL.Func([IDL.Text, Time, MoodEntry], [IDL.Text], []),
-    'uploadPDF' : IDL.Func([IDL.Text, ExternalBlob], [], []),
   });
 };
 

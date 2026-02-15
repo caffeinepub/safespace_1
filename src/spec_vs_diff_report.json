@@ -1,58 +1,136 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T06:40:20.198Z",
-  "summary": "Frontend changes appear to remove v100-style admin auto-bootstrap/claim behavior (per App.tsx and hook/query summaries). Backend rollback for the v100 caller self-promotion admin method is not evidenced in the provided backend diff excerpt. Several frontend/UI enhancements and theming changes are described that go beyond a strict v99 rollback, and a migration file was introduced without clear evidence it is required for upgrade-safe state migration.",
+  "generatedAt": "2026-02-15T14:48:29.281Z",
+  "summary": "The diff partially reconnects the frontend navigation and adds some auth/activity scaffolding, but it does not provide clear evidence that the legacy backend API surface, upgrade-stable state preservation, or a meaningful backend smoke test were restored. Several core pages (chat, AI, weekly insights, admin dashboards, presentation) are implemented as placeholder “backend not restored” screens rather than restored functionality.",
   "missing_requirements": [
     {
-      "id": "REQ-3",
-      "requirement": "Remove or disable the backend method that was added in version 100 to allow the current caller to become an admin (restore version 99 behavior).",
-      "reason": "The backend diff excerpt for backend/main.mo is truncated and does not show removal/disablement of any v100 self-promotion admin API (e.g., becomeAdmin or equivalent). The only clearly evidenced backend change is introduction of a migration hook/file, not the removal of an admin self-promotion method.",
+      "id": "REQ-1",
+      "requirement": "Fully restore the legacy SafeSpace backend API surface in backend/main.mo with callable methods for moods, chat rooms, private chat, AI sessions, analytics, profiles, activity logs, weekly analysis/insights, market, admin operations, and presentation/PDF/blob storage; enforce admin authorization on admin-only methods; ensure Candid exposes restored methods.",
+      "reason": "The backend diff excerpt shows many type definitions and imports but does not show any exported public functions implementing the required modules, nor any explicit admin-authorization checks on admin-only methods. Because backend/main.mo is truncated, the diff summary provides insufficient evidence that the full API surface and auth enforcement were actually implemented.",
       "evidence": [
-        "backend/main.mo (truncated)",
-        "backend/migration.mo"
+        "backend/main.mo (truncated; shows types/imports but not exported functions/auth checks)"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Implement durable state preservation for all restored backend data across upgrades using preupgrade/postupgrade or stable-storage patterns.",
+      "reason": "No upgrade hooks (system preupgrade/postupgrade) or stable serialization/deserialization patterns are visible in the provided backend/main.mo excerpt; the diff summary does not evidence upgrade-safe persistence for the listed data structures.",
+      "evidence": [
+        "backend/main.mo (truncated; no preupgrade/postupgrade shown)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Remove the hard-coded 'Backend Restoration Required' blocking screen and render the real application UI for dashboard, mood tracker/history/editor, group chat, private chat, AI companion, weekly insights, admin analytics dashboard, app market settings, and presentation viewer; admin pages restricted by isCallerAdmin with access denied UI for non-admins.",
+      "reason": "While App.tsx appears to route to multiple pages and admin pages include an AccessDeniedScreen check, multiple core pages are explicitly placeholder UIs stating functionality will be available once the backend is fully restored, rather than restored/working modules (Group Chat, Private Chat, AI Companion, Weekly Insights, Analytics Dashboard, App Market Settings, Presentation Viewer).",
+      "evidence": [
+        "frontend/src/components/ChatRoom.tsx",
+        "frontend/src/components/PrivateChat.tsx",
+        "frontend/src/components/AIChat.tsx",
+        "frontend/src/components/WeeklyMoodInsights.tsx",
+        "frontend/src/components/AnalyticsDashboard.tsx",
+        "frontend/src/components/AppMarketSettings.tsx",
+        "frontend/src/components/PresentationViewer.tsx",
+        "frontend/src/App.tsx (truncated)",
+        "frontend/src/components/AccessDeniedScreen.tsx"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Restore/implement all required React Query hooks and backend type bindings expected by existing frontend components; ensure hooks exist/compile, use stable query keys, are disabled until actor ready, and TypeScript builds without missing exports/type errors for backend calls.",
+      "reason": "Some hooks are referenced (e.g., useGetChatRooms, useGetMyPrivateThreads, useGetWeeklyMoodChart, useGetMoodHistory, useCreateMoodEntry, useIsCallerAdmin, useGetCallerUserProfile, useSaveCallerUserProfile, useLogActivity), but the diff summary does not include changes to frontend/src/hooks/useQueries.ts (or shows it only in omitted/truncated files), so there is no evidence these hooks were actually implemented correctly or that they call restored backend methods with correct types and actor-readiness gating.",
+      "evidence": [
+        "frontend/src/components/Dashboard.tsx (uses useGetChatRooms/useGetMyPrivateThreads/useGetWeeklyMoodChart)",
+        "frontend/src/components/MoodHistory.tsx (uses useGetMoodHistory)",
+        "frontend/src/components/MoodTracker.tsx (uses useCreateMoodEntry)",
+        "frontend/src/hooks/useActivityLogging.ts (uses useLogActivity from ./useQueries)",
+        "frontend/src/App.tsx (truncated; imports useIsCallerAdmin/useGetCallerUserProfile/useSaveCallerUserProfile)"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Update backend runSmokeTest() to perform a meaningful end-to-end API readiness check (not hardcoded), validating mood/chat/profile/analytics APIs return structurally valid data for a new/empty user.",
+      "reason": "The diff summary provides no evidence of a runSmokeTest() implementation or changes; backend/main.mo excerpt does not show this method or any end-to-end checks.",
+      "evidence": [
+        "backend/main.mo (truncated; runSmokeTest not shown)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added an upgrade migration that drops/ignores prior actor state field adminInitialized.",
-      "reason": "The BuildRequest allows backend/migration.mo only if an upgrade-safe state migration is required. The diff adds backend/migration.mo and wires it in, but the diff summary provides no evidence that such a migration is required for the rollback, making it potentially unrequested scope.",
+      "description": "Introduced new guest-session localStorage store and guest auth hook (guestAuthStore/useGuestAuth) as a distinct client-side session mechanism.",
+      "reason": "While the BuildRequest mentions guest activity logging and guest/II flows, it does not explicitly request adding a new localStorage-based guest session store implementation; this may be beyond “restoring what previously existed” depending on prior behavior (not evidenced in the diff summary).",
       "evidence": [
-        "backend/migration.mo",
-        "backend/main.mo (with migration = Migration.run)"
+        "frontend/src/hooks/guestAuthStore.ts",
+        "frontend/src/hooks/useGuestAuth.ts"
       ]
     },
     {
-      "description": "UI/UX and styling redesign work (OKLCH color system, enhanced calendar styles/animations, Tailwind color scales) unrelated to rollback.",
-      "reason": "Non-goal explicitly disallows redesigning UI/branding unrelated to the rollback; these changes read as new/expanded theming rather than a v99 behavior restoration.",
+      "description": "Added prominent “Built with ❤️ using caffeine.ai” footer copy/link (includes a heart emoji).",
+      "reason": "Not requested by the BuildRequest and may conflict with the constraint to use English for user-facing text (emoji included) and to avoid branding/theme changes beyond restoring the app flow.",
       "evidence": [
-        "frontend-file-summaries.txt (entries for frontend/src/index.css, frontend/tailwind.config.js)"
+        "frontend/src/components/Footer.tsx"
       ]
     },
     {
-      "description": "New/expanded login flow: \"Enhanced login component with three-step flow (main, profile-setup, guest-name-entry)\".",
-      "reason": "Non-goal disallows implementing new features beyond restoring v99 behavior; an enhanced multi-step login flow is not requested by the rollback requirements.",
+      "description": "Added multiple placeholder UIs that state features will be available once the backend is fully restored (AI/chat/weekly/admin/presentation).",
+      "reason": "BuildRequest is to restore legacy functionality, not to add/keep placeholder screens indicating missing backend restoration; these are new/continuing blocking/placeholder states rather than restored modules.",
       "evidence": [
-        "frontend-file-summaries.txt (entry for frontend/src/components/AnonymousLogin.tsx)"
-      ]
-    },
-    {
-      "description": "Navigation/header changes including additional links (e.g., AI Companion link) and new UI badges/menus.",
-      "reason": "Not requested by rollback requirements and may constitute UI/feature expansion beyond restoring v99 behavior.",
-      "evidence": [
-        "frontend-file-summaries.txt (entry for frontend/src/components/Header.tsx)"
+        "frontend/src/components/AIChat.tsx",
+        "frontend/src/components/ChatRoom.tsx",
+        "frontend/src/components/PrivateChat.tsx",
+        "frontend/src/components/WeeklyMoodInsights.tsx",
+        "frontend/src/components/AnalyticsDashboard.tsx",
+        "frontend/src/components/AppMarketSettings.tsx",
+        "frontend/src/components/PresentationViewer.tsx"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.66,
   "changed_files": [
     "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/src/App.tsx",
+    "frontend/src/components/AIChat.tsx",
+    "frontend/src/components/AccessDeniedScreen.tsx",
+    "frontend/src/components/AnalyticsDashboard.tsx",
+    "frontend/src/components/AnonymousLogin.tsx",
+    "frontend/src/components/AppMarketSettings.tsx",
+    "frontend/src/components/ChatRoom.tsx",
+    "frontend/src/components/Dashboard.tsx",
+    "frontend/src/components/Footer.tsx",
+    "frontend/src/components/Header.tsx",
+    "frontend/src/components/MoodHistory.tsx",
+    "frontend/src/components/MoodTracker.tsx",
+    "frontend/src/components/PresentationViewer.tsx",
+    "frontend/src/components/PrivateChat.tsx",
+    "frontend/src/components/WeeklyMoodInsights.tsx",
+    "frontend/src/hooks/guestAuthStore.ts",
+    "frontend/src/hooks/useActivityLogging.ts",
     "frontend/src/hooks/useAdminBootstrap.ts",
+    "frontend/src/hooks/useGuestAuth.ts",
     "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useSessionTracking.ts",
+    "frontend/src/lib/adminMoodAnalytics.ts",
+    "frontend/src/lib/ai/constraints.ts",
+    "frontend/src/lib/ai/routing.ts",
+    "frontend/src/lib/ai/sessionContext.ts",
+    "frontend/src/lib/ai/templateUtils.ts",
+    "frontend/src/lib/ai/templates.ts",
+    "frontend/src/lib/ai/types.ts",
+    "frontend/src/lib/linearRegression.ts",
+    "frontend/src/lib/mindfulai/emotionDetection.ts",
+    "frontend/src/lib/mindfulai/engagement.ts",
+    "frontend/src/lib/mindfulai/nudges.ts",
+    "frontend/src/lib/mindfulai/quickPills.ts",
+    "frontend/src/lib/mindfulai/sessionUX.ts",
+    "frontend/src/lib/mindfulai/types.ts",
+    "frontend/src/lib/moodErrors.ts",
+    "frontend/src/lib/timestampUtils.ts",
+    "frontend/src/lib/weekUtils.ts",
+    "frontend/src/lib/weeklySummaryText.ts",
+    "frontend/src/types/backend-extended.ts",
     "project_state.json"
   ]
 }

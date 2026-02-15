@@ -1,56 +1,34 @@
-import { useMutation } from '@tanstack/react-query';
-import { useActor } from './useActor';
-import { useGuestAuth } from './useGuestAuth';
-import { Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry } from '../backend';
+import { useLogActivity } from './useQueries';
+import { ActivityEvent } from '../types/backend-extended';
 
 export function useActivityLogging() {
-  const { actor } = useActor();
-  const { isGuest, guestId } = useGuestAuth();
+  const logActivityMutation = useLogActivity();
 
-  const logActivity = useMutation({
-    mutationFn: async ({
-      eventType,
-      details,
-      explicitGuestId,
-    }: {
-      eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry;
-      details: string;
-      explicitGuestId?: string;
-    }) => {
-      if (!actor) return;
-
-      // Use explicit guestId if provided (for immediate logging after guest creation)
-      // Otherwise fall back to the guestId from context
-      const activeGuestId = explicitGuestId || guestId;
-
-      if (isGuest && activeGuestId) {
-        await actor.logGuestActivityPublic(activeGuestId, eventType, details);
-      } else if (!isGuest) {
-        await actor.logUserActivity(eventType, details);
-      }
-    },
-  });
-
-  const logLogin = async (authType: 'guest' | 'internetIdentity', explicitGuestId?: string) => {
-    await logActivity.mutateAsync({
-      eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.login,
-      details: `Logged in via ${authType}`,
-      explicitGuestId,
-    });
+  const logLogin = (guestId?: string) => {
+    const event: ActivityEvent = {
+      timestamp: BigInt(Date.now() * 1000000),
+      eventType: 'login',
+      details: 'User logged in',
+    };
+    logActivityMutation.mutate({ event, guestId });
   };
 
-  const logPageNavigation = (pageName: string) => {
-    logActivity.mutate({
-      eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.pageNavigation,
-      details: `Navigated to ${pageName}`,
-    });
+  const logPageNavigation = (page: string, guestId?: string) => {
+    const event: ActivityEvent = {
+      timestamp: BigInt(Date.now() * 1000000),
+      eventType: 'pageNavigation',
+      details: `Navigated to ${page}`,
+    };
+    logActivityMutation.mutate({ event, guestId });
   };
 
-  const logInteraction = (interactionDetails: string) => {
-    logActivity.mutate({
-      eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.interaction,
-      details: interactionDetails,
-    });
+  const logInteraction = (action: string, guestId?: string) => {
+    const event: ActivityEvent = {
+      timestamp: BigInt(Date.now() * 1000000),
+      eventType: 'interaction',
+      details: action,
+    };
+    logActivityMutation.mutate({ event, guestId });
   };
 
   return {

@@ -2,11 +2,24 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-revert-the-deployed-application-behavior-to-match-version-99-across-both-frontend-and-backend-undoing-the-changes-introduced-in-version-100",
-      "featureTitle": "Revert the deployed application behavior to match version 99 across both frontend and backend, undoing the changes introduced in version 100.",
+      "featureId": "feature-reconnect-the-frontend-to-the-restored-backend-by-removing-the-hard-coded-backend-restoration-required-blocking-screen-in-frontend-src-app-tsx-and-routing-rendering-the-real-application-ui-dashboard-mood-tracker-history-editor-group-chat-private-chat-ai-companion-weekly-insights-admin-analytics-dashboard-app-market-settings-presentation-viewer-using-the-existing-components-and-hooks-in-the-codebase",
+      "featureTitle": "Reconnect the frontend to the restored backend by removing the hard-coded 'Backend Restoration Required' blocking screen in `frontend/src/App.tsx` and routing/rendering the real application UI (dashboard, mood tracker/history/editor, group chat, private chat, AI companion, weekly insights, admin analytics dashboard, app market settings, presentation viewer) using the existing components and hooks in the codebase.",
       "files": [
         "frontend/src/App.tsx",
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/components/AIChat.tsx",
+        "frontend/src/components/AccessDeniedScreen.tsx",
+        "frontend/src/components/AnalyticsDashboard.tsx",
+        "frontend/src/components/AnonymousLogin.tsx",
+        "frontend/src/components/AppMarketSettings.tsx",
+        "frontend/src/components/ChatRoom.tsx",
+        "frontend/src/components/Dashboard.tsx",
+        "frontend/src/components/Footer.tsx",
+        "frontend/src/components/Header.tsx",
+        "frontend/src/components/MoodHistory.tsx",
+        "frontend/src/components/MoodTracker.tsx",
+        "frontend/src/components/PresentationViewer.tsx",
+        "frontend/src/components/PrivateChat.tsx",
+        "frontend/src/components/WeeklyMoodInsights.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -20,16 +33,39 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-3"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-remove-or-disable-the-version-100-admin-auto-bootstrap-flow-so-that-the-app-no-longer-automatically-attempts-to-claim-admin-rights-after-internet-identity-login-restore-version-99-behavior",
-      "featureTitle": "Remove or disable the version 100 admin auto-bootstrap flow so that the app no longer automatically attempts to claim admin rights after Internet Identity login (restore version 99 behavior).",
+      "featureId": "feature-restore-and-or-implement-all-required-react-query-hooks-and-backend-type-bindings-needed-by-the-existing-frontend-components-e-g-dashboard-chat-lists-room-messages-private-threads-mood-history-calendar-weekly-insights-admin-analytics-market-settings-session-activity-logging-expand-frontend-src-hooks-usequeries-ts-and-any-other-editable-hook-files-to-include-the-legacy-queries-mutations-expected-by-the-components-described-in-frontend-file-summaries-txt-and-ensure-they-call-the-restored-backend-methods-with-correct-parameter-return-types",
+      "featureTitle": "Restore and/or implement all required React Query hooks and backend type bindings needed by the existing frontend components (e.g., dashboard chat lists, room messages, private threads, mood history/calendar, weekly insights, admin analytics, market settings, session/activity logging). Expand `frontend/src/hooks/useQueries.ts` (and any other editable hook files) to include the legacy queries/mutations expected by the components described in `frontend-file-summaries.txt`, and ensure they call the restored backend methods with correct parameter/return types.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/hooks/useAdminBootstrap.ts"
+        "frontend/src/hooks/guestAuthStore.ts",
+        "frontend/src/hooks/useActivityLogging.ts",
+        "frontend/src/hooks/useAdminBootstrap.ts",
+        "frontend/src/hooks/useGuestAuth.ts",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/hooks/useSessionTracking.ts",
+        "frontend/src/lib/adminMoodAnalytics.ts",
+        "frontend/src/lib/ai/constraints.ts",
+        "frontend/src/lib/ai/routing.ts",
+        "frontend/src/lib/ai/sessionContext.ts",
+        "frontend/src/lib/ai/templateUtils.ts",
+        "frontend/src/lib/ai/templates.ts",
+        "frontend/src/lib/ai/types.ts",
+        "frontend/src/lib/linearRegression.ts",
+        "frontend/src/lib/mindfulai/emotionDetection.ts",
+        "frontend/src/lib/mindfulai/engagement.ts",
+        "frontend/src/lib/mindfulai/nudges.ts",
+        "frontend/src/lib/mindfulai/quickPills.ts",
+        "frontend/src/lib/mindfulai/sessionUX.ts",
+        "frontend/src/lib/mindfulai/types.ts",
+        "frontend/src/lib/moodErrors.ts",
+        "frontend/src/lib/timestampUtils.ts",
+        "frontend/src/lib/weekUtils.ts",
+        "frontend/src/lib/weeklySummaryText.ts",
+        "frontend/src/types/backend-extended.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -43,7 +79,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-4"
       ],
       "confidence": "high"
     }

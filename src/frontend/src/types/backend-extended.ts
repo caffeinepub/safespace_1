@@ -1,88 +1,94 @@
-import type { Mood, Time, Principal } from '../backend';
+import { Principal } from '@dfinity/principal';
 
-// Extended type definitions that match the backend structure
-export type { Mood, Time, Principal };
+// Since the backend types aren't fully exported yet, define them here
+export enum Mood {
+  happy = "happy",
+  sad = "sad",
+  anxious = "anxious",
+  calm = "calm",
+  angry = "angry",
+  grateful = "grateful",
+  stressed = "stressed",
+  lonely = "lonely",
+  hopeful = "hopeful",
+  content = "content",
+  overwhelmed = "overwhelmed",
+  inspired = "inspired",
+  relaxed = "relaxed"
+}
 
 export interface MoodEntry {
-  timestamp: Time;
+  timestamp: bigint;
   mood: Mood;
-  note?: string;
+  note: string | null;
   moodScore: bigint;
 }
 
 export interface UserProfile {
   userId: string;
   name: string;
-  profession?: string;
+  profession: string | null;
 }
 
 export interface ChatMessage {
-  timestamp: Time;
+  timestamp: bigint;
   userId: string;
   message: string;
-  profession?: string;
+  profession: string | null;
+}
+
+export interface ChatRoom {
+  id: string;
+  name: string;
+  topic: string;
+  messages: ChatMessage[];
+  participants: string[];
 }
 
 export interface PrivateMessage {
-  timestamp: Time;
+  timestamp: bigint;
   sender: Principal;
   message: string;
-  profession?: string;
+  profession: string | null;
 }
 
-export interface DailyAnalysisEntry {
-  timestamp: Time;
-  mood: Mood;
-  note?: string;
+export interface PrivateThread {
+  id: string;
+  participant1: Principal;
+  participant2: Principal;
+  messages: PrivateMessage[];
+}
+
+export interface AIMessage {
+  timestamp: bigint;
+  sender: 'user' | 'ai';
+  message: string;
+}
+
+export interface DailyMoodEntry {
+  dayOfWeek: bigint;
   moodScore: bigint;
-  stepCount: bigint;
-  sleepHours: bigint;
 }
 
-export interface WeeklySummary {
-  weekStart: Time;
-  averageMoodScore: number;
-  totalSteps: bigint;
-  averageSleepHours: number;
-  weeklyMoodAverage: number;
+export interface WeeklyMoodChartData {
+  weeklyEntries: DailyMoodEntry[];
+  weeklyAverage: number;
+  averageLabel: string;
+  weeklyInsight: string;
 }
 
-export interface WeeklyCluster {
-  weekStart: Time;
-  clusterId: bigint;
+export interface ActivityEvent {
+  timestamp: bigint;
+  eventType: 'login' | 'createMoodEntry' | 'updateMoodEntry' | 'pageNavigation' | 'interaction';
+  details: string;
 }
 
-export interface Anomaly {
-  weekStart: Time;
-  typeText: string;
-}
-
-export interface WeeklyMoodAnalysis {
-  weeklySummaries: WeeklySummary[];
-  clusters: WeeklyCluster[];
-  anomalies: Anomaly[];
-}
-
-export interface AnalyticsData {
-  totalSessions: bigint;
-  totalSessionDuration: Time;
-  averageSessionDuration: Time;
-}
-
-export interface UserData {
-  principal: Principal;
-  userId: string;
-  profession?: string;
-  moodEntryCount: bigint;
-  lastActivity?: Time;
-}
-
-export interface MoodLogEntry {
-  principal: Principal;
-  userId: string;
-  timestamp: Time;
-  mood: Mood;
-  note?: string;
+export interface UserRecord {
+  id: string;
+  authType: 'guest' | 'internetIdentity';
+  moodEntries: MoodEntry[];
+  activityLog: ActivityEvent[];
+  weeklyAverageMood: number;
 }
 
 export interface AppMarketMetadata {
@@ -90,7 +96,7 @@ export interface AppMarketMetadata {
   description: string;
   category: string;
   tags: string[];
-  logoUrl?: string;
+  logoUrl: string | null;
   screenshotUrls: string[];
   language: string;
 }
@@ -98,7 +104,7 @@ export interface AppMarketMetadata {
 export interface PricingConfig {
   priceUSDC: bigint;
   currency: string;
-  oisyWalletAddress?: string;
+  oisyWalletAddress: string | null;
 }
 
 export interface MarketAnalytics {
@@ -108,18 +114,26 @@ export interface MarketAnalytics {
   totalRevenue: bigint;
 }
 
-export type AuthType = 'guest' | 'internetIdentity';
-
-export interface ActivityEvent {
-  timestamp: Time;
-  eventType: 'login' | 'createMoodEntry' | 'updateMoodEntry' | 'pageNavigation' | 'interaction';
-  details: string;
+export interface WeeklySummary {
+  weekStart: bigint;
+  averageMoodScore: number;
+  totalSteps: bigint;
+  averageSleepHours: number;
+  weeklyMoodAverage: number;
 }
 
-export interface UserRecord {
-  id: string;
-  authType: AuthType;
-  moodEntries: MoodEntry[];
-  activityLog: ActivityEvent[];
-  weeklyAverageMood: number;
+export interface WeeklyCluster {
+  weekStart: bigint;
+  clusterId: bigint;
+}
+
+export interface Anomaly {
+  weekStart: bigint;
+  typeText: string;
+}
+
+export interface WeeklyMoodAnalysis {
+  weeklySummaries: WeeklySummary[];
+  clusters: WeeklyCluster[];
+  anomalies: Anomaly[];
 }

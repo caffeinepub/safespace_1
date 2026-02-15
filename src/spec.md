@@ -1,12 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Roll back the application (frontend and backend) to match version 99 behavior by undoing version 100 changes, especially around admin auto-bootstrap/self-promotion.
+**Goal:** Restore the full legacy SafeSpace backend API and state durability, and reconnect the frontend so the real application UI works again (including admin-gated areas).
 
 **Planned changes:**
-- Revert frontend main flows to version 99 behavior (login, navigation, dashboard, and admin access gating).
-- Remove/disable the version 100 frontend admin auto-bootstrap/auto-claim logic that runs after Internet Identity login.
-- Remove/disable the version 100 backend method that allows the current caller to become an admin, restoring version 99 admin authorization behavior.
-- Ensure the full app (frontend + backend) builds successfully after rollback.
+- Restore the legacy backend API surface in `backend/main.mo` for mood tracking, group and private chat, AI companion sessions, user profiles and ID mapping, activity logging, analytics/session tracking, daily/weekly mood analysis and weekly insights, app market flows/metadata/analytics/subscriptions, admin-only operations, and presentation/PDF (blob) storage endpoints used by the Presentation Viewer.
+- Add upgrade-safe durable state preservation for all restored backend data using Motoko upgrade hooks/stable storage patterns so data survives canister upgrades.
+- Update `runSmokeTest()` in `backend/main.mo` to perform a meaningful end-to-end readiness check across key restored APIs (mood/chat/profile/analytics) for new/empty users.
+- Reconnect the frontend by removing the blocking “Backend Restoration Required” screen in `frontend/src/App.tsx` and routing/rendering the existing SafeSpace UI pages (dashboard, mood tracker/history, chats, AI companion, weekly insights, admin analytics dashboard, app market settings, presentation viewer).
+- Restore/implement the React Query hooks and backend type bindings needed by existing frontend components (including updates to `frontend/src/hooks/useQueries.ts` and related hook files), ensuring stable query keys, correct types, and hooks disabled until the backend actor is ready.
 
-**User-visible outcome:** After logging in, the app behaves like version 99: normal navigation/dashboard flows work as before, admin access is gated only by existing admin status checks, and the app no longer attempts to automatically claim/admin-bootstrap after login.
+**User-visible outcome:** The app loads into the normal SafeSpace experience (for guests and Internet Identity users) with working mood tracking/history, chats, AI sessions, weekly insights, and restored admin-only pages that enforce access control; previously created data persists across upgrades.

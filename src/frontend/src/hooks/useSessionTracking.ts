@@ -1,81 +1,33 @@
 import { useEffect, useRef } from 'react';
-import { useActor } from './useActor';
+import { useLogActivity } from './useQueries';
 
-export function useSessionTracking(userId: string | null) {
-  const { actor } = useActor();
+export function useSessionTracking(guestId?: string) {
+  const logActivity = useLogActivity();
   const sessionStartRef = useRef<number>(Date.now());
-  const sessionTokenRef = useRef<string>(`session-${Date.now()}-${Math.random().toString(36).substring(7)}`);
-  const reportedRef = useRef<boolean>(false);
 
   useEffect(() => {
-    if (!userId) return;
+    const sessionStart = sessionStartRef.current;
 
-    sessionStartRef.current = Date.now();
-    reportedRef.current = false;
-
-    const reportSession = async () => {
-      if (!actor || reportedRef.current) return;
-      
-      // Check if actor has the method
-      if (typeof (actor as any).recordSessionDuration !== 'function') {
-        console.log('Session tracking not available in backend');
-        return;
-      }
-
-      const duration = Date.now() - sessionStartRef.current;
-      const durationNanos = BigInt(duration) * BigInt(1_000_000);
-
-      try {
-        await (actor as any).recordSessionDuration(sessionTokenRef.current, durationNanos);
-        reportedRef.current = true;
-        console.log('Session duration reported:', duration, 'ms');
-      } catch (error) {
-        console.error('Failed to report session duration:', error);
-      }
+    const reportSession = () => {
+      const duration = Date.now() - sessionStart;
+      logActivity.mutate({
+        event: {
+          timestamp: BigInt(Date.now() * 1000000),
+          eventType: 'interaction',
+          details: `Session duration: ${Math.floor(duration / 1000)}s`,
+        },
+        guestId,
+      });
     };
 
-    // Report session every 5 minutes
-    const intervalId = setInterval(reportSession, 5 * 60 * 1000);
+    const intervalId = setInterval(reportSession, 60000); // Report every minute
 
-    // Report on page unload
-    const handleUnload = () => {
-      if (!actor || reportedRef.current) return;
-      
-      if (typeof (actor as any).recordSessionDuration !== 'function') {
-        return;
-      }
-
-      const duration = Date.now() - sessionStartRef.current;
-      const durationNanos = BigInt(duration) * BigInt(1_000_000);
-
-      try {
-        // Use sendBeacon for reliable unload reporting
-        const data = JSON.stringify({
-          sessionToken: sessionTokenRef.current,
-          duration: durationNanos.toString(),
-        });
-        
-        // Fallback to synchronous call if sendBeacon not available
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon('/api/session', data);
-        } else {
-          (actor as any).recordSessionDuration(sessionTokenRef.current, durationNanos).catch((error: any) => {
-            console.error('Failed to report session on unload:', error);
-          });
-        }
-        
-        reportedRef.current = true;
-      } catch (error) {
-        console.error('Failed to report session on unload:', error);
-      }
-    };
-
-    window.addEventListener('beforeunload', handleUnload);
+    window.addEventListener('beforeunload', reportSession);
 
     return () => {
       clearInterval(intervalId);
-      window.removeEventListener('beforeunload', handleUnload);
+      window.removeEventListener('beforeunload', reportSession);
       reportSession();
     };
-  }, [userId, actor]);
+  }, [guestId, logActivity]);
 }

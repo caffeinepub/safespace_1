@@ -1,20 +1,10 @@
-/**
- * Simple linear regression utility using least-squares method
- */
-
-export interface LinearRegressionResult {
+export function linearRegression(points: { x: number; y: number }[]): {
   slope: number;
   intercept: number;
   predict: (x: number) => number;
-}
-
-/**
- * Compute linear regression (y = mx + b) from array of (x, y) points
- * Returns slope, intercept, and a predict function
- */
-export function linearRegression(points: Array<{ x: number; y: number }>): LinearRegressionResult | null {
-  if (points.length < 2) {
-    return null;
+} {
+  if (points.length === 0) {
+    return { slope: 0, intercept: 0, predict: () => 0 };
   }
 
   const n = points.length;
@@ -30,14 +20,7 @@ export function linearRegression(points: Array<{ x: number; y: number }>): Linea
     sumXX += point.x * point.x;
   }
 
-  const denominator = n * sumXX - sumX * sumX;
-  
-  // Avoid division by zero
-  if (Math.abs(denominator) < 1e-10) {
-    return null;
-  }
-
-  const slope = (n * sumXY - sumX * sumY) / denominator;
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
   const intercept = (sumY - slope * sumX) / n;
 
   return {

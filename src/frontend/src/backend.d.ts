@@ -1,4 +1,5 @@
-import type { Principal } from "@icp-sdk/core/principal";
+import type { Principal } from "@dfinity/principal";
+
 export interface Some<T> {
     __kind__: "Some";
     value: T;
@@ -7,86 +8,40 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export class ExternalBlob {
-    getBytes(): Promise<Uint8Array<ArrayBuffer>>;
-    getDirectURL(): string;
-    static fromURL(url: string): ExternalBlob;
-    static fromBytes(blob: Uint8Array<ArrayBuffer>): ExternalBlob;
-    withUploadProgress(onProgress: (percentage: number) => void): ExternalBlob;
+
+export interface http_header {
+    value: string;
+    name: string;
 }
-export interface AnalyticsData {
-    totalSessionDuration: Time;
-    averageSessionDuration: Time;
-    totalSessions: bigint;
-}
+
 export interface TransformationOutput {
     status: bigint;
     body: Uint8Array;
     headers: Array<http_header>;
 }
-export type Time = bigint;
-export interface UserRecord {
-    id: string;
-    authType: AuthType;
-    moodEntries: Array<MoodEntry>;
-    weeklyAverageMood: number;
-    activityLog: Array<ActivityEvent>;
-}
-export interface MoodEntry {
-    mood: Mood;
-    note?: string;
-    timestamp: Time;
-    moodScore: bigint;
-}
-export interface WeeklySummary {
-    weeklyMoodAverage: number;
-    averageSleepHours: number;
-    totalSteps: bigint;
-    weekStart: Time;
-    averageMoodScore: number;
-}
-export interface AIResponse {
-    suggestions: Array<string>;
-    reflectiveListening: string;
-    patterns: Array<string>;
-    gentleIntakeQuestions: Array<string>;
-    response: string;
-    guidance: string;
-}
-export interface DailyMoodEntry {
-    dayOfWeek: bigint;
-    moodScore: bigint;
-}
-export interface PricingConfig {
-    oisyWalletAddress?: string;
+
+export interface ShoppingItem {
+    productName: string;
     currency: string;
-    priceUSDC: bigint;
+    quantity: bigint;
+    priceInCents: bigint;
+    productDescription: string;
 }
+
 export interface TransformationInput {
     context: Uint8Array;
     response: http_request_result;
 }
-export interface MarketAnalytics {
-    totalViews: bigint;
-    totalSubscriptions: bigint;
-    totalRevenue: bigint;
-    totalClones: bigint;
+
+export interface SmokeTestResult {
+    returnToDashboard: boolean;
+    moodTrackerNavigation: boolean;
+    internetIdentityLogin: boolean;
+    moodHistoryNavigation: boolean;
+    guestLogin: boolean;
+    dashboardRender: boolean;
 }
-export interface ActivityEvent {
-    timestamp: Time;
-    details: string;
-    eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry;
-}
-export interface ChatMessage {
-    userId: string;
-    profession?: string;
-    message: string;
-    timestamp: Time;
-}
-export interface WeeklyCluster {
-    clusterId: bigint;
-    weekStart: Time;
-}
+
 export type StripeSessionStatus = {
     __kind__: "completed";
     completed: {
@@ -99,179 +54,224 @@ export type StripeSessionStatus = {
         error: string;
     };
 };
+
 export interface StripeConfiguration {
     allowedCountries: Array<string>;
     secretKey: string;
 }
-export interface AppMarketMetadata {
-    screenshotUrls: Array<string>;
-    title: string;
-    tags: Array<string>;
-    description: string;
-    language: string;
-    logoUrl?: string;
-    category: string;
-}
-export interface Anomaly {
-    typeText: string;
-    weekStart: Time;
-}
-export interface DailyAnalysisEntry {
-    mood: Mood;
-    note?: string;
-    timestamp: Time;
-    moodScore: bigint;
-    stepCount: bigint;
-    sleepHours: bigint;
-}
-export type Principal = Principal;
-export interface MoodLogEntry {
-    principal: Principal;
-    userId: string;
-    mood: Mood;
-    note?: string;
-    timestamp: Time;
-}
-export interface UserData {
-    principal: Principal;
-    moodEntryCount: bigint;
-    userId: string;
-    lastActivity?: Time;
-    profession?: string;
-}
-export interface http_header {
-    value: string;
-    name: string;
-}
-export interface WeeklyMoodAnalysis {
-    anomalies: Array<Anomaly>;
-    weeklySummaries: Array<WeeklySummary>;
-    clusters: Array<WeeklyCluster>;
-}
+
 export interface http_request_result {
     status: bigint;
     body: Uint8Array;
     headers: Array<http_header>;
 }
-export interface PrivateMessage {
-    profession?: string;
-    sender: Principal;
-    message: string;
-    timestamp: Time;
-}
-export interface AIMessage {
-    sender: Variant_ai_user;
-    message: string;
-    timestamp: Time;
-}
-export interface ShoppingItem {
-    productName: string;
-    currency: string;
-    quantity: bigint;
-    priceInCents: bigint;
-    productDescription: string;
-}
-export interface WeeklyMoodChartData {
-    weeklyAverage: number;
-    weeklyEntries: Array<DailyMoodEntry>;
-    averageLabel: string;
-    weeklyInsight: string;
-}
-export interface UserProfile {
-    userId: string;
-    name: string;
-    profession?: string;
-}
-export enum AuthType {
-    internetIdentity = "internetIdentity",
-    guest = "guest"
-}
-export enum Mood {
-    sad = "sad",
-    hopeful = "hopeful",
-    inspired = "inspired",
-    content = "content",
-    anxious = "anxious",
-    happy = "happy",
-    angry = "angry",
-    calm = "calm",
-    relaxed = "relaxed",
-    grateful = "grateful",
-    lonely = "lonely",
-    overwhelmed = "overwhelmed",
-    stressed = "stressed"
-}
+
 export enum UserRole {
     admin = "admin",
     user = "user",
     guest = "guest"
 }
-export enum Variant_ai_user {
-    ai = "ai",
-    user = "user"
+
+export enum Mood {
+    happy = "happy",
+    sad = "sad",
+    anxious = "anxious",
+    calm = "calm",
+    angry = "angry",
+    grateful = "grateful",
+    stressed = "stressed",
+    lonely = "lonely",
+    hopeful = "hopeful",
+    content = "content",
+    overwhelmed = "overwhelmed",
+    inspired = "inspired",
+    relaxed = "relaxed"
 }
-export enum Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry {
-    pageNavigation = "pageNavigation",
-    interaction = "interaction",
-    createMoodEntry = "createMoodEntry",
-    login = "login",
-    updateMoodEntry = "updateMoodEntry"
+
+export interface MoodEntry {
+    timestamp: bigint;
+    mood: Mood;
+    note: Option<string>;
+    moodScore: bigint;
 }
+
+export interface UserProfile {
+    userId: string;
+    name: string;
+    profession: Option<string>;
+}
+
+export interface ChatMessage {
+    timestamp: bigint;
+    userId: string;
+    message: string;
+    profession: Option<string>;
+}
+
+export interface ChatRoom {
+    id: string;
+    name: string;
+    topic: string;
+    messages: Array<ChatMessage>;
+    participants: Array<string>;
+}
+
+export interface PrivateMessage {
+    timestamp: bigint;
+    sender: Principal;
+    message: string;
+    profession: Option<string>;
+}
+
+export interface PrivateThread {
+    id: string;
+    participant1: Principal;
+    participant2: Principal;
+    messages: Array<PrivateMessage>;
+}
+
+export interface AIMessage {
+    timestamp: bigint;
+    sender: { __kind__: "user" } | { __kind__: "ai" };
+    message: string;
+}
+
+export interface DailyMoodEntry {
+    dayOfWeek: bigint;
+    moodScore: bigint;
+}
+
+export interface WeeklyMoodChartData {
+    weeklyEntries: Array<DailyMoodEntry>;
+    weeklyAverage: number;
+    averageLabel: string;
+    weeklyInsight: string;
+}
+
+export interface ActivityEvent {
+    timestamp: bigint;
+    eventType: { __kind__: "login" } | { __kind__: "createMoodEntry" } | { __kind__: "updateMoodEntry" } | { __kind__: "pageNavigation" } | { __kind__: "interaction" };
+    details: string;
+}
+
+export interface UserRecord {
+    id: string;
+    authType: { __kind__: "guest" } | { __kind__: "internetIdentity" };
+    moodEntries: Array<MoodEntry>;
+    activityLog: Array<ActivityEvent>;
+    weeklyAverageMood: number;
+}
+
+export interface AppMarketMetadata {
+    title: string;
+    description: string;
+    category: string;
+    tags: Array<string>;
+    logoUrl: Option<string>;
+    screenshotUrls: Array<string>;
+    language: string;
+}
+
+export interface PricingConfig {
+    priceUSDC: bigint;
+    currency: string;
+    oisyWalletAddress: Option<string>;
+}
+
+export interface MarketAnalytics {
+    totalViews: bigint;
+    totalClones: bigint;
+    totalSubscriptions: bigint;
+    totalRevenue: bigint;
+}
+
+export interface WeeklySummary {
+    weekStart: bigint;
+    averageMoodScore: number;
+    totalSteps: bigint;
+    averageSleepHours: number;
+    weeklyMoodAverage: number;
+}
+
+export interface WeeklyCluster {
+    weekStart: bigint;
+    clusterId: bigint;
+}
+
+export interface Anomaly {
+    weekStart: bigint;
+    typeText: string;
+}
+
+export interface WeeklyMoodAnalysis {
+    weeklySummaries: Array<WeeklySummary>;
+    clusters: Array<WeeklyCluster>;
+    anomalies: Array<Anomaly>;
+}
+
 export interface backendInterface {
+    // Auth & Admin
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createChatRoom(id: string, name: string, topic: string): Promise<void>;
-    createCheckoutSession(items: Array<ShoppingItem>, successUrl: string, cancelUrl: string): Promise<string>;
-    createPrivateThread(threadId: string, participant1: Principal, participant2: Principal): Promise<void>;
-    getAIConversation(sessionId: string): Promise<Array<AIMessage>>;
-    getAggregatedAnalytics(): Promise<AnalyticsData>;
-    getAllMoodLogs(): Promise<Array<MoodLogEntry>>;
-    getAllUserData(): Promise<Array<UserData>>;
-    getAppMarketMetadata(): Promise<AppMarketMetadata | null>;
-    getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
-    getChatMessages(roomId: string): Promise<Array<ChatMessage>>;
-    getChatRooms(): Promise<Array<[string, {
-            id: string;
-            topic: string;
-            name: string;
-            participantCount: bigint;
-        }]>>;
-    getDailyAnalysis(): Promise<Array<DailyAnalysisEntry>>;
-    getDailyAnalysisGuest(guestId: string): Promise<DailyAnalysisEntry | null>;
-    getMarketAnalytics(): Promise<MarketAnalytics>;
-    getMoodHistory(): Promise<Array<MoodEntry>>;
-    getMoodHistoryGuest(guestId: string): Promise<Array<MoodEntry>>;
-    getMyPrivateThreads(): Promise<Array<string>>;
-    getPDF(filename: string): Promise<ExternalBlob | null>;
-    getPricingConfig(): Promise<PricingConfig | null>;
-    getPrivateMessages(threadId: string): Promise<Array<PrivateMessage>>;
-    getStripeSessionStatus(sessionId: string): Promise<StripeSessionStatus>;
-    getUserProfile(user: Principal): Promise<UserProfile | null>;
-    getUserRecordById(userId: string): Promise<UserRecord | null>;
-    getUserRecords(): Promise<Array<UserRecord>>;
-    getWeeklyMoodChartData(): Promise<WeeklyMoodChartData>;
-    getWeeklyMoodInsights(): Promise<Array<WeeklyMoodAnalysis>>;
-    incrementAppViews(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
-    isStripeConfigured(): Promise<boolean>;
-    joinChatRoom(roomId: string, userId: string): Promise<void>;
-    logGuestActivityPublic(guestId: string, eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry, details: string): Promise<void>;
-    logUserActivity(eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry, details: string): Promise<void>;
-    recordCloneRequest(amount: bigint): Promise<void>;
+    
+    // User Profile
+    getCallerUserProfile(): Promise<Option<UserProfile>>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    saveDailyAnalysis(entry: DailyAnalysisEntry): Promise<void>;
-    saveDailyAnalysisGuest(guestId: string, entry: DailyAnalysisEntry): Promise<string>;
-    saveMood(entry: MoodEntry): Promise<void>;
-    saveMoodGuest(guestId: string, entry: MoodEntry): Promise<string>;
-    saveWeeklyAnalysis(analysis: WeeklyMoodAnalysis): Promise<void>;
-    sendAIMessage(sessionId: string, message: string): Promise<AIResponse>;
+    getUserProfile(userId: string): Promise<Option<UserProfile>>;
+    
+    // Mood Tracking
+    createMoodEntry(mood: Mood, note: Option<string>, moodScore: bigint, guestId: Option<string>): Promise<void>;
+    updateMoodEntry(timestamp: bigint, mood: Mood, note: Option<string>, moodScore: bigint, guestId: Option<string>): Promise<void>;
+    getMoodHistory(guestId: Option<string>): Promise<Array<MoodEntry>>;
+    getWeeklyMoodChartData(guestId: Option<string>): Promise<WeeklyMoodChartData>;
+    
+    // Chat Rooms
+    createChatRoom(id: string, name: string, topic: string): Promise<void>;
+    getChatRooms(): Promise<Array<ChatRoom>>;
+    getChatMessages(roomId: string): Promise<Array<ChatMessage>>;
     sendChatMessage(roomId: string, message: ChatMessage): Promise<void>;
+    
+    // Private Chat
+    startPrivateThread(otherUser: Principal): Promise<string>;
+    getMyPrivateThreads(): Promise<Array<PrivateThread>>;
+    getPrivateMessages(threadId: string): Promise<Array<PrivateMessage>>;
     sendPrivateMessage(threadId: string, message: PrivateMessage): Promise<void>;
+    
+    // AI Companion
+    createAISession(sessionId: string): Promise<void>;
+    appendAIMessage(sessionId: string, message: AIMessage): Promise<void>;
+    getAITranscript(sessionId: string): Promise<Array<AIMessage>>;
+    getAITypingStatus(sessionId: string): Promise<boolean>;
+    
+    // Activity Logging
+    logActivity(event: ActivityEvent, guestId: Option<string>): Promise<void>;
+    
+    // Analytics (Admin)
+    getAllUserRecords(): Promise<Array<UserRecord>>;
+    getUserRecord(userId: string): Promise<Option<UserRecord>>;
+    getAnalyticsSummary(): Promise<{ totalUsers: bigint; totalMoodEntries: bigint; averageMoodScore: number }>;
+    
+    // Weekly Analysis
+    getWeeklyMoodInsights(guestId: Option<string>): Promise<WeeklyMoodAnalysis>;
+    
+    // App Market (Admin)
     setAppMarketMetadata(metadata: AppMarketMetadata): Promise<void>;
+    getAppMarketMetadata(): Promise<Option<AppMarketMetadata>>;
     setPricingConfig(config: PricingConfig): Promise<void>;
+    getPricingConfig(): Promise<Option<PricingConfig>>;
+    getMarketAnalytics(): Promise<MarketAnalytics>;
+    recordMarketView(): Promise<void>;
+    
+    // Stripe
+    createCheckoutSession(items: Array<ShoppingItem>, successUrl: string, cancelUrl: string): Promise<string>;
+    getStripeSessionStatus(sessionId: string): Promise<StripeSessionStatus>;
+    isStripeConfigured(): Promise<boolean>;
     setStripeConfiguration(config: StripeConfiguration): Promise<void>;
+    
+    // Smoke Test
+    runSmokeTest(): Promise<SmokeTestResult>;
+    
+    // Transform
     transform(input: TransformationInput): Promise<TransformationOutput>;
-    updateMood(timestamp: Time, entry: MoodEntry): Promise<void>;
-    updateMoodGuest(guestId: string, timestamp: Time, entry: MoodEntry): Promise<string>;
-    uploadPDF(filename: string, content: ExternalBlob): Promise<void>;
 }

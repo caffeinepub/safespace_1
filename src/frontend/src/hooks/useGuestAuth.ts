@@ -1,35 +1,27 @@
-import { useState, useEffect, useCallback } from 'react';
-import { guestAuthStore, GuestSession } from './guestAuthStore';
+import { useState, useEffect } from 'react';
+import { guestAuthStore } from './guestAuthStore';
 
 export function useGuestAuth() {
-  const [guestSession, setGuestSession] = useState<GuestSession | null>(
-    () => guestAuthStore.getSession()
-  );
-  const [isGuest, setIsGuest] = useState(() => guestAuthStore.getSession() !== null);
+  const [guestSession, setGuestSession] = useState(() => guestAuthStore.getSession());
 
-  // Subscribe to store updates
   useEffect(() => {
-    const unsubscribe = guestAuthStore.subscribe((session) => {
-      setGuestSession(session);
-      setIsGuest(session !== null);
-    });
-
+    const unsubscribe = guestAuthStore.subscribe(setGuestSession);
     return unsubscribe;
   }, []);
 
-  const loginAsGuest = useCallback((userId: string, profession: string | null): string => {
-    return guestAuthStore.login(userId, profession);
-  }, []);
+  const createGuestSession = () => {
+    return guestAuthStore.createSession();
+  };
 
-  const clearGuestSession = useCallback(() => {
-    guestAuthStore.logout();
-  }, []);
+  const clearGuestSession = () => {
+    guestAuthStore.clearSession();
+  };
 
   return {
     guestSession,
-    isGuest,
-    loginAsGuest,
-    clearGuestSession,
     guestId: guestSession?.guestId,
+    isGuest: !!guestSession,
+    createGuestSession,
+    clearGuestSession,
   };
 }

@@ -1,48 +1,23 @@
-/**
- * Weekly summary text generation with gentle, non-judgmental language
- */
-
-/**
- * Get the label band for a weekly average mood score
- */
-export function getWeeklyAverageLabel(average: number): string {
-  if (average >= 8.0) {
-    return 'Very positive week';
-  } else if (average >= 6.0) {
-    return 'Mostly positive';
-  } else if (average === 5.0) {
-    return 'Average / balanced';
-  } else if (average >= 4.0) {
-    return 'Below average';
-  } else {
-    return 'Low mood week';
-  }
+export function getMoodLabel(averageScore: number): string {
+  if (averageScore < 3) return 'Low';
+  if (averageScore < 4) return 'Below average';
+  if (averageScore < 6) return 'Average/balanced';
+  if (averageScore < 8) return 'Mostly positive';
+  return 'Very positive';
 }
 
-/**
- * Generate a short, non-judgmental insight sentence
- */
-export function getWeeklyInsight(average: number, entryCount: number): string {
-  if (entryCount === 0) {
-    return 'No entries this week yet.';
+export function getWeeklyInsight(averageScore: number): string {
+  if (averageScore < 3) {
+    return 'This week has been challenging. Remember to be kind to yourself.';
   }
-
-  if (average >= 8.0) {
-    return 'Your week shows consistent positivity.';
-  } else if (average >= 6.0) {
-    return 'Your mood has been mostly positive this week.';
-  } else if (average >= 5.0) {
-    return 'Your mood has been balanced this week.';
-  } else if (average >= 4.0) {
-    return 'Your week shows some lower moments.';
-  } else {
-    return 'This week has been challenging.';
+  if (averageScore < 4) {
+    return 'Some ups and downs this week. Small steps forward count.';
   }
-}
-
-/**
- * Get empty state message
- */
-export function getEmptyStateMessage(): string {
-  return 'Start tracking your mood to see your weekly patterns.';
+  if (averageScore < 6) {
+    return 'A balanced week overall. Keep taking care of yourself.';
+  }
+  if (averageScore < 8) {
+    return 'A good week with positive moments. Keep it up!';
+  }
+  return 'An excellent week! Celebrate your positive energy.';
 }

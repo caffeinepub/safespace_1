@@ -1,43 +1,65 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "Restore the SafeSpace backend to full legacy functionality so the app can operate normally (mood tracking, chat, AI companion, analytics, and additional legacy modules).",
   "architectural_notes": [
-    "Deployment supports versioned releases with rollback capability (e.g., rollback from v100 to v99 across both frontend and backend)."
+    "Project: SafeSpace; backend restoration required because frontend depends on specific backend APIs for mood, chat, AI companion/session, analytics, profiles, etc."
   ],
   "known_issues": [
-    "User requested rollback from v100 to v99 due to too many changes in v100; rollback should apply to both frontend and backend."
+    "SafeSpace backend is missing required API functions (backend currently defines types only), causing the frontend to show a 'backend needs to be restored' warning."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-revert-the-deployed-application-behavior-to-match-version-99-across-both-frontend-and-backend-undoing-the-changes-introduced-in-version-100",
-      "title": "Revert the deployed application behavior to match version 99 across both frontend and backend, undoing the changes introduced in version 100.",
+      "id": "feature-reconnect-the-frontend-to-the-restored-backend-by-removing-the-hard-coded-backend-restoration-required-blocking-screen-in-frontend-src-app-tsx-and-routing-rendering-the-real-application-ui-dashboard-mood-tracker-history-editor-group-chat-private-chat-ai-companion-weekly-insights-admin-analytics-dashboard-app-market-settings-presentation-viewer-using-the-existing-components-and-hooks-in-the-codebase",
+      "title": "Reconnect the frontend to the restored backend by removing the hard-coded 'Backend Restoration Required' blocking screen in `frontend/src/App.tsx` and routing/rendering the real application UI (dashboard, mood tracker/history/editor, group chat, private chat, AI companion, weekly insights, admin analytics dashboard, app market settings, presentation viewer) using the existing components and hooks in the codebase.",
       "reqIds": [
-        "REQ-1"
+        "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-remove-or-disable-the-version-100-admin-auto-bootstrap-flow-so-that-the-app-no-longer-automatically-attempts-to-claim-admin-rights-after-internet-identity-login-restore-version-99-behavior",
-      "title": "Remove or disable the version 100 admin auto-bootstrap flow so that the app no longer automatically attempts to claim admin rights after Internet Identity login (restore version 99 behavior).",
+      "id": "feature-restore-and-or-implement-all-required-react-query-hooks-and-backend-type-bindings-needed-by-the-existing-frontend-components-e-g-dashboard-chat-lists-room-messages-private-threads-mood-history-calendar-weekly-insights-admin-analytics-market-settings-session-activity-logging-expand-frontend-src-hooks-usequeries-ts-and-any-other-editable-hook-files-to-include-the-legacy-queries-mutations-expected-by-the-components-described-in-frontend-file-summaries-txt-and-ensure-they-call-the-restored-backend-methods-with-correct-parameter-return-types",
+      "title": "Restore and/or implement all required React Query hooks and backend type bindings needed by the existing frontend components (e.g., dashboard chat lists, room messages, private threads, mood history/calendar, weekly insights, admin analytics, market settings, session/activity logging). Expand `frontend/src/hooks/useQueries.ts` (and any other editable hook files) to include the legacy queries/mutations expected by the components described in `frontend-file-summaries.txt`, and ensure they call the restored backend methods with correct parameter/return types.",
       "reqIds": [
-        "REQ-2"
+        "REQ-4"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-3",
-      "summary": "Remove or disable the backend method that was added in version 100 to allow the current caller to become an admin (restore version 99 behavior).",
+      "id": "AR-1",
+      "summary": "Fully restore the entire legacy SafeSpace backend (mood tracking, chat, AI companion/AI session, analytics, user profiles, activity logs, weekly analysis, app market, admin logic, and all prior functionality).",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Fully restore the legacy SafeSpace backend API surface in `backend/main.mo` so the frontend can use all prior modules: mood tracking (create/update/get/history), group chat rooms and messages, private threads and messages, AI companion sessions (create session, append messages, get session transcript, typing flag if applicable), user profiles and user ID mapping, activity logging (guest and Internet Identity), analytics/session tracking, daily/weekly mood analysis and weekly insights, app market metadata/pricing/analytics/clone/subscription flows, admin-only operations, PDF/blob storage endpoints used by the Presentation Viewer, and any other previously supported endpoints implied by the existing backend state variables and frontend components.",
       "reqIds": [
-        "REQ-3"
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Implement durable state preservation for the restored backend so that all legacy data structures (mood history, chat rooms, private threads, AI sessions, profiles, activity logs, analytics, app market settings/records, stripe configuration references, view trackers, and stored blobs metadata) survive canister upgrades. Use Motoko upgrade hooks (`system preupgrade`/`system postupgrade`) or equivalent stable storage patterns appropriate for the existing `Map`/`List`-based in-memory structures.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Update the backend `runSmokeTest()` method in `backend/main.mo` so it performs a meaningful end-to-end API readiness check for the restored backend (not just returning hardcoded `true` values), aligned with the existing smoke test checklist expectations (guest login, dashboard render prerequisites, mood tracker/history readiness).",
+      "reqIds": [
+        "REQ-5"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Roll back frontend and backend to version 99 behavior",
+  "projectName": "SafeSpace",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

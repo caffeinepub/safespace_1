@@ -1,38 +1,40 @@
-// Session Context Manager - Session-only context storage
-
 import { SessionContext } from './types';
 
-const SESSION_STORAGE_KEY = 'ai-chat-session-context';
+const SESSION_STORAGE_KEY = 'safespace_ai_session_context';
 
-export function initializeSessionContext(): SessionContext {
-  // Try to load from sessionStorage (not localStorage)
-  const stored = sessionStorage.getItem(SESSION_STORAGE_KEY);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch {
-      // Fall through to default
-    }
-  }
-
+export function initSessionContext(): SessionContext {
   return {
-    messageCount: 0,
-    recentThemes: [],
-    userRequestedTechniques: false,
-    userSharedGoal: false,
-    riskDetected: false,
+    stage: 'intake',
+    themes: [],
+    exchangeCount: 0,
+    lastUpdated: Date.now(),
   };
 }
 
-export function saveSessionContext(context: SessionContext): void {
-  sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(context));
+export function loadSessionContext(): SessionContext | null {
+  try {
+    const stored = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error('Failed to load session context:', error);
+  }
+  return null;
 }
 
-export function clearSessionContext(): void {
-  sessionStorage.removeItem(SESSION_STORAGE_KEY);
+export function saveSessionContext(context: SessionContext) {
+  try {
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(context));
+  } catch (error) {
+    console.error('Failed to save session context:', error);
+  }
 }
 
-export function getSessionSummary(context: SessionContext): string {
-  const themes = context.recentThemes.join(', ');
-  return `Session: ${context.messageCount} messages. Recent themes: ${themes || 'none yet'}.`;
+export function clearSessionContext() {
+  try {
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+  } catch (error) {
+    console.error('Failed to clear session context:', error);
+  }
 }

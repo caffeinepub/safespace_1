@@ -89,85 +89,36 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface AnalyticsData {
-    totalSessionDuration: Time;
-    averageSessionDuration: Time;
-    totalSessions: bigint;
+export interface http_header {
+    value: string;
+    name: string;
 }
 export interface TransformationOutput {
     status: bigint;
     body: Uint8Array;
     headers: Array<http_header>;
 }
-export type Time = bigint;
+export interface ShoppingItem {
+    productName: string;
+    currency: string;
+    quantity: bigint;
+    priceInCents: bigint;
+    productDescription: string;
+}
 export interface _CaffeineStorageRefillInformation {
     proposed_top_up_amount?: bigint;
-}
-export interface _CaffeineStorageCreateCertificateResult {
-    method: string;
-    blob_hash: string;
-}
-export interface UserRecord {
-    id: string;
-    authType: AuthType;
-    moodEntries: Array<MoodEntry>;
-    weeklyAverageMood: number;
-    activityLog: Array<ActivityEvent>;
-}
-export interface MoodEntry {
-    mood: Mood;
-    note?: string;
-    timestamp: Time;
-    moodScore: bigint;
-}
-export interface WeeklySummary {
-    weeklyMoodAverage: number;
-    averageSleepHours: number;
-    totalSteps: bigint;
-    weekStart: Time;
-    averageMoodScore: number;
-}
-export interface AIResponse {
-    suggestions: Array<string>;
-    reflectiveListening: string;
-    patterns: Array<string>;
-    gentleIntakeQuestions: Array<string>;
-    response: string;
-    guidance: string;
-}
-export interface DailyMoodEntry {
-    dayOfWeek: bigint;
-    moodScore: bigint;
-}
-export interface PricingConfig {
-    oisyWalletAddress?: string;
-    currency: string;
-    priceUSDC: bigint;
 }
 export interface TransformationInput {
     context: Uint8Array;
     response: http_request_result;
 }
-export interface MarketAnalytics {
-    totalViews: bigint;
-    totalSubscriptions: bigint;
-    totalRevenue: bigint;
-    totalClones: bigint;
-}
-export interface ActivityEvent {
-    timestamp: Time;
-    details: string;
-    eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry;
-}
-export interface ChatMessage {
-    userId: string;
-    profession?: string;
-    message: string;
-    timestamp: Time;
-}
-export interface WeeklyCluster {
-    clusterId: bigint;
-    weekStart: Time;
+export interface SmokeTestResult {
+    returnToDashboard: boolean;
+    moodTrackerNavigation: boolean;
+    internetIdentityLogin: boolean;
+    moodHistoryNavigation: boolean;
+    guestLogin: boolean;
+    dashboardRender: boolean;
 }
 export type StripeSessionStatus = {
     __kind__: "completed";
@@ -181,127 +132,27 @@ export type StripeSessionStatus = {
         error: string;
     };
 };
+export interface _CaffeineStorageCreateCertificateResult {
+    method: string;
+    blob_hash: string;
+}
 export interface StripeConfiguration {
     allowedCountries: Array<string>;
     secretKey: string;
 }
-export interface AppMarketMetadata {
-    screenshotUrls: Array<string>;
-    title: string;
-    tags: Array<string>;
-    description: string;
-    language: string;
-    logoUrl?: string;
-    category: string;
-}
-export interface Anomaly {
-    typeText: string;
-    weekStart: Time;
-}
-export interface DailyAnalysisEntry {
-    mood: Mood;
-    note?: string;
-    timestamp: Time;
-    moodScore: bigint;
-    stepCount: bigint;
-    sleepHours: bigint;
-}
-export type Principal = Principal;
-export interface MoodLogEntry {
-    principal: Principal;
-    userId: string;
-    mood: Mood;
-    note?: string;
-    timestamp: Time;
-}
-export interface UserData {
-    principal: Principal;
-    moodEntryCount: bigint;
-    userId: string;
-    lastActivity?: Time;
-    profession?: string;
-}
-export interface http_header {
-    value: string;
-    name: string;
-}
-export interface WeeklyMoodAnalysis {
-    anomalies: Array<Anomaly>;
-    weeklySummaries: Array<WeeklySummary>;
-    clusters: Array<WeeklyCluster>;
+export interface _CaffeineStorageRefillResult {
+    success?: boolean;
+    topped_up_amount?: bigint;
 }
 export interface http_request_result {
     status: bigint;
     body: Uint8Array;
     headers: Array<http_header>;
 }
-export interface PrivateMessage {
-    profession?: string;
-    sender: Principal;
-    message: string;
-    timestamp: Time;
-}
-export interface AIMessage {
-    sender: Variant_ai_user;
-    message: string;
-    timestamp: Time;
-}
-export interface ShoppingItem {
-    productName: string;
-    currency: string;
-    quantity: bigint;
-    priceInCents: bigint;
-    productDescription: string;
-}
-export interface WeeklyMoodChartData {
-    weeklyAverage: number;
-    weeklyEntries: Array<DailyMoodEntry>;
-    averageLabel: string;
-    weeklyInsight: string;
-}
-export interface UserProfile {
-    userId: string;
-    name: string;
-    profession?: string;
-}
-export interface _CaffeineStorageRefillResult {
-    success?: boolean;
-    topped_up_amount?: bigint;
-}
-export enum AuthType {
-    internetIdentity = "internetIdentity",
-    guest = "guest"
-}
-export enum Mood {
-    sad = "sad",
-    hopeful = "hopeful",
-    inspired = "inspired",
-    content = "content",
-    anxious = "anxious",
-    happy = "happy",
-    angry = "angry",
-    calm = "calm",
-    relaxed = "relaxed",
-    grateful = "grateful",
-    lonely = "lonely",
-    overwhelmed = "overwhelmed",
-    stressed = "stressed"
-}
 export enum UserRole {
     admin = "admin",
     user = "user",
     guest = "guest"
-}
-export enum Variant_ai_user {
-    ai = "ai",
-    user = "user"
-}
-export enum Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry {
-    pageNavigation = "pageNavigation",
-    interaction = "interaction",
-    createMoodEntry = "createMoodEntry",
-    login = "login",
-    updateMoodEntry = "updateMoodEntry"
 }
 export interface backendInterface {
     _caffeineStorageBlobIsLive(hash: Uint8Array): Promise<boolean>;
@@ -312,63 +163,16 @@ export interface backendInterface {
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createChatRoom(id: string, name: string, topic: string): Promise<void>;
     createCheckoutSession(items: Array<ShoppingItem>, successUrl: string, cancelUrl: string): Promise<string>;
-    createPrivateThread(threadId: string, participant1: Principal, participant2: Principal): Promise<void>;
-    getAIConversation(sessionId: string): Promise<Array<AIMessage>>;
-    getAggregatedAnalytics(): Promise<AnalyticsData>;
-    getAllMoodLogs(): Promise<Array<MoodLogEntry>>;
-    getAllUserData(): Promise<Array<UserData>>;
-    getAppMarketMetadata(): Promise<AppMarketMetadata | null>;
-    getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
-    getChatMessages(roomId: string): Promise<Array<ChatMessage>>;
-    getChatRooms(): Promise<Array<[string, {
-            id: string;
-            topic: string;
-            name: string;
-            participantCount: bigint;
-        }]>>;
-    getDailyAnalysis(): Promise<Array<DailyAnalysisEntry>>;
-    getDailyAnalysisGuest(guestId: string): Promise<DailyAnalysisEntry | null>;
-    getMarketAnalytics(): Promise<MarketAnalytics>;
-    getMoodHistory(): Promise<Array<MoodEntry>>;
-    getMoodHistoryGuest(guestId: string): Promise<Array<MoodEntry>>;
-    getMyPrivateThreads(): Promise<Array<string>>;
-    getPDF(filename: string): Promise<ExternalBlob | null>;
-    getPricingConfig(): Promise<PricingConfig | null>;
-    getPrivateMessages(threadId: string): Promise<Array<PrivateMessage>>;
     getStripeSessionStatus(sessionId: string): Promise<StripeSessionStatus>;
-    getUserProfile(user: Principal): Promise<UserProfile | null>;
-    getUserRecordById(userId: string): Promise<UserRecord | null>;
-    getUserRecords(): Promise<Array<UserRecord>>;
-    getWeeklyMoodChartData(): Promise<WeeklyMoodChartData>;
-    getWeeklyMoodInsights(): Promise<Array<WeeklyMoodAnalysis>>;
-    incrementAppViews(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     isStripeConfigured(): Promise<boolean>;
-    joinChatRoom(roomId: string, userId: string): Promise<void>;
-    logGuestActivityPublic(guestId: string, eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry, details: string): Promise<void>;
-    logUserActivity(eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry, details: string): Promise<void>;
-    recordCloneRequest(amount: bigint): Promise<void>;
-    saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    saveDailyAnalysis(entry: DailyAnalysisEntry): Promise<void>;
-    saveDailyAnalysisGuest(guestId: string, entry: DailyAnalysisEntry): Promise<string>;
-    saveMood(entry: MoodEntry): Promise<void>;
-    saveMoodGuest(guestId: string, entry: MoodEntry): Promise<string>;
-    saveWeeklyAnalysis(analysis: WeeklyMoodAnalysis): Promise<void>;
-    sendAIMessage(sessionId: string, message: string): Promise<AIResponse>;
-    sendChatMessage(roomId: string, message: ChatMessage): Promise<void>;
-    sendPrivateMessage(threadId: string, message: PrivateMessage): Promise<void>;
-    setAppMarketMetadata(metadata: AppMarketMetadata): Promise<void>;
-    setPricingConfig(config: PricingConfig): Promise<void>;
+    runSmokeTest(): Promise<SmokeTestResult>;
     setStripeConfiguration(config: StripeConfiguration): Promise<void>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
-    updateMood(timestamp: Time, entry: MoodEntry): Promise<void>;
-    updateMoodGuest(guestId: string, timestamp: Time, entry: MoodEntry): Promise<string>;
-    uploadPDF(filename: string, content: ExternalBlob): Promise<void>;
 }
-import type { AIMessage as _AIMessage, ActivityEvent as _ActivityEvent, AppMarketMetadata as _AppMarketMetadata, AuthType as _AuthType, ChatMessage as _ChatMessage, DailyAnalysisEntry as _DailyAnalysisEntry, ExternalBlob as _ExternalBlob, Mood as _Mood, MoodEntry as _MoodEntry, MoodLogEntry as _MoodLogEntry, PricingConfig as _PricingConfig, Principal as _Principal, PrivateMessage as _PrivateMessage, StripeSessionStatus as _StripeSessionStatus, Time as _Time, UserData as _UserData, UserProfile as _UserProfile, UserRecord as _UserRecord, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { StripeSessionStatus as _StripeSessionStatus, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -483,20 +287,6 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createChatRoom(arg0: string, arg1: string, arg2: string): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.createChatRoom(arg0, arg1, arg2);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.createChatRoom(arg0, arg1, arg2);
-            return result;
-        }
-    }
     async createCheckoutSession(arg0: Array<ShoppingItem>, arg1: string, arg2: string): Promise<string> {
         if (this.processError) {
             try {
@@ -511,373 +301,32 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createPrivateThread(arg0: string, arg1: Principal, arg2: Principal): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.createPrivateThread(arg0, arg1, arg2);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.createPrivateThread(arg0, arg1, arg2);
-            return result;
-        }
-    }
-    async getAIConversation(arg0: string): Promise<Array<AIMessage>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getAIConversation(arg0);
-                return from_candid_vec_n10(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getAIConversation(arg0);
-            return from_candid_vec_n10(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getAggregatedAnalytics(): Promise<AnalyticsData> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getAggregatedAnalytics();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getAggregatedAnalytics();
-            return result;
-        }
-    }
-    async getAllMoodLogs(): Promise<Array<MoodLogEntry>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getAllMoodLogs();
-                return from_candid_vec_n14(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getAllMoodLogs();
-            return from_candid_vec_n14(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getAllUserData(): Promise<Array<UserData>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getAllUserData();
-                return from_candid_vec_n20(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getAllUserData();
-            return from_candid_vec_n20(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getAppMarketMetadata(): Promise<AppMarketMetadata | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getAppMarketMetadata();
-                return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getAppMarketMetadata();
-            return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getCallerUserProfile(): Promise<UserProfile | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getCallerUserProfile();
-                return from_candid_opt_n27(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getCallerUserProfile();
-            return from_candid_opt_n27(this._uploadFile, this._downloadFile, result);
-        }
-    }
     async getCallerUserRole(): Promise<UserRole> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCallerUserRole();
-                return from_candid_UserRole_n30(this._uploadFile, this._downloadFile, result);
+                return from_candid_UserRole_n10(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCallerUserRole();
-            return from_candid_UserRole_n30(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getChatMessages(arg0: string): Promise<Array<ChatMessage>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getChatMessages(arg0);
-                return from_candid_vec_n32(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getChatMessages(arg0);
-            return from_candid_vec_n32(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getChatRooms(): Promise<Array<[string, {
-            id: string;
-            topic: string;
-            name: string;
-            participantCount: bigint;
-        }]>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getChatRooms();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getChatRooms();
-            return result;
-        }
-    }
-    async getDailyAnalysis(): Promise<Array<DailyAnalysisEntry>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getDailyAnalysis();
-                return from_candid_vec_n35(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getDailyAnalysis();
-            return from_candid_vec_n35(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getDailyAnalysisGuest(arg0: string): Promise<DailyAnalysisEntry | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getDailyAnalysisGuest(arg0);
-                return from_candid_opt_n38(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getDailyAnalysisGuest(arg0);
-            return from_candid_opt_n38(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getMarketAnalytics(): Promise<MarketAnalytics> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getMarketAnalytics();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getMarketAnalytics();
-            return result;
-        }
-    }
-    async getMoodHistory(): Promise<Array<MoodEntry>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getMoodHistory();
-                return from_candid_vec_n39(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getMoodHistory();
-            return from_candid_vec_n39(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getMoodHistoryGuest(arg0: string): Promise<Array<MoodEntry>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getMoodHistoryGuest(arg0);
-                return from_candid_vec_n39(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getMoodHistoryGuest(arg0);
-            return from_candid_vec_n39(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getMyPrivateThreads(): Promise<Array<string>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getMyPrivateThreads();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getMyPrivateThreads();
-            return result;
-        }
-    }
-    async getPDF(arg0: string): Promise<ExternalBlob | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getPDF(arg0);
-                return from_candid_opt_n42(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getPDF(arg0);
-            return from_candid_opt_n42(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getPricingConfig(): Promise<PricingConfig | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getPricingConfig();
-                return from_candid_opt_n44(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getPricingConfig();
-            return from_candid_opt_n44(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getPrivateMessages(arg0: string): Promise<Array<PrivateMessage>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getPrivateMessages(arg0);
-                return from_candid_vec_n47(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getPrivateMessages(arg0);
-            return from_candid_vec_n47(this._uploadFile, this._downloadFile, result);
+            return from_candid_UserRole_n10(this._uploadFile, this._downloadFile, result);
         }
     }
     async getStripeSessionStatus(arg0: string): Promise<StripeSessionStatus> {
         if (this.processError) {
             try {
                 const result = await this.actor.getStripeSessionStatus(arg0);
-                return from_candid_StripeSessionStatus_n50(this._uploadFile, this._downloadFile, result);
+                return from_candid_StripeSessionStatus_n12(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getStripeSessionStatus(arg0);
-            return from_candid_StripeSessionStatus_n50(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getUserProfile(arg0);
-                return from_candid_opt_n27(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getUserProfile(arg0);
-            return from_candid_opt_n27(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getUserRecordById(arg0: string): Promise<UserRecord | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getUserRecordById(arg0);
-                return from_candid_opt_n53(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getUserRecordById(arg0);
-            return from_candid_opt_n53(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getUserRecords(): Promise<Array<UserRecord>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getUserRecords();
-                return from_candid_vec_n62(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getUserRecords();
-            return from_candid_vec_n62(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getWeeklyMoodChartData(): Promise<WeeklyMoodChartData> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getWeeklyMoodChartData();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getWeeklyMoodChartData();
-            return result;
-        }
-    }
-    async getWeeklyMoodInsights(): Promise<Array<WeeklyMoodAnalysis>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getWeeklyMoodInsights();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getWeeklyMoodInsights();
-            return result;
-        }
-    }
-    async incrementAppViews(): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.incrementAppViews();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.incrementAppViews();
-            return result;
+            return from_candid_StripeSessionStatus_n12(this._uploadFile, this._downloadFile, result);
         }
     }
     async isCallerAdmin(): Promise<boolean> {
@@ -908,213 +357,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async joinChatRoom(arg0: string, arg1: string): Promise<void> {
+    async runSmokeTest(): Promise<SmokeTestResult> {
         if (this.processError) {
             try {
-                const result = await this.actor.joinChatRoom(arg0, arg1);
+                const result = await this.actor.runSmokeTest();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.joinChatRoom(arg0, arg1);
-            return result;
-        }
-    }
-    async logGuestActivityPublic(arg0: string, arg1: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry, arg2: string): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.logGuestActivityPublic(arg0, to_candid_variant_n63(this._uploadFile, this._downloadFile, arg1), arg2);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.logGuestActivityPublic(arg0, to_candid_variant_n63(this._uploadFile, this._downloadFile, arg1), arg2);
-            return result;
-        }
-    }
-    async logUserActivity(arg0: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry, arg1: string): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.logUserActivity(to_candid_variant_n63(this._uploadFile, this._downloadFile, arg0), arg1);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.logUserActivity(to_candid_variant_n63(this._uploadFile, this._downloadFile, arg0), arg1);
-            return result;
-        }
-    }
-    async recordCloneRequest(arg0: bigint): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.recordCloneRequest(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.recordCloneRequest(arg0);
-            return result;
-        }
-    }
-    async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.saveCallerUserProfile(to_candid_UserProfile_n64(this._uploadFile, this._downloadFile, arg0));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.saveCallerUserProfile(to_candid_UserProfile_n64(this._uploadFile, this._downloadFile, arg0));
-            return result;
-        }
-    }
-    async saveDailyAnalysis(arg0: DailyAnalysisEntry): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.saveDailyAnalysis(to_candid_DailyAnalysisEntry_n66(this._uploadFile, this._downloadFile, arg0));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.saveDailyAnalysis(to_candid_DailyAnalysisEntry_n66(this._uploadFile, this._downloadFile, arg0));
-            return result;
-        }
-    }
-    async saveDailyAnalysisGuest(arg0: string, arg1: DailyAnalysisEntry): Promise<string> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.saveDailyAnalysisGuest(arg0, to_candid_DailyAnalysisEntry_n66(this._uploadFile, this._downloadFile, arg1));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.saveDailyAnalysisGuest(arg0, to_candid_DailyAnalysisEntry_n66(this._uploadFile, this._downloadFile, arg1));
-            return result;
-        }
-    }
-    async saveMood(arg0: MoodEntry): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.saveMood(to_candid_MoodEntry_n70(this._uploadFile, this._downloadFile, arg0));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.saveMood(to_candid_MoodEntry_n70(this._uploadFile, this._downloadFile, arg0));
-            return result;
-        }
-    }
-    async saveMoodGuest(arg0: string, arg1: MoodEntry): Promise<string> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.saveMoodGuest(arg0, to_candid_MoodEntry_n70(this._uploadFile, this._downloadFile, arg1));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.saveMoodGuest(arg0, to_candid_MoodEntry_n70(this._uploadFile, this._downloadFile, arg1));
-            return result;
-        }
-    }
-    async saveWeeklyAnalysis(arg0: WeeklyMoodAnalysis): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.saveWeeklyAnalysis(arg0);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.saveWeeklyAnalysis(arg0);
-            return result;
-        }
-    }
-    async sendAIMessage(arg0: string, arg1: string): Promise<AIResponse> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.sendAIMessage(arg0, arg1);
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.sendAIMessage(arg0, arg1);
-            return result;
-        }
-    }
-    async sendChatMessage(arg0: string, arg1: ChatMessage): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.sendChatMessage(arg0, to_candid_ChatMessage_n72(this._uploadFile, this._downloadFile, arg1));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.sendChatMessage(arg0, to_candid_ChatMessage_n72(this._uploadFile, this._downloadFile, arg1));
-            return result;
-        }
-    }
-    async sendPrivateMessage(arg0: string, arg1: PrivateMessage): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.sendPrivateMessage(arg0, to_candid_PrivateMessage_n74(this._uploadFile, this._downloadFile, arg1));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.sendPrivateMessage(arg0, to_candid_PrivateMessage_n74(this._uploadFile, this._downloadFile, arg1));
-            return result;
-        }
-    }
-    async setAppMarketMetadata(arg0: AppMarketMetadata): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.setAppMarketMetadata(to_candid_AppMarketMetadata_n76(this._uploadFile, this._downloadFile, arg0));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.setAppMarketMetadata(to_candid_AppMarketMetadata_n76(this._uploadFile, this._downloadFile, arg0));
-            return result;
-        }
-    }
-    async setPricingConfig(arg0: PricingConfig): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.setPricingConfig(to_candid_PricingConfig_n78(this._uploadFile, this._downloadFile, arg0));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.setPricingConfig(to_candid_PricingConfig_n78(this._uploadFile, this._downloadFile, arg0));
+            const result = await this.actor.runSmokeTest();
             return result;
         }
     }
@@ -1146,126 +399,18 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async updateMood(arg0: Time, arg1: MoodEntry): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.updateMood(arg0, to_candid_MoodEntry_n70(this._uploadFile, this._downloadFile, arg1));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.updateMood(arg0, to_candid_MoodEntry_n70(this._uploadFile, this._downloadFile, arg1));
-            return result;
-        }
-    }
-    async updateMoodGuest(arg0: string, arg1: Time, arg2: MoodEntry): Promise<string> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.updateMoodGuest(arg0, arg1, to_candid_MoodEntry_n70(this._uploadFile, this._downloadFile, arg2));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.updateMoodGuest(arg0, arg1, to_candid_MoodEntry_n70(this._uploadFile, this._downloadFile, arg2));
-            return result;
-        }
-    }
-    async uploadPDF(arg0: string, arg1: ExternalBlob): Promise<void> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.uploadPDF(arg0, await to_candid_ExternalBlob_n80(this._uploadFile, this._downloadFile, arg1));
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.uploadPDF(arg0, await to_candid_ExternalBlob_n80(this._uploadFile, this._downloadFile, arg1));
-            return result;
-        }
-    }
 }
-function from_candid_AIMessage_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _AIMessage): AIMessage {
-    return from_candid_record_n12(_uploadFile, _downloadFile, value);
+function from_candid_StripeSessionStatus_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _StripeSessionStatus): StripeSessionStatus {
+    return from_candid_variant_n13(_uploadFile, _downloadFile, value);
 }
-function from_candid_ActivityEvent_n59(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ActivityEvent): ActivityEvent {
-    return from_candid_record_n60(_uploadFile, _downloadFile, value);
-}
-function from_candid_AppMarketMetadata_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _AppMarketMetadata): AppMarketMetadata {
-    return from_candid_record_n26(_uploadFile, _downloadFile, value);
-}
-function from_candid_AuthType_n56(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _AuthType): AuthType {
-    return from_candid_variant_n57(_uploadFile, _downloadFile, value);
-}
-function from_candid_ChatMessage_n33(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ChatMessage): ChatMessage {
-    return from_candid_record_n34(_uploadFile, _downloadFile, value);
-}
-function from_candid_DailyAnalysisEntry_n36(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _DailyAnalysisEntry): DailyAnalysisEntry {
-    return from_candid_record_n37(_uploadFile, _downloadFile, value);
-}
-async function from_candid_ExternalBlob_n43(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExternalBlob): Promise<ExternalBlob> {
-    return await _downloadFile(value);
-}
-function from_candid_MoodEntry_n40(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _MoodEntry): MoodEntry {
-    return from_candid_record_n41(_uploadFile, _downloadFile, value);
-}
-function from_candid_MoodLogEntry_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _MoodLogEntry): MoodLogEntry {
-    return from_candid_record_n16(_uploadFile, _downloadFile, value);
-}
-function from_candid_Mood_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Mood): Mood {
-    return from_candid_variant_n18(_uploadFile, _downloadFile, value);
-}
-function from_candid_PricingConfig_n45(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PricingConfig): PricingConfig {
-    return from_candid_record_n46(_uploadFile, _downloadFile, value);
-}
-function from_candid_PrivateMessage_n48(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PrivateMessage): PrivateMessage {
-    return from_candid_record_n49(_uploadFile, _downloadFile, value);
-}
-function from_candid_StripeSessionStatus_n50(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _StripeSessionStatus): StripeSessionStatus {
-    return from_candid_variant_n51(_uploadFile, _downloadFile, value);
-}
-function from_candid_UserData_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserData): UserData {
-    return from_candid_record_n22(_uploadFile, _downloadFile, value);
-}
-function from_candid_UserProfile_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserProfile): UserProfile {
-    return from_candid_record_n29(_uploadFile, _downloadFile, value);
-}
-function from_candid_UserRecord_n54(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRecord): UserRecord {
-    return from_candid_record_n55(_uploadFile, _downloadFile, value);
-}
-function from_candid_UserRole_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
-    return from_candid_variant_n31(_uploadFile, _downloadFile, value);
+function from_candid_UserRole_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n11(_uploadFile, _downloadFile, value);
 }
 function from_candid__CaffeineStorageRefillResult_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: __CaffeineStorageRefillResult): _CaffeineStorageRefillResult {
     return from_candid_record_n5(_uploadFile, _downloadFile, value);
 }
-function from_candid_opt_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
+function from_candid_opt_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
     return value.length === 0 ? null : value[0];
-}
-function from_candid_opt_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Time]): Time | null {
-    return value.length === 0 ? null : value[0];
-}
-function from_candid_opt_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_AppMarketMetadata]): AppMarketMetadata | null {
-    return value.length === 0 ? null : from_candid_AppMarketMetadata_n25(_uploadFile, _downloadFile, value[0]);
-}
-function from_candid_opt_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
-    return value.length === 0 ? null : from_candid_UserProfile_n28(_uploadFile, _downloadFile, value[0]);
-}
-function from_candid_opt_n38(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_DailyAnalysisEntry]): DailyAnalysisEntry | null {
-    return value.length === 0 ? null : from_candid_DailyAnalysisEntry_n36(_uploadFile, _downloadFile, value[0]);
-}
-async function from_candid_opt_n42(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ExternalBlob]): Promise<ExternalBlob | null> {
-    return value.length === 0 ? null : await from_candid_ExternalBlob_n43(_uploadFile, _downloadFile, value[0]);
-}
-function from_candid_opt_n44(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_PricingConfig]): PricingConfig | null {
-    return value.length === 0 ? null : from_candid_PricingConfig_n45(_uploadFile, _downloadFile, value[0]);
-}
-function from_candid_opt_n53(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserRecord]): UserRecord | null {
-    return value.length === 0 ? null : from_candid_UserRecord_n54(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [boolean]): boolean | null {
     return value.length === 0 ? null : value[0];
@@ -1273,200 +418,16 @@ function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Ar
 function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_record_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    sender: {
-        ai: null;
-    } | {
-        user: null;
-    };
-    message: string;
-    timestamp: _Time;
+function from_candid_record_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    userPrincipal: [] | [string];
+    response: string;
 }): {
-    sender: Variant_ai_user;
-    message: string;
-    timestamp: Time;
+    userPrincipal?: string;
+    response: string;
 } {
     return {
-        sender: from_candid_variant_n13(_uploadFile, _downloadFile, value.sender),
-        message: value.message,
-        timestamp: value.timestamp
-    };
-}
-function from_candid_record_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    principal: _Principal;
-    userId: string;
-    mood: _Mood;
-    note: [] | [string];
-    timestamp: _Time;
-}): {
-    principal: Principal;
-    userId: string;
-    mood: Mood;
-    note?: string;
-    timestamp: Time;
-} {
-    return {
-        principal: value.principal,
-        userId: value.userId,
-        mood: from_candid_Mood_n17(_uploadFile, _downloadFile, value.mood),
-        note: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.note)),
-        timestamp: value.timestamp
-    };
-}
-function from_candid_record_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    principal: _Principal;
-    moodEntryCount: bigint;
-    userId: string;
-    lastActivity: [] | [_Time];
-    profession: [] | [string];
-}): {
-    principal: Principal;
-    moodEntryCount: bigint;
-    userId: string;
-    lastActivity?: Time;
-    profession?: string;
-} {
-    return {
-        principal: value.principal,
-        moodEntryCount: value.moodEntryCount,
-        userId: value.userId,
-        lastActivity: record_opt_to_undefined(from_candid_opt_n23(_uploadFile, _downloadFile, value.lastActivity)),
-        profession: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.profession))
-    };
-}
-function from_candid_record_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    screenshotUrls: Array<string>;
-    title: string;
-    tags: Array<string>;
-    description: string;
-    language: string;
-    logoUrl: [] | [string];
-    category: string;
-}): {
-    screenshotUrls: Array<string>;
-    title: string;
-    tags: Array<string>;
-    description: string;
-    language: string;
-    logoUrl?: string;
-    category: string;
-} {
-    return {
-        screenshotUrls: value.screenshotUrls,
-        title: value.title,
-        tags: value.tags,
-        description: value.description,
-        language: value.language,
-        logoUrl: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.logoUrl)),
-        category: value.category
-    };
-}
-function from_candid_record_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    userId: string;
-    name: string;
-    profession: [] | [string];
-}): {
-    userId: string;
-    name: string;
-    profession?: string;
-} {
-    return {
-        userId: value.userId,
-        name: value.name,
-        profession: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.profession))
-    };
-}
-function from_candid_record_n34(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    userId: string;
-    profession: [] | [string];
-    message: string;
-    timestamp: _Time;
-}): {
-    userId: string;
-    profession?: string;
-    message: string;
-    timestamp: Time;
-} {
-    return {
-        userId: value.userId,
-        profession: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.profession)),
-        message: value.message,
-        timestamp: value.timestamp
-    };
-}
-function from_candid_record_n37(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    mood: _Mood;
-    note: [] | [string];
-    timestamp: _Time;
-    moodScore: bigint;
-    stepCount: bigint;
-    sleepHours: bigint;
-}): {
-    mood: Mood;
-    note?: string;
-    timestamp: Time;
-    moodScore: bigint;
-    stepCount: bigint;
-    sleepHours: bigint;
-} {
-    return {
-        mood: from_candid_Mood_n17(_uploadFile, _downloadFile, value.mood),
-        note: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.note)),
-        timestamp: value.timestamp,
-        moodScore: value.moodScore,
-        stepCount: value.stepCount,
-        sleepHours: value.sleepHours
-    };
-}
-function from_candid_record_n41(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    mood: _Mood;
-    note: [] | [string];
-    timestamp: _Time;
-    moodScore: bigint;
-}): {
-    mood: Mood;
-    note?: string;
-    timestamp: Time;
-    moodScore: bigint;
-} {
-    return {
-        mood: from_candid_Mood_n17(_uploadFile, _downloadFile, value.mood),
-        note: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.note)),
-        timestamp: value.timestamp,
-        moodScore: value.moodScore
-    };
-}
-function from_candid_record_n46(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    oisyWalletAddress: [] | [string];
-    currency: string;
-    priceUSDC: bigint;
-}): {
-    oisyWalletAddress?: string;
-    currency: string;
-    priceUSDC: bigint;
-} {
-    return {
-        oisyWalletAddress: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.oisyWalletAddress)),
-        currency: value.currency,
-        priceUSDC: value.priceUSDC
-    };
-}
-function from_candid_record_n49(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    profession: [] | [string];
-    sender: _Principal;
-    message: string;
-    timestamp: _Time;
-}): {
-    profession?: string;
-    sender: Principal;
-    message: string;
-    timestamp: Time;
-} {
-    return {
-        profession: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.profession)),
-        sender: value.sender,
-        message: value.message,
-        timestamp: value.timestamp
+        userPrincipal: record_opt_to_undefined(from_candid_opt_n15(_uploadFile, _downloadFile, value.userPrincipal)),
+        response: value.response
     };
 }
 function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
@@ -1481,101 +442,7 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
         topped_up_amount: record_opt_to_undefined(from_candid_opt_n7(_uploadFile, _downloadFile, value.topped_up_amount))
     };
 }
-function from_candid_record_n52(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    userPrincipal: [] | [string];
-    response: string;
-}): {
-    userPrincipal?: string;
-    response: string;
-} {
-    return {
-        userPrincipal: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.userPrincipal)),
-        response: value.response
-    };
-}
-function from_candid_record_n55(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    id: string;
-    authType: _AuthType;
-    moodEntries: Array<_MoodEntry>;
-    weeklyAverageMood: number;
-    activityLog: Array<_ActivityEvent>;
-}): {
-    id: string;
-    authType: AuthType;
-    moodEntries: Array<MoodEntry>;
-    weeklyAverageMood: number;
-    activityLog: Array<ActivityEvent>;
-} {
-    return {
-        id: value.id,
-        authType: from_candid_AuthType_n56(_uploadFile, _downloadFile, value.authType),
-        moodEntries: from_candid_vec_n39(_uploadFile, _downloadFile, value.moodEntries),
-        weeklyAverageMood: value.weeklyAverageMood,
-        activityLog: from_candid_vec_n58(_uploadFile, _downloadFile, value.activityLog)
-    };
-}
-function from_candid_record_n60(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    timestamp: _Time;
-    details: string;
-    eventType: {
-        pageNavigation: null;
-    } | {
-        interaction: null;
-    } | {
-        createMoodEntry: null;
-    } | {
-        login: null;
-    } | {
-        updateMoodEntry: null;
-    };
-}): {
-    timestamp: Time;
-    details: string;
-    eventType: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry;
-} {
-    return {
-        timestamp: value.timestamp,
-        details: value.details,
-        eventType: from_candid_variant_n61(_uploadFile, _downloadFile, value.eventType)
-    };
-}
-function from_candid_variant_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    ai: null;
-} | {
-    user: null;
-}): Variant_ai_user {
-    return "ai" in value ? Variant_ai_user.ai : "user" in value ? Variant_ai_user.user : value;
-}
-function from_candid_variant_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    sad: null;
-} | {
-    hopeful: null;
-} | {
-    inspired: null;
-} | {
-    content: null;
-} | {
-    anxious: null;
-} | {
-    happy: null;
-} | {
-    angry: null;
-} | {
-    calm: null;
-} | {
-    relaxed: null;
-} | {
-    grateful: null;
-} | {
-    lonely: null;
-} | {
-    overwhelmed: null;
-} | {
-    stressed: null;
-}): Mood {
-    return "sad" in value ? Mood.sad : "hopeful" in value ? Mood.hopeful : "inspired" in value ? Mood.inspired : "content" in value ? Mood.content : "anxious" in value ? Mood.anxious : "happy" in value ? Mood.happy : "angry" in value ? Mood.angry : "calm" in value ? Mood.calm : "relaxed" in value ? Mood.relaxed : "grateful" in value ? Mood.grateful : "lonely" in value ? Mood.lonely : "overwhelmed" in value ? Mood.overwhelmed : "stressed" in value ? Mood.stressed : value;
-}
-function from_candid_variant_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     admin: null;
 } | {
     user: null;
@@ -1584,7 +451,7 @@ function from_candid_variant_n31(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }): UserRole {
     return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
 }
-function from_candid_variant_n51(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     completed: {
         userPrincipal: [] | [string];
         response: string;
@@ -1607,85 +474,11 @@ function from_candid_variant_n51(_uploadFile: (file: ExternalBlob) => Promise<Ui
 } {
     return "completed" in value ? {
         __kind__: "completed",
-        completed: from_candid_record_n52(_uploadFile, _downloadFile, value.completed)
+        completed: from_candid_record_n14(_uploadFile, _downloadFile, value.completed)
     } : "failed" in value ? {
         __kind__: "failed",
         failed: value.failed
     } : value;
-}
-function from_candid_variant_n57(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    internetIdentity: null;
-} | {
-    guest: null;
-}): AuthType {
-    return "internetIdentity" in value ? AuthType.internetIdentity : "guest" in value ? AuthType.guest : value;
-}
-function from_candid_variant_n61(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    pageNavigation: null;
-} | {
-    interaction: null;
-} | {
-    createMoodEntry: null;
-} | {
-    login: null;
-} | {
-    updateMoodEntry: null;
-}): Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry {
-    return "pageNavigation" in value ? Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.pageNavigation : "interaction" in value ? Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.interaction : "createMoodEntry" in value ? Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.createMoodEntry : "login" in value ? Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.login : "updateMoodEntry" in value ? Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.updateMoodEntry : value;
-}
-function from_candid_vec_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_AIMessage>): Array<AIMessage> {
-    return value.map((x)=>from_candid_AIMessage_n11(_uploadFile, _downloadFile, x));
-}
-function from_candid_vec_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_MoodLogEntry>): Array<MoodLogEntry> {
-    return value.map((x)=>from_candid_MoodLogEntry_n15(_uploadFile, _downloadFile, x));
-}
-function from_candid_vec_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_UserData>): Array<UserData> {
-    return value.map((x)=>from_candid_UserData_n21(_uploadFile, _downloadFile, x));
-}
-function from_candid_vec_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_ChatMessage>): Array<ChatMessage> {
-    return value.map((x)=>from_candid_ChatMessage_n33(_uploadFile, _downloadFile, x));
-}
-function from_candid_vec_n35(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_DailyAnalysisEntry>): Array<DailyAnalysisEntry> {
-    return value.map((x)=>from_candid_DailyAnalysisEntry_n36(_uploadFile, _downloadFile, x));
-}
-function from_candid_vec_n39(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_MoodEntry>): Array<MoodEntry> {
-    return value.map((x)=>from_candid_MoodEntry_n40(_uploadFile, _downloadFile, x));
-}
-function from_candid_vec_n47(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_PrivateMessage>): Array<PrivateMessage> {
-    return value.map((x)=>from_candid_PrivateMessage_n48(_uploadFile, _downloadFile, x));
-}
-function from_candid_vec_n58(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_ActivityEvent>): Array<ActivityEvent> {
-    return value.map((x)=>from_candid_ActivityEvent_n59(_uploadFile, _downloadFile, x));
-}
-function from_candid_vec_n62(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_UserRecord>): Array<UserRecord> {
-    return value.map((x)=>from_candid_UserRecord_n54(_uploadFile, _downloadFile, x));
-}
-function to_candid_AppMarketMetadata_n76(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: AppMarketMetadata): _AppMarketMetadata {
-    return to_candid_record_n77(_uploadFile, _downloadFile, value);
-}
-function to_candid_ChatMessage_n72(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ChatMessage): _ChatMessage {
-    return to_candid_record_n73(_uploadFile, _downloadFile, value);
-}
-function to_candid_DailyAnalysisEntry_n66(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: DailyAnalysisEntry): _DailyAnalysisEntry {
-    return to_candid_record_n67(_uploadFile, _downloadFile, value);
-}
-async function to_candid_ExternalBlob_n80(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: ExternalBlob): Promise<_ExternalBlob> {
-    return await _uploadFile(value);
-}
-function to_candid_MoodEntry_n70(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: MoodEntry): _MoodEntry {
-    return to_candid_record_n71(_uploadFile, _downloadFile, value);
-}
-function to_candid_Mood_n68(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Mood): _Mood {
-    return to_candid_variant_n69(_uploadFile, _downloadFile, value);
-}
-function to_candid_PricingConfig_n78(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PricingConfig): _PricingConfig {
-    return to_candid_record_n79(_uploadFile, _downloadFile, value);
-}
-function to_candid_PrivateMessage_n74(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PrivateMessage): _PrivateMessage {
-    return to_candid_record_n75(_uploadFile, _downloadFile, value);
-}
-function to_candid_UserProfile_n64(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserProfile): _UserProfile {
-    return to_candid_record_n65(_uploadFile, _downloadFile, value);
 }
 function to_candid_UserRole_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
     return to_candid_variant_n9(_uploadFile, _downloadFile, value);
@@ -1704,219 +497,6 @@ function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
     return {
         proposed_top_up_amount: value.proposed_top_up_amount ? candid_some(value.proposed_top_up_amount) : candid_none()
     };
-}
-function to_candid_record_n65(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    userId: string;
-    name: string;
-    profession?: string;
-}): {
-    userId: string;
-    name: string;
-    profession: [] | [string];
-} {
-    return {
-        userId: value.userId,
-        name: value.name,
-        profession: value.profession ? candid_some(value.profession) : candid_none()
-    };
-}
-function to_candid_record_n67(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    mood: Mood;
-    note?: string;
-    timestamp: Time;
-    moodScore: bigint;
-    stepCount: bigint;
-    sleepHours: bigint;
-}): {
-    mood: _Mood;
-    note: [] | [string];
-    timestamp: _Time;
-    moodScore: bigint;
-    stepCount: bigint;
-    sleepHours: bigint;
-} {
-    return {
-        mood: to_candid_Mood_n68(_uploadFile, _downloadFile, value.mood),
-        note: value.note ? candid_some(value.note) : candid_none(),
-        timestamp: value.timestamp,
-        moodScore: value.moodScore,
-        stepCount: value.stepCount,
-        sleepHours: value.sleepHours
-    };
-}
-function to_candid_record_n71(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    mood: Mood;
-    note?: string;
-    timestamp: Time;
-    moodScore: bigint;
-}): {
-    mood: _Mood;
-    note: [] | [string];
-    timestamp: _Time;
-    moodScore: bigint;
-} {
-    return {
-        mood: to_candid_Mood_n68(_uploadFile, _downloadFile, value.mood),
-        note: value.note ? candid_some(value.note) : candid_none(),
-        timestamp: value.timestamp,
-        moodScore: value.moodScore
-    };
-}
-function to_candid_record_n73(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    userId: string;
-    profession?: string;
-    message: string;
-    timestamp: Time;
-}): {
-    userId: string;
-    profession: [] | [string];
-    message: string;
-    timestamp: _Time;
-} {
-    return {
-        userId: value.userId,
-        profession: value.profession ? candid_some(value.profession) : candid_none(),
-        message: value.message,
-        timestamp: value.timestamp
-    };
-}
-function to_candid_record_n75(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    profession?: string;
-    sender: Principal;
-    message: string;
-    timestamp: Time;
-}): {
-    profession: [] | [string];
-    sender: _Principal;
-    message: string;
-    timestamp: _Time;
-} {
-    return {
-        profession: value.profession ? candid_some(value.profession) : candid_none(),
-        sender: value.sender,
-        message: value.message,
-        timestamp: value.timestamp
-    };
-}
-function to_candid_record_n77(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    screenshotUrls: Array<string>;
-    title: string;
-    tags: Array<string>;
-    description: string;
-    language: string;
-    logoUrl?: string;
-    category: string;
-}): {
-    screenshotUrls: Array<string>;
-    title: string;
-    tags: Array<string>;
-    description: string;
-    language: string;
-    logoUrl: [] | [string];
-    category: string;
-} {
-    return {
-        screenshotUrls: value.screenshotUrls,
-        title: value.title,
-        tags: value.tags,
-        description: value.description,
-        language: value.language,
-        logoUrl: value.logoUrl ? candid_some(value.logoUrl) : candid_none(),
-        category: value.category
-    };
-}
-function to_candid_record_n79(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    oisyWalletAddress?: string;
-    currency: string;
-    priceUSDC: bigint;
-}): {
-    oisyWalletAddress: [] | [string];
-    currency: string;
-    priceUSDC: bigint;
-} {
-    return {
-        oisyWalletAddress: value.oisyWalletAddress ? candid_some(value.oisyWalletAddress) : candid_none(),
-        currency: value.currency,
-        priceUSDC: value.priceUSDC
-    };
-}
-function to_candid_variant_n63(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry): {
-    pageNavigation: null;
-} | {
-    interaction: null;
-} | {
-    createMoodEntry: null;
-} | {
-    login: null;
-} | {
-    updateMoodEntry: null;
-} {
-    return value == Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.pageNavigation ? {
-        pageNavigation: null
-    } : value == Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.interaction ? {
-        interaction: null
-    } : value == Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.createMoodEntry ? {
-        createMoodEntry: null
-    } : value == Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.login ? {
-        login: null
-    } : value == Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry.updateMoodEntry ? {
-        updateMoodEntry: null
-    } : value;
-}
-function to_candid_variant_n69(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Mood): {
-    sad: null;
-} | {
-    hopeful: null;
-} | {
-    inspired: null;
-} | {
-    content: null;
-} | {
-    anxious: null;
-} | {
-    happy: null;
-} | {
-    angry: null;
-} | {
-    calm: null;
-} | {
-    relaxed: null;
-} | {
-    grateful: null;
-} | {
-    lonely: null;
-} | {
-    overwhelmed: null;
-} | {
-    stressed: null;
-} {
-    return value == Mood.sad ? {
-        sad: null
-    } : value == Mood.hopeful ? {
-        hopeful: null
-    } : value == Mood.inspired ? {
-        inspired: null
-    } : value == Mood.content ? {
-        content: null
-    } : value == Mood.anxious ? {
-        anxious: null
-    } : value == Mood.happy ? {
-        happy: null
-    } : value == Mood.angry ? {
-        angry: null
-    } : value == Mood.calm ? {
-        calm: null
-    } : value == Mood.relaxed ? {
-        relaxed: null
-    } : value == Mood.grateful ? {
-        grateful: null
-    } : value == Mood.lonely ? {
-        lonely: null
-    } : value == Mood.overwhelmed ? {
-        overwhelmed: null
-    } : value == Mood.stressed ? {
-        stressed: null
-    } : value;
 }
 function to_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {
     admin: null;

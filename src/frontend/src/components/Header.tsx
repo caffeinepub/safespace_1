@@ -1,113 +1,138 @@
 import { Button } from '@/components/ui/button';
-import { Heart, Smile, History, LogOut, Menu, TrendingUp, Store, Presentation, Sparkles } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import type { View } from '../App';
+import { Menu } from 'lucide-react';
+import { UserProfile } from '../types/backend-extended';
 
 interface HeaderProps {
-  userId: string;
-  profession: string | null;
-  currentView: View;
-  onNavigate: (view: View) => void;
-  onLogout: () => void;
+  isAuthenticated: boolean;
   isAdmin: boolean;
+  userProfile: UserProfile | null | undefined;
+  onLogout: () => void;
+  onLogin: () => void;
+  onNavigate: (page: 'dashboard' | 'mood-tracker' | 'mood-history' | 'chat-room' | 'private-chat' | 'ai-chat' | 'weekly-insights' | 'analytics' | 'app-market' | 'presentation') => void;
+  currentPage: string;
 }
 
-export default function Header({ userId, profession, currentView, onNavigate, onLogout, isAdmin }: HeaderProps) {
-  const navItems = [
-    { view: 'dashboard' as View, label: 'Home', icon: Heart },
-    { view: 'aiChat' as View, label: 'AI Companion', icon: Sparkles },
-    { view: 'mood' as View, label: 'Mood Tracker', icon: Smile },
-    { view: 'history' as View, label: 'My History', icon: History },
-  ];
+export default function Header({ isAuthenticated, isAdmin, userProfile, onLogout, onLogin, onNavigate, currentPage }: HeaderProps) {
+  const profession = userProfile?.profession;
 
-  // Add admin-only navigation items
-  if (isAdmin) {
-    navItems.push({ view: 'analytics' as View, label: 'Analytics', icon: TrendingUp });
-    navItems.push({ view: 'appMarket' as View, label: 'App Market', icon: Store });
-    navItems.push({ view: 'presentation' as View, label: 'Presentation', icon: Presentation });
-  }
-
-  const NavButtons = () => (
+  const NavLinks = () => (
     <>
-      {navItems.map(({ view, label, icon: Icon }) => (
-        <Button
-          key={view}
-          onClick={() => onNavigate(view)}
-          variant={currentView === view ? 'default' : 'ghost'}
-          className={`transition-all duration-200 ${currentView === view ? 'bg-gradient-to-r from-purple-500 to-pink-500 shadow-md' : 'hover:bg-purple-50 dark:hover:bg-purple-950/30'}`}
-        >
-          <Icon className="w-4 h-4 mr-2" />
-          {label}
-        </Button>
-      ))}
+      <Button
+        variant={currentPage === 'dashboard' ? 'default' : 'ghost'}
+        onClick={() => onNavigate('dashboard')}
+      >
+        Dashboard
+      </Button>
+      <Button
+        variant={currentPage === 'mood-tracker' ? 'default' : 'ghost'}
+        onClick={() => onNavigate('mood-tracker')}
+      >
+        Mood Tracker
+      </Button>
+      <Button
+        variant={currentPage === 'mood-history' ? 'default' : 'ghost'}
+        onClick={() => onNavigate('mood-history')}
+      >
+        Mood History
+      </Button>
+      <Button
+        variant={currentPage === 'chat-room' ? 'default' : 'ghost'}
+        onClick={() => onNavigate('chat-room')}
+      >
+        Group Chat
+      </Button>
+      <Button
+        variant={currentPage === 'private-chat' ? 'default' : 'ghost'}
+        onClick={() => onNavigate('private-chat')}
+      >
+        Private Chat
+      </Button>
+      <Button
+        variant={currentPage === 'ai-chat' ? 'default' : 'ghost'}
+        onClick={() => onNavigate('ai-chat')}
+      >
+        AI Companion
+      </Button>
+      <Button
+        variant={currentPage === 'weekly-insights' ? 'default' : 'ghost'}
+        onClick={() => onNavigate('weekly-insights')}
+      >
+        Weekly Insights
+      </Button>
+      {isAdmin && (
+        <>
+          <Button
+            variant={currentPage === 'analytics' ? 'default' : 'ghost'}
+            onClick={() => onNavigate('analytics')}
+          >
+            Analytics Dashboard
+          </Button>
+          <Button
+            variant={currentPage === 'app-market' ? 'default' : 'ghost'}
+            onClick={() => onNavigate('app-market')}
+          >
+            App Market
+          </Button>
+          <Button
+            variant={currentPage === 'presentation' ? 'default' : 'ghost'}
+            onClick={() => onNavigate('presentation')}
+          >
+            Presentation
+          </Button>
+        </>
+      )}
     </>
   );
 
-  const UserDisplay = ({ className = '' }: { className?: string }) => (
-    <div className={`text-sm ${className}`}>
-      <span className="text-muted-foreground">{userId}</span>
-      {profession && (
-        <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-300">
-          {profession}
-        </span>
-      )}
-      {isAdmin && (
-        <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 text-indigo-700 dark:text-indigo-300 font-semibold">
-          Admin
-        </span>
-      )}
-    </div>
-  );
-
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm">
-      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex flex-col items-center justify-center gap-1.5">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center shadow-md">
-              <Heart className="w-5 h-5 text-white" fill="currentColor" />
+    <header className="bg-white/80 backdrop-blur-sm border-b border-lavender-200 sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lavender-500 to-blush-500 flex items-center justify-center">
+              <span className="text-white font-bold text-lg">S</span>
             </div>
-            <div className="safespace-label-wrapper">
-              <span className="safespace-label">
-                SafeSpace
-              </span>
-            </div>
+            <h1 className="text-xl font-bold text-lavender-900">SafeSpace</h1>
           </div>
-        </div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-2">
-          <NavButtons />
-        </nav>
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-2">
+            <NavLinks />
+          </nav>
 
-        <div className="flex items-center gap-2">
-          <UserDisplay className="hidden sm:block" />
-          <Button onClick={onLogout} variant="outline" size="sm" className="hidden md:flex hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
-
-          {/* Mobile Navigation */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden">
-                <Menu className="w-5 h-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <div className="flex flex-col gap-4 mt-8">
-                <div className="mb-4">
-                  <div className="text-sm text-muted-foreground mb-1">Logged in as:</div>
-                  <UserDisplay />
-                </div>
-                <NavButtons />
-                <Button onClick={onLogout} variant="outline" className="hover:bg-red-50 dark:hover:bg-red-950/30">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
+          <div className="flex items-center gap-4">
+            {isAuthenticated && userProfile && (
+              <div className="hidden md:flex flex-col items-end text-sm">
+                <span className="font-medium text-lavender-900">{userProfile.name}</span>
+                {profession && <span className="text-lavender-600">{String(profession)}</span>}
+                {isAdmin && <span className="text-xs text-amber-600 font-semibold">👑 Admin</span>}
               </div>
-            </SheetContent>
-          </Sheet>
+            )}
+            {isAuthenticated ? (
+              <Button onClick={onLogout} variant="outline">
+                Logout
+              </Button>
+            ) : (
+              <Button onClick={onLogin}>
+                Login
+              </Button>
+            )}
+
+            {/* Mobile Menu */}
+            <Sheet>
+              <SheetTrigger asChild className="lg:hidden">
+                <Button variant="outline" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <div className="flex flex-col gap-4 mt-8">
+                  <NavLinks />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>

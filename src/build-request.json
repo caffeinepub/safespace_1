@@ -1,79 +1,105 @@
 {
   "kind": "build_request",
-  "title": "Roll back frontend and backend to version 99 behavior",
-  "priority": "normal",
+  "title": "Restore full legacy SafeSpace backend (mood, chat, AI sessions, analytics, profiles, weekly analysis, market, admin) and reconnect frontend",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Revert the deployed application behavior to match version 99 across both frontend and backend, undoing the changes introduced in version 100.",
-      "target": "both",
+      "text": "Fully restore the legacy SafeSpace backend API surface in `backend/main.mo` so the frontend can use all prior modules: mood tracking (create/update/get/history), group chat rooms and messages, private threads and messages, AI companion sessions (create session, append messages, get session transcript, typing flag if applicable), user profiles and user ID mapping, activity logging (guest and Internet Identity), analytics/session tracking, daily/weekly mood analysis and weekly insights, app market metadata/pricing/analytics/clone/subscription flows, admin-only operations, PDF/blob storage endpoints used by the Presentation Viewer, and any other previously supported endpoints implied by the existing backend state variables and frontend components.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6",
-          "msg-8",
-          "msg-12"
+          "msg-1"
         ],
         "quotes": [
-          "rollback to version 99",
-          "both",
-          "proceed"
+          "Fully restore the entire old backend including all mood, chat, analytics, AI session, user profiles, activity logs, weekly analysis, app market, admin logic, everything exactly as before(Large build)"
         ]
       },
       "acceptanceCriteria": [
-        "The app builds successfully (frontend + backend) after the rollback changes are applied.",
-        "User-visible behavior matches version 99 rather than version 100 for the main flows (login, navigation, dashboard, and admin access gating).",
-        "No new version-100-only flows remain enabled (e.g., any admin auto-bootstrap/auto-claim logic added in v100 is removed or disabled to match v99)."
+        "`backend/main.mo` exports callable Motoko functions (not just types) for each legacy module: moods, chat rooms, private chat, AI sessions, analytics, profiles, activity logs, weekly analysis, market, admin, and presentation/PDF storage.",
+        "All admin-only backend methods enforce admin authorization using the existing authorization/access-control mixin; non-admin callers receive a clear trap/error.",
+        "The backend compiles successfully and the Candid interface contains the restored methods so the frontend no longer detects a 'missing backend' condition."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Remove or disable the version 100 admin auto-bootstrap flow so that the app no longer automatically attempts to claim admin rights after Internet Identity login (restore version 99 behavior).",
-      "target": "frontend",
+      "text": "Implement durable state preservation for the restored backend so that all legacy data structures (mood history, chat rooms, private threads, AI sessions, profiles, activity logs, analytics, app market settings/records, stripe configuration references, view trackers, and stored blobs metadata) survive canister upgrades. Use Motoko upgrade hooks (`system preupgrade`/`system postupgrade`) or equivalent stable storage patterns appropriate for the existing `Map`/`List`-based in-memory structures.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-6",
-          "msg-12"
+          "msg-1"
         ],
         "quotes": [
-          "rollback to version 99",
-          "proceed"
+          "Fully restore the entire old backend including all mood, chat, analytics, AI session, user profiles, activity logs, weekly analysis, app market, admin logic, everything exactly as before(Large build)"
         ]
       },
       "acceptanceCriteria": [
-        "The app no longer invokes an admin bootstrap hook after login (e.g., no automatic claim attempt / no toast tied to bootstrap error).",
-        "Admin UI gating is determined only by the existing admin status check, as in version 99."
+        "After an upgrade cycle, previously created mood entries, chat rooms/messages, private threads/messages, AI session transcripts, profiles, logs, and market configuration remain available via the restored query endpoints.",
+        "No runtime traps occur during upgrade serialization/deserialization for any restored state collections."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Remove or disable the backend method that was added in version 100 to allow the current caller to become an admin (restore version 99 behavior).",
-      "target": "backend",
+      "text": "Reconnect the frontend to the restored backend by removing the hard-coded 'Backend Restoration Required' blocking screen in `frontend/src/App.tsx` and routing/rendering the real application UI (dashboard, mood tracker/history/editor, group chat, private chat, AI companion, weekly insights, admin analytics dashboard, app market settings, presentation viewer) using the existing components and hooks in the codebase.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6",
-          "msg-8",
-          "msg-12"
+          "msg-1"
         ],
         "quotes": [
-          "rollback to version 99",
-          "both",
-          "proceed"
+          "Fully restore the entire old backend including all mood, chat, analytics, AI session, user profiles, activity logs, weekly analysis, app market, admin logic, everything exactly as before(Large build)"
         ]
       },
       "acceptanceCriteria": [
-        "The backend no longer exposes a caller self-promotion admin method introduced in v100 (e.g., becomeAdmin or equivalent), matching v99 behavior.",
-        "Backend authorization for admin-only methods continues to work as it did in v99 (admin-only calls still require admin privileges)."
+        "When the backend APIs are present, the app loads past the current restoration status card and renders the normal SafeSpace UI.",
+        "Guest and Internet Identity users can reach the dashboard and navigate to Mood Tracker and Mood History without seeing a backend-restoration warning page.",
+        "Admin-only pages (Analytics Dashboard, App Market Settings, Presentation Viewer) are accessible only when `isCallerAdmin` returns true; non-admins see an access denied UI."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Restore and/or implement all required React Query hooks and backend type bindings needed by the existing frontend components (e.g., dashboard chat lists, room messages, private threads, mood history/calendar, weekly insights, admin analytics, market settings, session/activity logging). Expand `frontend/src/hooks/useQueries.ts` (and any other editable hook files) to include the legacy queries/mutations expected by the components described in `frontend-file-summaries.txt`, and ensure they call the restored backend methods with correct parameter/return types.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Fully restore the entire old backend including all mood, chat, analytics, AI session, user profiles, activity logs, weekly analysis, app market, admin logic, everything exactly as before(Large build)"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All previously referenced hooks used by core components (dashboard, mood tracker/history, chat room, private chat, AI chat, weekly insights, admin dashboards, app market) exist and compile.",
+        "Hook query keys are stable and do not cause infinite refetch loops; hooks are disabled until the backend actor is ready (consistent with `useActor`).",
+        "The TypeScript frontend builds without missing-export or type errors related to backend calls."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Update the backend `runSmokeTest()` method in `backend/main.mo` so it performs a meaningful end-to-end API readiness check for the restored backend (not just returning hardcoded `true` values), aligned with the existing smoke test checklist expectations (guest login, dashboard render prerequisites, mood tracker/history readiness).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Fully restore the entire old backend including all mood, chat, analytics, AI session, user profiles, activity logs, weekly analysis, app market, admin logic, everything exactly as before(Large build)"
+        ]
+      },
+      "acceptanceCriteria": [
+        "`runSmokeTest()` validates that the restored mood, chat, profile, and analytics-related APIs are callable and return structurally valid data for a new/empty user.",
+        "The frontend smoke-test flow can rely on `runSmokeTest()` to detect missing/partial backend restoration early."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo; only introduce backend/migration.mo if an upgrade-safe state migration is required.",
-    "Do not edit frontend files under frontend/src/components/ui or any path listed in frontend.immutablePaths."
+    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
+    "Do not edit files under `frontend/src/hooks/useInternetIdentity.ts` / `.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, or anything in `frontend/src/components/ui` (compose instead).",
+    "Use English for all user-facing text."
   ],
   "nonGoals": [
-    "Implementing any new features beyond restoring version 99 behavior.",
-    "Introducing new authentication providers or third-party auth (only Internet Identity is supported).",
-    "Redesigning UI/branding unrelated to the rollback."
+    "Adding new product features beyond restoring what previously existed (e.g., new modules, new auth providers, real-time WebSockets, external databases, third-party LLM integrations).",
+    "Changing the visual theme or branding unless required to remove the backend-restoration-only screen and restore the original navigation/UX flow."
   ],
   "imageRequirements": {
     "required": [],
