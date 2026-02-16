@@ -1,39 +1,32 @@
-import { useLogActivity } from './useQueries';
-import { ActivityEvent } from '../types/backend-extended';
+import { useLogActivity, useLogGuestActivity } from './useQueries';
 
 export function useActivityLogging() {
   const logActivityMutation = useLogActivity();
+  const logGuestActivityMutation = useLogGuestActivity();
 
   const logLogin = (guestId?: string) => {
-    const event: ActivityEvent = {
-      timestamp: BigInt(Date.now() * 1000000),
-      eventType: 'login',
-      details: 'User logged in',
-    };
-    logActivityMutation.mutate({ event, guestId });
+    if (guestId) {
+      logGuestActivityMutation.mutate({ sessionId: guestId, eventType: 'login', details: 'User logged in' });
+    } else {
+      logActivityMutation.mutate({ eventType: 'login', details: 'User logged in' });
+    }
   };
 
   const logPageNavigation = (page: string, guestId?: string) => {
-    const event: ActivityEvent = {
-      timestamp: BigInt(Date.now() * 1000000),
-      eventType: 'pageNavigation',
-      details: `Navigated to ${page}`,
-    };
-    logActivityMutation.mutate({ event, guestId });
+    if (guestId) {
+      logGuestActivityMutation.mutate({ sessionId: guestId, eventType: 'pageNavigation', details: `Navigated to ${page}` });
+    } else {
+      logActivityMutation.mutate({ eventType: 'pageNavigation', details: `Navigated to ${page}` });
+    }
   };
 
-  const logInteraction = (action: string, guestId?: string) => {
-    const event: ActivityEvent = {
-      timestamp: BigInt(Date.now() * 1000000),
-      eventType: 'interaction',
-      details: action,
-    };
-    logActivityMutation.mutate({ event, guestId });
+  const logInteraction = (interaction: string, guestId?: string) => {
+    if (guestId) {
+      logGuestActivityMutation.mutate({ sessionId: guestId, eventType: 'interaction', details: interaction });
+    } else {
+      logActivityMutation.mutate({ eventType: 'interaction', details: interaction });
+    }
   };
 
-  return {
-    logLogin,
-    logPageNavigation,
-    logInteraction,
-  };
+  return { logLogin, logPageNavigation, logInteraction };
 }

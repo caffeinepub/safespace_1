@@ -1,14 +1,11 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from 'sonner';
+import { useState, useEffect } from 'react';
 import { useInternetIdentity } from './hooks/useInternetIdentity';
-import { useIsCallerAdmin, useGetCallerUserProfile, useSaveCallerUserProfile } from './hooks/useQueries';
-import { Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import StartupTimeoutFallback from './components/StartupTimeoutFallback';
-import StartupErrorState from './components/StartupErrorState';
+import { useActor } from './hooks/useActor';
+import { useGetCallerUserProfile, useSaveCallerUserProfile } from './hooks/useQueries';
+import { useGuestAuth } from './hooks/useGuestAuth';
+import { useActivityLogging } from './hooks/useActivityLogging';
+import { useSessionTracking } from './hooks/useSessionTracking';
+import { useAdminBootstrap } from './hooks/useAdminBootstrap';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Dashboard from './components/Dashboard';
@@ -17,185 +14,111 @@ import MoodHistory from './components/MoodHistory';
 import ChatRoom from './components/ChatRoom';
 import PrivateChat from './components/PrivateChat';
 import AIChat from './components/AIChat';
-import WeeklyMoodInsights from './components/WeeklyMoodInsights';
+import AnonymousLogin from './components/AnonymousLogin';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 import AppMarketSettings from './components/AppMarketSettings';
 import PresentationViewer from './components/PresentationViewer';
-import AnonymousLogin from './components/AnonymousLogin';
-import { useState, useEffect } from 'react';
-import { useGuestAuth } from './hooks/useGuestAuth';
-import { useActivityLogging } from './hooks/useActivityLogging';
-import { useSessionTracking } from './hooks/useSessionTracking';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5,
-      refetchOnWindowFocus: false,
-      retry: 1,
-      retryDelay: 500,
-    },
-    mutations: {
-      retry: 1,
-      retryDelay: 500,
-    },
-  },
-});
-
-const STARTUP_TIMEOUT_MS = 20000;
+import WeeklyMoodInsights from './components/WeeklyMoodInsights';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Loader2 } from 'lucide-react';
 
 type Page = 'dashboard' | 'mood-tracker' | 'mood-history' | 'chat-room' | 'private-chat' | 'ai-chat' | 'weekly-insights' | 'analytics' | 'app-market' | 'presentation';
 
-function AppContent() {
-  const { identity, isInitializing, login, clear, loginStatus } = useInternetIdentity();
-  const { guestId } = useGuestAuth();
-  const { data: isAdmin, isLoading: isAdminLoading, error: adminError, refetch: refetchAdmin } = useIsCallerAdmin();
-  const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
-  const saveProfile = useSaveCallerUserProfile();
-  const { logLogin, logPageNavigation } = useActivityLogging();
-  
-  const [startupTimedOut, setStartupTimedOut] = useState(false);
+export default function App() {
+  const { identity, isInitializing: identityInitializing } = useInternetIdentity();
+  const { actor, isFetching: actorFetching } = useActor();
+  const { guestId, isGuest: guestIsGuest } = useGuestAuth();
+  const { logPageNavigation } = useActivityLogging();
+  const { isAdmin } = useAdminBootstrap();
+
+  useSessionTracking();
+
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [profileName, setProfileName] = useState('');
   const [profileProfession, setProfileProfession] = useState('');
 
   const isAuthenticated = !!identity;
-  const isStartupInProgress = isInitializing || (isAuthenticated && isAdminLoading);
+  const isGuest = !isAuthenticated && guestIsGuest;
 
-  // Session tracking
-  useSessionTracking(guestId);
+  const { data: userProfile, isLoading: profileLoading, isFetched: profileFetched } = useGetCallerUserProfile();
+  const saveProfile = useSaveCallerUserProfile();
 
-  // Startup watchdog
   useEffect(() => {
-    if (!isStartupInProgress) {
-      setStartupTimedOut(false);
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      console.warn('Startup timeout exceeded');
-      setStartupTimedOut(true);
-    }, STARTUP_TIMEOUT_MS);
-
-    return () => clearTimeout(timeoutId);
-  }, [isStartupInProgress]);
-
-  // Profile setup check
-  useEffect(() => {
-    if (isAuthenticated && !profileLoading && isFetched && userProfile === null) {
+    if (isAuthenticated && !!actor && profileFetched && userProfile === null) {
       setShowProfileSetup(true);
     }
-  }, [isAuthenticated, profileLoading, isFetched, userProfile]);
+  }, [isAuthenticated, actor, profileFetched, userProfile]);
 
-  // Log login
-  useEffect(() => {
-    if (isAuthenticated && userProfile) {
-      logLogin(guestId);
-    }
-  }, [isAuthenticated, userProfile, guestId, logLogin]);
-
-  const handleLogout = async () => {
-    await clear();
-    queryClient.clear();
-    setCurrentPage('dashboard');
-  };
-
-  const handleLogin = async () => {
-    try {
-      await login();
-    } catch (error: any) {
-      console.error('Login error:', error);
-    }
-  };
-
-  const handleRetryStartup = () => {
-    console.log('Retrying startup...');
-    refetchAdmin();
+  const handleNavigate = (page: Page) => {
+    setCurrentPage(page);
+    logPageNavigation(page, guestId);
   };
 
   const handleSaveProfile = async () => {
     if (!profileName.trim()) return;
-    
+
     try {
       await saveProfile.mutateAsync({
-        userId: identity?.getPrincipal().toString() || '',
-        name: profileName,
-        profession: profileProfession.trim() || null,
+        userId: identity!.getPrincipal().toString(),
+        name: profileName.trim(),
+        profession: profileProfession.trim() || undefined,
       });
       setShowProfileSetup(false);
+      setProfileName('');
+      setProfileProfession('');
     } catch (error) {
       console.error('Failed to save profile:', error);
     }
   };
 
-  const navigateTo = (page: Page) => {
-    setCurrentPage(page);
-    logPageNavigation(page, guestId);
-  };
+  const isLoading = identityInitializing || actorFetching || !actor;
 
-  // Show startup error state
-  if (isAuthenticated && adminError && !isAdminLoading) {
-    console.error('Startup error:', adminError);
-    return <StartupErrorState error={adminError as Error} onRetry={handleRetryStartup} />;
-  }
-
-  // Show timeout fallback
-  if (startupTimedOut && isStartupInProgress) {
-    return <StartupTimeoutFallback />;
-  }
-
-  // Show loading
-  if (isStartupInProgress) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-lavender-50 via-blush-50 to-sky-50">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 animate-spin text-lavender-600 mx-auto" />
-          <p className="text-lavender-700 font-medium">Loading SafeSpace...</p>
+      <div className="aurora-bg min-h-screen flex items-center justify-center">
+        <div className="glass-card p-8 rounded-2xl text-center">
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-safespace-primary" />
+          <p className="text-white text-lg font-medium">Loading SafeSpace...</p>
         </div>
       </div>
     );
   }
 
-  // Show anonymous login if not authenticated and not guest
-  if (!isAuthenticated && !guestId) {
-    return <AnonymousLogin onLogin={handleLogin} />;
+  if (!isAuthenticated && !isGuest) {
+    return <AnonymousLogin />;
   }
 
-  return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-lavender-50 via-blush-50 to-sky-50">
-      <Header
-        isAuthenticated={isAuthenticated}
-        isAdmin={isAdmin || false}
-        userProfile={userProfile}
-        onLogout={handleLogout}
-        onLogin={handleLogin}
-        onNavigate={navigateTo}
-        currentPage={currentPage}
-      />
+  const profileSetupLoading = isAuthenticated && (profileLoading || !profileFetched);
 
+  return (
+    <div className="aurora-bg min-h-screen flex flex-col">
+      {isAuthenticated && <Header currentPage={currentPage} onNavigate={handleNavigate} isAdmin={isAdmin || false} />}
+      
       <main className="flex-1 container mx-auto px-4 py-8">
-        {currentPage === 'dashboard' && <Dashboard onNavigate={navigateTo} guestId={guestId} />}
-        {currentPage === 'mood-tracker' && <MoodTracker onBack={() => navigateTo('dashboard')} guestId={guestId} />}
-        {currentPage === 'mood-history' && <MoodHistory onBack={() => navigateTo('dashboard')} guestId={guestId} />}
-        {currentPage === 'chat-room' && <ChatRoom onBack={() => navigateTo('dashboard')} userProfile={userProfile} />}
-        {currentPage === 'private-chat' && <PrivateChat onBack={() => navigateTo('dashboard')} userProfile={userProfile} />}
-        {currentPage === 'ai-chat' && <AIChat onBack={() => navigateTo('dashboard')} />}
-        {currentPage === 'weekly-insights' && <WeeklyMoodInsights onBack={() => navigateTo('dashboard')} guestId={guestId} />}
-        {currentPage === 'analytics' && <AnalyticsDashboard onBack={() => navigateTo('dashboard')} isAdmin={isAdmin || false} />}
-        {currentPage === 'app-market' && <AppMarketSettings onBack={() => navigateTo('dashboard')} isAdmin={isAdmin || false} />}
-        {currentPage === 'presentation' && <PresentationViewer onBack={() => navigateTo('dashboard')} isAdmin={isAdmin || false} />}
+        {currentPage === 'dashboard' && <Dashboard onNavigate={handleNavigate} guestId={guestId} />}
+        {currentPage === 'mood-tracker' && <MoodTracker onBack={() => handleNavigate('dashboard')} guestId={guestId} />}
+        {currentPage === 'mood-history' && <MoodHistory onBack={() => handleNavigate('dashboard')} guestId={guestId} />}
+        {currentPage === 'chat-room' && <ChatRoom onBack={() => handleNavigate('dashboard')} userProfile={userProfile} />}
+        {currentPage === 'private-chat' && <PrivateChat onBack={() => handleNavigate('dashboard')} userProfile={userProfile} />}
+        {currentPage === 'ai-chat' && <AIChat onBack={() => handleNavigate('dashboard')} />}
+        {currentPage === 'weekly-insights' && <WeeklyMoodInsights onBack={() => handleNavigate('dashboard')} guestId={guestId} />}
+        {currentPage === 'analytics' && <AnalyticsDashboard onBack={() => handleNavigate('dashboard')} isAdmin={isAdmin || false} />}
+        {currentPage === 'app-market' && <AppMarketSettings onBack={() => handleNavigate('dashboard')} isAdmin={isAdmin || false} />}
+        {currentPage === 'presentation' && <PresentationViewer onBack={() => handleNavigate('dashboard')} isAdmin={isAdmin || false} />}
       </main>
 
       <Footer />
 
-      {/* Profile Setup Dialog */}
-      <Dialog open={showProfileSetup} onOpenChange={setShowProfileSetup}>
-        <DialogContent>
+      <Dialog open={showProfileSetup && !profileSetupLoading} onOpenChange={setShowProfileSetup}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Welcome to SafeSpace</DialogTitle>
             <DialogDescription>
-              Please tell us a bit about yourself to get started.
+              Please tell us your name to personalize your experience
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -203,18 +126,28 @@ function AppContent() {
               <Label htmlFor="name">Name *</Label>
               <Input
                 id="name"
+                placeholder="Enter your name"
                 value={profileName}
                 onChange={(e) => setProfileName(e.target.value)}
-                placeholder="Enter your name"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && profileName.trim()) {
+                    handleSaveProfile();
+                  }
+                }}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="profession">Profession (optional)</Label>
               <Input
                 id="profession"
+                placeholder="e.g., Student, Teacher, Engineer"
                 value={profileProfession}
                 onChange={(e) => setProfileProfession(e.target.value)}
-                placeholder="e.g., Student, Teacher, Engineer"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && profileName.trim()) {
+                    handleSaveProfile();
+                  }
+                }}
               />
             </div>
           </div>
@@ -222,22 +155,20 @@ function AppContent() {
             <Button
               onClick={handleSaveProfile}
               disabled={!profileName.trim() || saveProfile.isPending}
+              className="w-full"
             >
-              {saveProfile.isPending ? 'Saving...' : 'Continue'}
+              {saveProfile.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                'Continue'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <Toaster position="top-right" />
     </div>
-  );
-}
-
-export default function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AppContent />
-    </QueryClientProvider>
   );
 }

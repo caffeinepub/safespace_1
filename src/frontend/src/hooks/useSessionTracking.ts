@@ -1,33 +1,39 @@
-import { useEffect, useRef } from 'react';
-import { useLogActivity } from './useQueries';
+import { useEffect } from 'react';
+import { useLogGuestActivity } from './useQueries';
 
 export function useSessionTracking(guestId?: string) {
-  const logActivity = useLogActivity();
-  const sessionStartRef = useRef<number>(Date.now());
+  const logGuestActivity = useLogGuestActivity();
 
   useEffect(() => {
-    const sessionStart = sessionStartRef.current;
+    if (!guestId) return;
 
-    const reportSession = () => {
-      const duration = Date.now() - sessionStart;
-      logActivity.mutate({
-        event: {
-          timestamp: BigInt(Date.now() * 1000000),
-          eventType: 'interaction',
-          details: `Session duration: ${Math.floor(duration / 1000)}s`,
-        },
-        guestId,
+    const startTime = Date.now();
+    const reportInterval = setInterval(() => {
+      const duration = Date.now() - startTime;
+      logGuestActivity.mutate({
+        sessionId: guestId,
+        eventType: 'interaction',
+        details: `Session duration: ${Math.floor(duration / 1000)}s`,
       });
+    }, 60000);
+
+    const handleUnload = () => {
+      const duration = Date.now() - startTime;
+      navigator.sendBeacon(
+        '/api/log',
+        JSON.stringify({
+          sessionId: guestId,
+          eventType: 'interaction',
+          details: `Session ended after ${Math.floor(duration / 1000)}s`,
+        })
+      );
     };
 
-    const intervalId = setInterval(reportSession, 60000); // Report every minute
-
-    window.addEventListener('beforeunload', reportSession);
+    window.addEventListener('beforeunload', handleUnload);
 
     return () => {
-      clearInterval(intervalId);
-      window.removeEventListener('beforeunload', reportSession);
-      reportSession();
+      clearInterval(reportInterval);
+      window.removeEventListener('beforeunload', handleUnload);
     };
-  }, [guestId, logActivity]);
+  }, [guestId, logGuestActivity]);
 }

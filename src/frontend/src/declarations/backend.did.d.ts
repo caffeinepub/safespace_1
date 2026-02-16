@@ -10,6 +10,104 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface AIMessage {
+  'sender' : { 'ai' : null } |
+    { 'user' : null },
+  'message' : string,
+  'timestamp' : Time,
+}
+export interface ActivityEvent {
+  'timestamp' : Time,
+  'details' : string,
+  'eventType' : { 'pageNavigation' : null } |
+    { 'interaction' : null } |
+    { 'createMoodEntry' : null } |
+    { 'login' : null } |
+    { 'updateMoodEntry' : null },
+}
+export interface AnalyticsData {
+  'totalSessionDuration' : Time,
+  'averageSessionDuration' : Time,
+  'totalSessions' : bigint,
+}
+export interface Anomaly { 'typeText' : string, 'weekStart' : Time }
+export interface AppMarketMetadata {
+  'screenshotUrls' : Array<string>,
+  'title' : string,
+  'tags' : Array<string>,
+  'description' : string,
+  'language' : string,
+  'logoUrl' : [] | [string],
+  'category' : string,
+}
+export type AuthType = { 'internetIdentity' : null } |
+  { 'guest' : null };
+export interface ChatMessage {
+  'userId' : string,
+  'profession' : [] | [string],
+  'message' : string,
+  'timestamp' : Time,
+}
+export interface ChatRoomView {
+  'id' : string,
+  'participants' : Array<string>,
+  'topic' : string,
+  'messages' : Array<ChatMessage>,
+  'name' : string,
+}
+export interface DailyAnalysisEntry {
+  'mood' : Mood,
+  'note' : [] | [string],
+  'timestamp' : Time,
+  'moodScore' : bigint,
+  'stepCount' : bigint,
+  'sleepHours' : bigint,
+}
+export interface DailyMoodEntry { 'dayOfWeek' : bigint, 'moodScore' : bigint }
+export type ExternalBlob = Uint8Array;
+export interface MarketAnalytics {
+  'totalViews' : bigint,
+  'totalSubscriptions' : bigint,
+  'totalRevenue' : bigint,
+  'totalClones' : bigint,
+}
+export type Mood = { 'sad' : null } |
+  { 'hopeful' : null } |
+  { 'inspired' : null } |
+  { 'content' : null } |
+  { 'anxious' : null } |
+  { 'happy' : null } |
+  { 'angry' : null } |
+  { 'calm' : null } |
+  { 'relaxed' : null } |
+  { 'grateful' : null } |
+  { 'lonely' : null } |
+  { 'overwhelmed' : null } |
+  { 'stressed' : null };
+export interface MoodEntry {
+  'mood' : Mood,
+  'note' : [] | [string],
+  'timestamp' : Time,
+  'moodScore' : bigint,
+}
+export interface PricingConfig {
+  'oisyWalletAddress' : [] | [string],
+  'currency' : string,
+  'priceUSDC' : bigint,
+}
+export type Principal = Principal;
+export interface PrivateMessage {
+  'profession' : [] | [string],
+  'sender' : Principal,
+  'message' : string,
+  'timestamp' : Time,
+}
+export interface PrivateThreadView {
+  'id' : string,
+  'participant1' : Principal,
+  'participant2' : Principal,
+  'messages' : Array<PrivateMessage>,
+}
 export interface ShoppingItem {
   'productName' : string,
   'currency' : string,
@@ -33,6 +131,7 @@ export type StripeSessionStatus = {
     'completed' : { 'userPrincipal' : [] | [string], 'response' : string }
   } |
   { 'failed' : { 'error' : string } };
+export type Time = bigint;
 export interface TransformationInput {
   'context' : Uint8Array,
   'response' : http_request_result,
@@ -42,9 +141,40 @@ export interface TransformationOutput {
   'body' : Uint8Array,
   'headers' : Array<http_header>,
 }
+export interface UserProfile {
+  'userId' : string,
+  'name' : string,
+  'profession' : [] | [string],
+}
+export interface UserRecord {
+  'id' : string,
+  'authType' : AuthType,
+  'moodEntries' : Array<MoodEntry>,
+  'weeklyAverageMood' : number,
+  'activityLog' : Array<ActivityEvent>,
+}
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface WeeklyCluster { 'clusterId' : bigint, 'weekStart' : Time }
+export interface WeeklyMoodAnalysis {
+  'anomalies' : Array<Anomaly>,
+  'weeklySummaries' : Array<WeeklySummary>,
+  'clusters' : Array<WeeklyCluster>,
+}
+export interface WeeklyMoodChartData {
+  'weeklyAverage' : number,
+  'weeklyEntries' : Array<DailyMoodEntry>,
+  'averageLabel' : string,
+  'weeklyInsight' : string,
+}
+export interface WeeklySummary {
+  'weeklyMoodAverage' : number,
+  'averageSleepHours' : number,
+  'totalSteps' : bigint,
+  'weekStart' : Time,
+  'averageMoodScore' : number,
+}
 export interface _CaffeineStorageCreateCertificateResult {
   'method' : string,
   'blob_hash' : string,
@@ -79,18 +209,87 @@ export interface _SERVICE {
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'appendAIMessage' : ActorMethod<
+    [string, string, { 'ai' : null } | { 'user' : null }],
+    undefined
+  >,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'createAISession' : ActorMethod<[], string>,
+  'createChatRoom' : ActorMethod<[string, string, string], undefined>,
   'createCheckoutSession' : ActorMethod<
     [Array<ShoppingItem>, string, string],
     string
   >,
+  'createGuestMoodEntry' : ActorMethod<
+    [string, Mood, [] | [string], bigint],
+    undefined
+  >,
+  'createMoodEntry' : ActorMethod<[Mood, [] | [string], bigint], undefined>,
+  'getAIResponse' : ActorMethod<[string], string>,
+  'getAITranscript' : ActorMethod<[string], Array<AIMessage>>,
+  'getAITypingStatus' : ActorMethod<[], boolean>,
+  'getAllUserRecords' : ActorMethod<[], Array<UserRecord>>,
+  'getAnalytics' : ActorMethod<[], Array<[string, AnalyticsData]>>,
+  'getAppMarketMetadata' : ActorMethod<[], [] | [AppMarketMetadata]>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getChatRoomMessages' : ActorMethod<[string], Array<ChatMessage>>,
+  'getChatRoomParticipants' : ActorMethod<[string], Array<string>>,
+  'getDailyAnalysis' : ActorMethod<[], Array<DailyAnalysisEntry>>,
+  'getGuestMoodHistory' : ActorMethod<[string], Array<MoodEntry>>,
+  'getMarketAnalytics' : ActorMethod<[], MarketAnalytics>,
+  'getMoodHistory' : ActorMethod<[], Array<MoodEntry>>,
+  'getPDF' : ActorMethod<[string], [] | [ExternalBlob]>,
+  'getPricingConfig' : ActorMethod<[], [] | [PricingConfig]>,
+  'getPrivateMessages' : ActorMethod<[string], Array<PrivateMessage>>,
   'getStripeSessionStatus' : ActorMethod<[string], StripeSessionStatus>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'getWeeklyAnalysis' : ActorMethod<[], Array<WeeklyMoodAnalysis>>,
+  'getWeeklyMoodChart' : ActorMethod<[], WeeklyMoodChartData>,
+  'incrementViewCount' : ActorMethod<[], undefined>,
+  'isAuthenticated' : ActorMethod<[], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'isStripeConfigured' : ActorMethod<[], boolean>,
+  'joinChatRoom' : ActorMethod<[string], undefined>,
+  'listChatRooms' : ActorMethod<[], Array<[string, ChatRoomView]>>,
+  'listPrivateThreads' : ActorMethod<[], Array<[string, PrivateThreadView]>>,
+  'logActivity' : ActorMethod<
+    [
+      { 'pageNavigation' : null } |
+        { 'interaction' : null } |
+        { 'createMoodEntry' : null } |
+        { 'login' : null } |
+        { 'updateMoodEntry' : null },
+      string,
+    ],
+    undefined
+  >,
+  'logGuestActivity' : ActorMethod<
+    [
+      string,
+      { 'pageNavigation' : null } |
+        { 'interaction' : null } |
+        { 'createMoodEntry' : null } |
+        { 'login' : null } |
+        { 'updateMoodEntry' : null },
+      string,
+    ],
+    undefined
+  >,
   'runSmokeTest' : ActorMethod<[], SmokeTestResult>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'sendChatMessage' : ActorMethod<[string, string], undefined>,
+  'sendPrivateMessage' : ActorMethod<[string, string], undefined>,
+  'setAppMarketMetadata' : ActorMethod<[AppMarketMetadata], undefined>,
+  'setPricingConfig' : ActorMethod<[PricingConfig], undefined>,
   'setStripeConfiguration' : ActorMethod<[StripeConfiguration], undefined>,
+  'startPrivateThread' : ActorMethod<[Principal], string>,
+  'storePDF' : ActorMethod<[string, ExternalBlob], undefined>,
   'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
+  'updateMoodEntry' : ActorMethod<
+    [Time, Mood, [] | [string], bigint],
+    undefined
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

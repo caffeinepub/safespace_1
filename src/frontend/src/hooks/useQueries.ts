@@ -1,7 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { Principal } from '@dfinity/principal';
-import { Mood, MoodEntry, UserProfile, ChatMessage, ChatRoom, PrivateMessage, PrivateThread, AIMessage, ActivityEvent, UserRecord, AppMarketMetadata, PricingConfig, MarketAnalytics, WeeklyMoodAnalysis, WeeklyMoodChartData } from '../types/backend-extended';
+import type {
+  Mood,
+  MoodEntry,
+  UserProfile,
+  ChatMessage,
+  PrivateMessage,
+  AIMessage,
+  UserRecord,
+  AppMarketMetadata,
+  PricingConfig,
+  MarketAnalytics,
+  WeeklyMoodAnalysis,
+  WeeklyMoodChartData,
+} from '../backend';
+import { ChatRoom, PrivateThread } from '../types/backend-extended';
+import { Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry, Variant_ai_user } from '../backend';
 
 // Admin Check
 export function useIsCallerAdmin() {
@@ -19,7 +34,7 @@ export function useIsCallerAdmin() {
   });
 }
 
-// Placeholder hooks - backend not yet implemented
+// User Profile Management
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
 
@@ -27,10 +42,10 @@ export function useGetCallerUserProfile() {
     queryKey: ['currentUserProfile'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      return null;
+      const profile = await actor.getCallerUserProfile();
+      return profile || null;
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !actorFetching,
     retry: false,
   });
 
@@ -48,8 +63,7 @@ export function useSaveCallerUserProfile() {
   return useMutation({
     mutationFn: async (profile: UserProfile) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Save profile:', profile);
+      await actor.saveCallerUserProfile(profile);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
@@ -65,8 +79,12 @@ export function useCreateMoodEntry() {
   return useMutation({
     mutationFn: async ({ mood, note, moodScore, guestId }: { mood: Mood; note: string | null; moodScore: number; guestId?: string }) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Create mood:', { mood, note, moodScore, guestId });
+      
+      if (guestId) {
+        await actor.createGuestMoodEntry(guestId, mood, note, BigInt(moodScore));
+      } else {
+        await actor.createMoodEntry(mood, note, BigInt(moodScore));
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['moodHistory'] });
@@ -81,10 +99,9 @@ export function useUpdateMoodEntry() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ timestamp, mood, note, moodScore, guestId }: { timestamp: bigint; mood: Mood; note: string | null; moodScore: number; guestId?: string }) => {
+    mutationFn: async ({ timestamp, mood, note, moodScore }: { timestamp: bigint; mood: Mood; note: string | null; moodScore: number }) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Update mood:', { timestamp, mood, note, moodScore, guestId });
+      await actor.updateMoodEntry(timestamp, mood, note, BigInt(moodScore));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['moodHistory'] });
@@ -101,10 +118,14 @@ export function useGetMoodHistory(guestId?: string) {
     queryKey: ['moodHistory', guestId],
     queryFn: async () => {
       if (!actor) return [];
-      // Backend method not yet implemented
-      return [];
+      
+      if (guestId) {
+        return await actor.getGuestMoodHistory(guestId);
+      } else {
+        return await actor.getMoodHistory();
+      }
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching,
   });
 }
 
@@ -115,10 +136,23 @@ export function useGetWeeklyMoodChart(guestId?: string) {
     queryKey: ['weeklyMoodChart', guestId],
     queryFn: async () => {
       if (!actor) return null;
-      // Backend method not yet implemented
-      return null;
+      if (guestId) return null;
+      return await actor.getWeeklyMoodChart();
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching && !guestId,
+  });
+}
+
+export function useGetWeeklyAnalysis() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<WeeklyMoodAnalysis[]>({
+    queryKey: ['weeklyMoodInsights'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return await actor.getWeeklyAnalysis();
+    },
+    enabled: !!actor && !isFetching,
   });
 }
 
@@ -130,8 +164,7 @@ export function useCreateChatRoom() {
   return useMutation({
     mutationFn: async ({ id, name, topic }: { id: string; name: string; topic: string }) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Create chat room:', { id, name, topic });
+      await actor.createChatRoom(id, name, topic);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chatRooms'] });
@@ -146,10 +179,31 @@ export function useGetChatRooms() {
     queryKey: ['chatRooms'],
     queryFn: async () => {
       if (!actor) return [];
-      // Backend method not yet implemented
-      return [];
+      const rooms = await actor.listChatRooms();
+      return rooms.map(([_, room]) => ({
+        id: room.id,
+        name: room.name,
+        topic: room.topic,
+        messages: room.messages,
+        participants: room.participants,
+      }));
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useJoinChatRoom() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (roomId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.joinChatRoom(roomId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['chatRooms'] });
+    },
   });
 }
 
@@ -159,11 +213,10 @@ export function useGetChatMessages(roomId: string) {
   return useQuery<ChatMessage[]>({
     queryKey: ['chatMessages', roomId],
     queryFn: async () => {
-      if (!actor) return [];
-      // Backend method not yet implemented
-      return [];
+      if (!actor || !roomId) return [];
+      return await actor.getChatRoomMessages(roomId);
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching && !!roomId,
   });
 }
 
@@ -172,10 +225,9 @@ export function useSendChatMessage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ roomId, message }: { roomId: string; message: ChatMessage }) => {
+    mutationFn: async ({ roomId, message }: { roomId: string; message: string }) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Send chat message:', { roomId, message });
+      await actor.sendChatMessage(roomId, message);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['chatMessages', variables.roomId] });
@@ -192,9 +244,7 @@ export function useStartPrivateThread() {
   return useMutation({
     mutationFn: async (otherUser: Principal) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Start private thread:', otherUser.toString());
-      return 'thread-id';
+      return await actor.startPrivateThread(otherUser);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['privateThreads'] });
@@ -209,10 +259,15 @@ export function useGetMyPrivateThreads() {
     queryKey: ['privateThreads'],
     queryFn: async () => {
       if (!actor) return [];
-      // Backend method not yet implemented
-      return [];
+      const threads = await actor.listPrivateThreads();
+      return threads.map(([_, thread]) => ({
+        id: thread.id,
+        participant1: thread.participant1,
+        participant2: thread.participant2,
+        messages: thread.messages,
+      }));
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching,
   });
 }
 
@@ -222,11 +277,10 @@ export function useGetPrivateMessages(threadId: string) {
   return useQuery<PrivateMessage[]>({
     queryKey: ['privateMessages', threadId],
     queryFn: async () => {
-      if (!actor) return [];
-      // Backend method not yet implemented
-      return [];
+      if (!actor || !threadId) return [];
+      return await actor.getPrivateMessages(threadId);
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching && !!threadId,
   });
 }
 
@@ -235,10 +289,9 @@ export function useSendPrivateMessage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ threadId, message }: { threadId: string; message: PrivateMessage }) => {
+    mutationFn: async ({ threadId, message }: { threadId: string; message: string }) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Send private message:', { threadId, message });
+      await actor.sendPrivateMessage(threadId, message);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['privateMessages', variables.threadId] });
@@ -252,10 +305,9 @@ export function useCreateAISession() {
   const { actor } = useActor();
 
   return useMutation({
-    mutationFn: async (sessionId: string) => {
+    mutationFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Create AI session:', sessionId);
+      return await actor.createAISession();
     },
   });
 }
@@ -265,14 +317,13 @@ export function useAppendAIMessage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ sessionId, message }: { sessionId: string; message: AIMessage }) => {
+    mutationFn: async ({ sessionId, message, sender }: { sessionId: string; message: string; sender: 'user' | 'ai' }) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Append AI message:', { sessionId, message });
+      const senderVariant = sender === 'user' ? Variant_ai_user.user : Variant_ai_user.ai;
+      await actor.appendAIMessage(sessionId, message, senderVariant);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['aiTranscript', variables.sessionId] });
-      queryClient.invalidateQueries({ queryKey: ['aiTypingStatus', variables.sessionId] });
     },
   });
 }
@@ -283,26 +334,40 @@ export function useGetAITranscript(sessionId: string) {
   return useQuery<AIMessage[]>({
     queryKey: ['aiTranscript', sessionId],
     queryFn: async () => {
-      if (!actor) return [];
-      // Backend method not yet implemented
-      return [];
+      if (!actor || !sessionId) return [];
+      const messages = await actor.getAITranscript(sessionId);
+      return messages.map(msg => ({
+        timestamp: msg.timestamp,
+        sender: msg.sender === Variant_ai_user.user ? Variant_ai_user.user : Variant_ai_user.ai,
+        message: msg.message,
+      }));
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching && !!sessionId,
   });
 }
 
-export function useGetAITypingStatus(sessionId: string) {
+export function useGetAITypingStatus() {
   const { actor, isFetching } = useActor();
 
   return useQuery<boolean>({
-    queryKey: ['aiTypingStatus', sessionId],
+    queryKey: ['aiTypingStatus'],
     queryFn: async () => {
       if (!actor) return false;
-      // Backend method not yet implemented
-      return false;
+      return await actor.getAITypingStatus();
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching,
     refetchInterval: 1000,
+  });
+}
+
+export function useGetAIResponse() {
+  const { actor } = useActor();
+
+  return useMutation({
+    mutationFn: async (mood: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return await actor.getAIResponse(mood);
+    },
   });
 }
 
@@ -311,61 +376,67 @@ export function useLogActivity() {
   const { actor } = useActor();
 
   return useMutation({
-    mutationFn: async ({ event, guestId }: { event: ActivityEvent; guestId?: string }) => {
+    mutationFn: async ({ eventType, details }: { eventType: 'login' | 'createMoodEntry' | 'updateMoodEntry' | 'pageNavigation' | 'interaction'; details: string }) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Log activity:', { event, guestId });
+      const eventVariant = Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry[eventType];
+      await actor.logActivity(eventVariant, details);
     },
   });
 }
 
-// Analytics (Admin)
+export function useLogGuestActivity() {
+  const { actor } = useActor();
+
+  return useMutation({
+    mutationFn: async ({ sessionId, eventType, details }: { sessionId: string; eventType: 'login' | 'createMoodEntry' | 'updateMoodEntry' | 'pageNavigation' | 'interaction'; details: string }) => {
+      if (!actor) throw new Error('Actor not available');
+      const eventVariant = Variant_pageNavigation_interaction_createMoodEntry_login_updateMoodEntry[eventType];
+      await actor.logGuestActivity(sessionId, eventVariant, details);
+    },
+  });
+}
+
+// Analytics and Admin
 export function useGetAllUserRecords() {
   const { actor, isFetching } = useActor();
-  const { data: isAdmin } = useIsCallerAdmin();
 
   return useQuery<UserRecord[]>({
     queryKey: ['allUserRecords'],
     queryFn: async () => {
       if (!actor) return [];
-      // Backend method not yet implemented
-      return [];
+      return await actor.getAllUserRecords();
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching,
   });
 }
 
-export function useGetUserRecord(userId: string) {
-  const { actor, isFetching } = useActor();
-  const { data: isAdmin } = useIsCallerAdmin();
-
-  return useQuery<UserRecord | null>({
-    queryKey: ['userRecord', userId],
-    queryFn: async () => {
-      if (!actor) return null;
-      // Backend method not yet implemented
-      return null;
-    },
-    enabled: false, // Disabled until backend is ready
-  });
-}
-
-// Weekly Analysis
-export function useGetWeeklyMoodInsights(guestId?: string) {
+export function useGetAnalytics() {
   const { actor, isFetching } = useActor();
 
-  return useQuery<WeeklyMoodAnalysis | null>({
-    queryKey: ['weeklyMoodInsights', guestId],
+  return useQuery<Array<[string, { totalSessions: bigint; totalSessionDuration: bigint; averageSessionDuration: bigint }]>>({
+    queryKey: ['analytics'],
     queryFn: async () => {
-      if (!actor) return null;
-      // Backend method not yet implemented
-      return null;
+      if (!actor) return [];
+      return await actor.getAnalytics();
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching,
   });
 }
 
-// App Market (Admin)
+// App Market
+export function useGetAppMarketMetadata() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<AppMarketMetadata | null>({
+    queryKey: ['appMarketMetadata'],
+    queryFn: async () => {
+      if (!actor) return null;
+      return await actor.getAppMarketMetadata();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
 export function useSetAppMarketMetadata() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
@@ -373,8 +444,7 @@ export function useSetAppMarketMetadata() {
   return useMutation({
     mutationFn: async (metadata: AppMarketMetadata) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Set app market metadata:', metadata);
+      await actor.setAppMarketMetadata(metadata);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appMarketMetadata'] });
@@ -382,18 +452,16 @@ export function useSetAppMarketMetadata() {
   });
 }
 
-export function useGetAppMarketMetadata() {
+export function useGetPricingConfig() {
   const { actor, isFetching } = useActor();
-  const { data: isAdmin } = useIsCallerAdmin();
 
-  return useQuery<AppMarketMetadata | null>({
-    queryKey: ['appMarketMetadata'],
+  return useQuery<PricingConfig | null>({
+    queryKey: ['pricingConfig'],
     queryFn: async () => {
       if (!actor) return null;
-      // Backend method not yet implemented
-      return null;
+      return await actor.getPricingConfig();
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching,
   });
 }
 
@@ -404,8 +472,7 @@ export function useSetPricingConfig() {
   return useMutation({
     mutationFn: async (config: PricingConfig) => {
       if (!actor) throw new Error('Actor not available');
-      // Backend method not yet implemented
-      console.log('Set pricing config:', config);
+      await actor.setPricingConfig(config);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pricingConfig'] });
@@ -413,32 +480,44 @@ export function useSetPricingConfig() {
   });
 }
 
-export function useGetPricingConfig() {
+export function useGetMarketAnalytics() {
   const { actor, isFetching } = useActor();
-  const { data: isAdmin } = useIsCallerAdmin();
 
-  return useQuery<PricingConfig | null>({
-    queryKey: ['pricingConfig'],
+  return useQuery<MarketAnalytics>({
+    queryKey: ['marketAnalytics'],
     queryFn: async () => {
-      if (!actor) return null;
-      // Backend method not yet implemented
-      return null;
+      if (!actor) return { totalViews: BigInt(0), totalClones: BigInt(0), totalSubscriptions: BigInt(0), totalRevenue: BigInt(0) };
+      return await actor.getMarketAnalytics();
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching,
   });
 }
 
-export function useGetMarketAnalytics() {
+// PDF Storage
+export function useGetPDF(fileId: string) {
   const { actor, isFetching } = useActor();
-  const { data: isAdmin } = useIsCallerAdmin();
 
-  return useQuery<MarketAnalytics | null>({
-    queryKey: ['marketAnalytics'],
+  return useQuery({
+    queryKey: ['pdf', fileId],
     queryFn: async () => {
-      if (!actor) return null;
-      // Backend method not yet implemented
-      return null;
+      if (!actor || !fileId) return null;
+      return await actor.getPDF(fileId);
     },
-    enabled: false, // Disabled until backend is ready
+    enabled: !!actor && !isFetching && !!fileId,
+  });
+}
+
+export function useStorePDF() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ fileId, blob }: { fileId: string; blob: any }) => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.storePDF(fileId, blob);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['pdf', variables.fileId] });
+    },
   });
 }

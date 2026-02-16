@@ -1,51 +1,46 @@
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface StartupErrorStateProps {
   error: Error | null;
   onRetry: () => void;
 }
 
-/**
- * Error state UI shown when startup queries fail.
- * Displays error details and provides retry action.
- */
 export default function StartupErrorState({ error, onRetry }: StartupErrorStateProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-lavender-50 via-blush-50 to-sky-50 p-4">
-      <Card className="max-w-md w-full shadow-lg">
-        <CardHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <AlertTriangle className="w-8 h-8 text-destructive" />
-            <CardTitle className="text-2xl">Startup Error</CardTitle>
+    <div className="aurora-bg min-h-screen flex items-center justify-center p-4">
+      <Card className="glass-card-white w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <AlertTriangle className="w-16 h-16 text-red-500" />
           </div>
-          <CardDescription>
-            SafeSpace encountered an error while starting up. This is usually temporary.
+          <CardTitle className="text-2xl">Startup Error</CardTitle>
+          <CardDescription className="text-base mt-2">
+            An error occurred while starting the application.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Alert variant="destructive">
-            <AlertTitle>Error Details</AlertTitle>
-            <AlertDescription className="mt-2 font-mono text-xs break-all">
-              {error?.message || 'Unknown error occurred'}
-            </AlertDescription>
-          </Alert>
-          <div className="text-sm text-muted-foreground">
-            <p>Click <strong>Retry</strong> to attempt startup again. If the problem persists, try reloading the page or clearing your browser cache.</p>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button
-            onClick={onRetry}
-            className="w-full gap-2"
-            size="lg"
-          >
-            <RefreshCw className="w-4 h-4" />
+          {error && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Error Details</AlertTitle>
+              <AlertDescription className="mt-2 text-sm font-mono break-all">
+                {error.message}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <Button onClick={onRetry} className="w-full" variant="default">
+            <RefreshCw className="w-4 h-4 mr-2" />
             Retry
           </Button>
-        </CardFooter>
+
+          <p className="text-xs text-center text-muted-foreground mt-4">
+            If the error persists, please try refreshing the page or contact support.
+          </p>
+        </CardContent>
       </Card>
     </div>
   );

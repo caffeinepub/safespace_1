@@ -1,65 +1,49 @@
-import { AlertCircle, RefreshCw, RotateCcw } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { resetAppBrowserStorage } from '@/lib/appStorage';
+import { AlertCircle, RefreshCw, RotateCcw } from 'lucide-react';
 
-/**
- * Fallback UI shown when app startup exceeds timeout threshold.
- * Provides user actions to reload or reset browser storage and reload.
- */
-export default function StartupTimeoutFallback() {
-  const handleReload = () => {
-    window.location.reload();
-  };
+interface StartupTimeoutFallbackProps {
+  onReload: () => void;
+  onResetAndReload: () => void;
+}
 
-  const handleResetAndReload = () => {
-    resetAppBrowserStorage();
-    window.location.reload();
-  };
-
+export default function StartupTimeoutFallback({ onReload, onResetAndReload }: StartupTimeoutFallbackProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-lavender-50 via-blush-50 to-sky-50 p-4">
-      <Card className="max-w-md w-full shadow-lg">
-        <CardHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <AlertCircle className="w-8 h-8 text-amber-500" />
-            <CardTitle className="text-2xl">Startup Taking Longer Than Expected</CardTitle>
+    <div className="aurora-bg min-h-screen flex items-center justify-center p-4">
+      <Card className="glass-card-white w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <AlertCircle className="w-16 h-16 text-amber-500" />
           </div>
-          <CardDescription>
-            SafeSpace is taking longer than usual to load. This can happen due to network conditions or temporary service delays.
+          <CardTitle className="text-2xl">Startup Taking Longer Than Expected</CardTitle>
+          <CardDescription className="text-base mt-2">
+            The application is taking longer than usual to start. This might be due to network conditions or backend initialization.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Alert>
+            <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Try reloading the page. If the issue persists, reset your browser storage to clear any cached data that might be causing problems.
+              You can try reloading the page or resetting the application cache.
             </AlertDescription>
           </Alert>
-          <div className="text-sm text-muted-foreground space-y-2">
-            <p><strong>Reload:</strong> Refreshes the page and retries startup.</p>
-            <p><strong>Reset & Reload:</strong> Clears browser storage and refreshes. Your data on the server is safe.</p>
+
+          <div className="space-y-3">
+            <Button onClick={onReload} className="w-full" variant="default">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Reload
+            </Button>
+            <Button onClick={onResetAndReload} className="w-full" variant="outline">
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset & Reload
+            </Button>
           </div>
+
+          <p className="text-xs text-center text-muted-foreground mt-4">
+            If the problem persists, please check your internet connection or try again later.
+          </p>
         </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row gap-3">
-          <Button
-            onClick={handleReload}
-            className="flex-1 gap-2"
-            size="lg"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Reload
-          </Button>
-          <Button
-            onClick={handleResetAndReload}
-            variant="outline"
-            className="flex-1 gap-2"
-            size="lg"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Reset & Reload
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );

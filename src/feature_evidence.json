@@ -2,24 +2,55 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-reconnect-the-frontend-to-the-restored-backend-by-removing-the-hard-coded-backend-restoration-required-blocking-screen-in-frontend-src-app-tsx-and-routing-rendering-the-real-application-ui-dashboard-mood-tracker-history-editor-group-chat-private-chat-ai-companion-weekly-insights-admin-analytics-dashboard-app-market-settings-presentation-viewer-using-the-existing-components-and-hooks-in-the-codebase",
-      "featureTitle": "Reconnect the frontend to the restored backend by removing the hard-coded 'Backend Restoration Required' blocking screen in `frontend/src/App.tsx` and routing/rendering the real application UI (dashboard, mood tracker/history/editor, group chat, private chat, AI companion, weekly insights, admin analytics dashboard, app market settings, presentation viewer) using the existing components and hooks in the codebase.",
+      "featureId": "feature-show-the-top-header-navigation-bar-only-for-authenticated-internet-identity-sessions-do-not-render-the-header-on-the-unauthenticated-login-screen-or-during-guest-sessions",
+      "featureTitle": "Show the top header navigation bar only for authenticated (Internet Identity) sessions; do not render the header on the unauthenticated login screen or during guest sessions.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/AIChat.tsx",
-        "frontend/src/components/AccessDeniedScreen.tsx",
-        "frontend/src/components/AnalyticsDashboard.tsx",
-        "frontend/src/components/AnonymousLogin.tsx",
-        "frontend/src/components/AppMarketSettings.tsx",
-        "frontend/src/components/ChatRoom.tsx",
-        "frontend/src/components/Dashboard.tsx",
-        "frontend/src/components/Footer.tsx",
+        "frontend/src/App.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "blob-storage@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-authenticated-header-ui-to-match-the-provided-safespace-spec-a-solid-white-strip-across-the-top-left-aligned-safespace-circular-heart-logo-and-safespace-wordmark-centered-nav-items-with-home-styled-as-a-purple-pill-with-a-heart-icon-other-nav-items-shown-as-black-icons-black-text-ai-companion-mood-tracker-my-history-right-aligned-purple-circular-profile-icon-and-purple-circular-alien-robot-icon-plus-an-outlined-logout-button-with-an-exit-arrow-icon-and-black-text-border",
+      "featureTitle": "Update the authenticated header UI to match the provided SafeSpace spec: a solid white strip across the top; left-aligned SafeSpace circular heart logo and 'SafeSpace' wordmark; centered nav items with 'Home' styled as a purple pill with a heart icon; other nav items shown as black icons + black text ('AI Companion', 'Mood Tracker', 'My History'); right-aligned purple circular profile icon and purple circular alien/robot icon, plus an outlined Logout button with an exit/arrow icon and black text/border.",
+      "files": [
         "frontend/src/components/Header.tsx",
-        "frontend/src/components/MoodHistory.tsx",
-        "frontend/src/components/MoodTracker.tsx",
-        "frontend/src/components/PresentationViewer.tsx",
-        "frontend/src/components/PrivateChat.tsx",
-        "frontend/src/components/WeeklyMoodInsights.tsx"
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "blob-storage@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-render-the-header-center-navigation-items-as-visual-placeholders-only-non-navigating-clicking-them-must-not-change-the-current-page-or-route-keep-existing-in-app-navigation-mechanisms-elsewhere-e-g-dashboard-cards-unchanged",
+      "featureTitle": "Render the header center navigation items as visual placeholders only (non-navigating): clicking them must not change the current page or route; keep existing in-app navigation mechanisms elsewhere (e.g., dashboard cards) unchanged.",
+      "files": [
+        "frontend/src/components/Header.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -38,34 +69,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-restore-and-or-implement-all-required-react-query-hooks-and-backend-type-bindings-needed-by-the-existing-frontend-components-e-g-dashboard-chat-lists-room-messages-private-threads-mood-history-calendar-weekly-insights-admin-analytics-market-settings-session-activity-logging-expand-frontend-src-hooks-usequeries-ts-and-any-other-editable-hook-files-to-include-the-legacy-queries-mutations-expected-by-the-components-described-in-frontend-file-summaries-txt-and-ensure-they-call-the-restored-backend-methods-with-correct-parameter-return-types",
-      "featureTitle": "Restore and/or implement all required React Query hooks and backend type bindings needed by the existing frontend components (e.g., dashboard chat lists, room messages, private threads, mood history/calendar, weekly insights, admin analytics, market settings, session/activity logging). Expand `frontend/src/hooks/useQueries.ts` (and any other editable hook files) to include the legacy queries/mutations expected by the components described in `frontend-file-summaries.txt`, and ensure they call the restored backend methods with correct parameter/return types.",
+      "featureId": "feature-implement-the-safespace-aurora-background-using-css-gradients-effects-no-generated-background-image-a-vibrant-deep-abstract-background-with-diagonal-aurora-like-light-streaks-in-violet-magenta-purple-and-electric-cyan-include-soft-blooms-luminous-patches-and-subtle-motion",
+      "featureTitle": "Implement the SafeSpace aurora background using CSS gradients/effects (no generated background image): a vibrant deep abstract background with diagonal, aurora-like light streaks in violet, magenta, purple, and electric cyan; include soft blooms/luminous patches and subtle motion.",
       "files": [
-        "frontend/src/hooks/guestAuthStore.ts",
-        "frontend/src/hooks/useActivityLogging.ts",
-        "frontend/src/hooks/useAdminBootstrap.ts",
-        "frontend/src/hooks/useGuestAuth.ts",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/hooks/useSessionTracking.ts",
-        "frontend/src/lib/adminMoodAnalytics.ts",
-        "frontend/src/lib/ai/constraints.ts",
-        "frontend/src/lib/ai/routing.ts",
-        "frontend/src/lib/ai/sessionContext.ts",
-        "frontend/src/lib/ai/templateUtils.ts",
-        "frontend/src/lib/ai/templates.ts",
-        "frontend/src/lib/ai/types.ts",
-        "frontend/src/lib/linearRegression.ts",
-        "frontend/src/lib/mindfulai/emotionDetection.ts",
-        "frontend/src/lib/mindfulai/engagement.ts",
-        "frontend/src/lib/mindfulai/nudges.ts",
-        "frontend/src/lib/mindfulai/quickPills.ts",
-        "frontend/src/lib/mindfulai/sessionUX.ts",
-        "frontend/src/lib/mindfulai/types.ts",
-        "frontend/src/lib/moodErrors.ts",
-        "frontend/src/lib/timestampUtils.ts",
-        "frontend/src/lib/weekUtils.ts",
-        "frontend/src/lib/weeklySummaryText.ts",
-        "frontend/src/types/backend-extended.ts"
+        "frontend/src/index.css"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -80,6 +87,76 @@
       ],
       "testIds": [
         "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-unauthenticated-login-experience-matches-the-described-central-glassmorphism-card-layout-centered-frosted-translucent-white-card-with-a-soft-outer-glow-top-logo-heading-welcome-to-safespace-in-bold-purple-subheading-your-personal-mental-wellness-companion-in-smaller-black-gray-primary-gradient-button-login-with-internet-identity-with-sparkle-icon-or-divider-secondary-continue-as-guest-button-with-glowing-purple-outline-and-a-terms-of-service-privacy-policy-agreement-checkbox",
+      "featureTitle": "Ensure the unauthenticated login experience matches the described central glassmorphism card layout: centered frosted/translucent white card with a soft outer glow; top logo; heading 'Welcome to SafeSpace' in bold purple; subheading 'Your personal mental wellness companion' in smaller black/gray; primary gradient button 'Login with Internet Identity' with sparkle icon; 'OR' divider; secondary 'Continue as Guest' button with glowing purple outline; and a Terms of Service + Privacy Policy agreement checkbox.",
+      "files": [
+        "frontend/src/components/AnonymousLogin.tsx",
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "blob-storage@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-the-specified-corner-accent-element-to-the-login-screen-a-partially-visible-translucent-purple-circular-icon-with-a-user-silhouette-in-the-bottom-left-corner-purely-decorative",
+      "featureTitle": "Add the specified corner accent element to the login screen: a partially visible, translucent purple circular icon with a user silhouette in the bottom-left corner (purely decorative).",
+      "files": [
+        "frontend/src/components/AnonymousLogin.tsx",
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "blob-storage@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-safespace-logo-assets-are-present-and-used-as-static-frontend-assets-no-backend-serving-use-the-existing-generated-image-files-referenced-by-the-brandlogo-component-under-frontend-public-assets-generated",
+      "featureTitle": "Ensure SafeSpace logo assets are present and used as static frontend assets (no backend serving): use the existing generated image files referenced by the BrandLogo component under frontend/public/assets/generated.",
+      "files": [
+        "frontend/src/components/AnonymousLogin.tsx",
+        "frontend/src/components/BrandLogo.tsx",
+        "frontend/src/components/Header.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "authorization@4.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "blob-storage@4.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
       ],
       "confidence": "high"
     }

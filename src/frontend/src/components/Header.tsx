@@ -1,138 +1,140 @@
+import { useState } from 'react';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { useGetCallerUserProfile } from '../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
-import { UserProfile } from '../types/backend-extended';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Menu, Home, Sparkles, Smile, Clock, User, Bot, LogOut } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import BrandLogo from './BrandLogo';
+import { getUserInitials } from '../lib/avatar';
+
+type Page = 'dashboard' | 'mood-tracker' | 'mood-history' | 'chat-room' | 'private-chat' | 'ai-chat' | 'weekly-insights' | 'analytics' | 'app-market' | 'presentation';
 
 interface HeaderProps {
-  isAuthenticated: boolean;
+  currentPage: Page;
+  onNavigate: (page: Page) => void;
   isAdmin: boolean;
-  userProfile: UserProfile | null | undefined;
-  onLogout: () => void;
-  onLogin: () => void;
-  onNavigate: (page: 'dashboard' | 'mood-tracker' | 'mood-history' | 'chat-room' | 'private-chat' | 'ai-chat' | 'weekly-insights' | 'analytics' | 'app-market' | 'presentation') => void;
-  currentPage: string;
 }
 
-export default function Header({ isAuthenticated, isAdmin, userProfile, onLogout, onLogin, onNavigate, currentPage }: HeaderProps) {
-  const profession = userProfile?.profession;
+export default function Header({ currentPage, onNavigate, isAdmin }: HeaderProps) {
+  const { identity, clear } = useInternetIdentity();
+  const { data: userProfile } = useGetCallerUserProfile();
+  const queryClient = useQueryClient();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const NavLinks = () => (
-    <>
-      <Button
-        variant={currentPage === 'dashboard' ? 'default' : 'ghost'}
-        onClick={() => onNavigate('dashboard')}
-      >
-        Dashboard
-      </Button>
-      <Button
-        variant={currentPage === 'mood-tracker' ? 'default' : 'ghost'}
-        onClick={() => onNavigate('mood-tracker')}
-      >
-        Mood Tracker
-      </Button>
-      <Button
-        variant={currentPage === 'mood-history' ? 'default' : 'ghost'}
-        onClick={() => onNavigate('mood-history')}
-      >
-        Mood History
-      </Button>
-      <Button
-        variant={currentPage === 'chat-room' ? 'default' : 'ghost'}
-        onClick={() => onNavigate('chat-room')}
-      >
-        Group Chat
-      </Button>
-      <Button
-        variant={currentPage === 'private-chat' ? 'default' : 'ghost'}
-        onClick={() => onNavigate('private-chat')}
-      >
-        Private Chat
-      </Button>
-      <Button
-        variant={currentPage === 'ai-chat' ? 'default' : 'ghost'}
-        onClick={() => onNavigate('ai-chat')}
-      >
-        AI Companion
-      </Button>
-      <Button
-        variant={currentPage === 'weekly-insights' ? 'default' : 'ghost'}
-        onClick={() => onNavigate('weekly-insights')}
-      >
-        Weekly Insights
-      </Button>
-      {isAdmin && (
-        <>
-          <Button
-            variant={currentPage === 'analytics' ? 'default' : 'ghost'}
-            onClick={() => onNavigate('analytics')}
-          >
-            Analytics Dashboard
-          </Button>
-          <Button
-            variant={currentPage === 'app-market' ? 'default' : 'ghost'}
-            onClick={() => onNavigate('app-market')}
-          >
-            App Market
-          </Button>
-          <Button
-            variant={currentPage === 'presentation' ? 'default' : 'ghost'}
-            onClick={() => onNavigate('presentation')}
-          >
-            Presentation
-          </Button>
-        </>
-      )}
-    </>
-  );
+  const handleLogout = async () => {
+    await clear();
+    queryClient.clear();
+  };
+
+  const handleNavClick = (page: Page) => {
+    onNavigate(page);
+    setMobileMenuOpen(false);
+  };
+
+  const userInitials = getUserInitials(userProfile?.name);
 
   return (
-    <header className="bg-white/80 backdrop-blur-sm border-b border-lavender-200 sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lavender-500 to-blush-500 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">S</span>
-            </div>
-            <h1 className="text-xl font-bold text-lavender-900">SafeSpace</h1>
+    <header className="header-solid-white sticky top-0 z-50 border-b border-gray-200">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Left: Logo */}
+          <div className="flex-shrink-0">
+            <BrandLogo size="small" showWordmark={true} />
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-2">
-            <NavLinks />
+          {/* Center: Desktop Navigation (visual placeholders only) */}
+          <nav className="hidden md:flex items-center gap-1">
+            <button className="nav-pill-home">
+              <Home className="w-4 h-4" />
+              <span>Home</span>
+            </button>
+            <button className="nav-item-placeholder">
+              <Sparkles className="w-4 h-4" />
+              <span>AI Companion</span>
+            </button>
+            <button className="nav-item-placeholder">
+              <Smile className="w-4 h-4" />
+              <span>Mood Tracker</span>
+            </button>
+            <button className="nav-item-placeholder">
+              <Clock className="w-4 h-4" />
+              <span>My History</span>
+            </button>
           </nav>
 
-          <div className="flex items-center gap-4">
-            {isAuthenticated && userProfile && (
-              <div className="hidden md:flex flex-col items-end text-sm">
-                <span className="font-medium text-lavender-900">{userProfile.name}</span>
-                {profession && <span className="text-lavender-600">{String(profession)}</span>}
-                {isAdmin && <span className="text-xs text-amber-600 font-semibold">👑 Admin</span>}
-              </div>
-            )}
-            {isAuthenticated ? (
-              <Button onClick={onLogout} variant="outline">
-                Logout
-              </Button>
-            ) : (
-              <Button onClick={onLogin}>
-                Login
-              </Button>
-            )}
-
-            {/* Mobile Menu */}
-            <Sheet>
-              <SheetTrigger asChild className="lg:hidden">
-                <Button variant="outline" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <div className="flex flex-col gap-4 mt-8">
-                  <NavLinks />
-                </div>
-              </SheetContent>
-            </Sheet>
+          {/* Right: Profile Icons + Logout */}
+          <div className="hidden md:flex items-center gap-3">
+            <button className="icon-button-purple" aria-label="User profile">
+              <User className="w-5 h-5" />
+            </button>
+            <button className="icon-button-purple" aria-label="AI assistant">
+              <Bot className="w-5 h-5" />
+            </button>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="logout-button"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
           </div>
+
+          {/* Mobile Menu */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-64">
+              <div className="flex flex-col gap-2 mt-8">
+                <Button
+                  variant="ghost"
+                  onClick={() => handleNavClick('dashboard')}
+                  className="justify-start"
+                >
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleNavClick('ai-chat')}
+                  className="justify-start"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  AI Companion
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleNavClick('mood-tracker')}
+                  className="justify-start"
+                >
+                  <Smile className="w-4 h-4 mr-2" />
+                  Mood Tracker
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleNavClick('mood-history')}
+                  className="justify-start"
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  My History
+                </Button>
+                <div className="my-2 border-t" />
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  className="justify-start"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
