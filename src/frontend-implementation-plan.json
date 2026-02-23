@@ -1,144 +1,218 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "SafeSpace aurora theme + glass login card + authenticated-only header (placeholder nav)",
+  "title": "Apply light pink and purple color scheme across entire app",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Render the top header only for authenticated Internet Identity sessions (never for unauthenticated or guest sessions).",
+      "summary": "Update the global color scheme to use crisp white as the primary background color throughout the entire application",
       "acceptanceCriteria": [
-        "When not authenticated and not in guest mode, the app shows the AnonymousLogin screen with no header present.",
-        "When in guest mode, the app does not render the Header component anywhere in the layout.",
-        "When authenticated, the header is visible at the top of the app and remains sticky."
+        "All pages and components use white as the default background color",
+        "Background color is consistent across all views"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Update layout gating so <Header /> is rendered only when Internet Identity is authenticated (identity present), and is not rendered for guest sessions; keep existing page rendering and non-header navigation behavior intact."
+          "description": "Update the root background color variables to use crisp white (#ffffff) as the primary background. Replace any existing background color definitions in the :root and body selectors to ensure white is the default throughout the application."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Update the background color token in the theme.extend.colors section to define white as the default background color, ensuring consistency with the CSS variables."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Restyle the authenticated header to match the SafeSpace spec (logo/wordmark, centered placeholder nav, right-side profile/robot icons, outlined logout).",
+      "summary": "Update the color theme to use light pink as the primary accent color for UI elements including buttons, cards, borders, highlights, and interactive elements",
       "acceptanceCriteria": [
-        "Header background is solid white with subtle separation (border or shadow) from the aurora background.",
-        "Left side shows the SafeSpace logo mark and wordmark consistent with existing BrandLogo assets.",
-        "Center nav visually matches: Home appears as a pill with heart icon; other items have black icon + black label text.",
-        "Right side shows two purple circular icons (profile and alien/robot) and a Logout button with black border and an exit/arrow icon.",
-        "Logout triggers the existing logout/clear behavior and clears React Query cache as it currently does."
+        "Light pink is used as the dominant accent color throughout the UI",
+        "Buttons, cards, and interactive elements feature light pink styling",
+        "The color scheme is cohesive and appealing"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/Header.tsx",
-          "operation": "modify",
-          "description": "Redesign Header markup and styling hooks to match the provided SafeSpace header spec (solid white strip, BrandLogo on left, centered placeholder nav styling, and right-side purple circular profile + robot/alien icons plus outlined Logout with exit icon). Use shadcn-ui Button where appropriate (Verify the component's usage instructions before implementing). Preserve existing logout/clear + React Query cache clear behavior."
-        },
-        {
           "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Adjust/add CSS utility classes for the new header presentation (white strip separation, Home pill styling with heart icon, black icon+label styling for other items, purple circular icon buttons, outlined logout button). Ensure header separation remains subtle over the aurora background."
+          "description": "Define light pink color variables (e.g., --color-primary, --color-accent) in the :root selector using appropriate light pink shades (such as #FFC0CB, #FFB6C1, or similar). Update any existing primary/accent color definitions to use light pink values."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Add custom light pink color tokens to theme.extend.colors (e.g., primary, accent, pink) with appropriate shade variants (50-950) to support buttons, borders, backgrounds, and interactive states. Use light pink values like #FFC0CB, #FFB6C1 as the base shades."
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Update the header styling to use light pink accent colors for interactive elements, borders, and highlights by replacing existing color classes with the new light pink theme tokens."
+        },
+        {
+          "path": "frontend/src/components/Dashboard.tsx",
+          "operation": "modify",
+          "description": "Update navigation cards and UI elements to use light pink for borders, backgrounds, and interactive states by replacing existing color classes with the new light pink theme tokens."
+        },
+        {
+          "path": "frontend/src/components/MoodTracker.tsx",
+          "operation": "modify",
+          "description": "Update button styling and interactive elements to use light pink accent colors by replacing existing color classes with the new light pink theme tokens."
+        },
+        {
+          "path": "frontend/src/components/AnonymousLogin.tsx",
+          "operation": "modify",
+          "description": "Update button styling and interactive elements on the login screen to use light pink accent colors by replacing existing color classes with the new light pink theme tokens."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Make header center navigation items visual placeholders only (no route/page changes on click).",
+      "summary": "Add purple as a secondary accent color to complement light pink, creating visual appeal and hierarchy in the UI",
       "acceptanceCriteria": [
-        "Clicking 'Home', 'AI Companion', 'Mood Tracker', or 'My History' in the header does not change the currently displayed page/content.",
-        "The nav items still have appropriate visual affordances (consistent styling) without implying functional navigation (e.g., no active-route switching behavior).",
-        "Existing non-header navigation (e.g., Dashboard actions) continues to work as before."
+        "Purple is used strategically as a secondary accent color",
+        "Light pink and purple work together harmoniously",
+        "Purple adds visual interest without overwhelming the light pink theme"
       ],
       "file_operations": [
         {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Define purple color variables (e.g., --color-secondary, --color-purple) in the :root selector using appropriate purple shades (such as #DDA0DD, #E6E6FA, or similar) that complement the light pink palette."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Add custom purple color tokens to theme.extend.colors (e.g., secondary, purple) with appropriate shade variants to support secondary UI elements, gradients, and visual hierarchy. Use purple values like #DDA0DD, #E6E6FA that harmonize with light pink."
+        },
+        {
           "path": "frontend/src/components/Header.tsx",
           "operation": "modify",
-          "description": "Remove/disable calls that change app page state from header center nav item clicks; render the items as styled, non-navigating placeholders (no active-route switching). Keep all existing non-header navigation paths unchanged. Use shadcn-ui Button as the visual affordance if retained (Verify the component's usage instructions before implementing)."
+          "description": "Add purple accents to secondary UI elements such as navigation indicators, hover states, or decorative elements by incorporating the new purple theme tokens alongside the light pink primary colors."
+        },
+        {
+          "path": "frontend/src/components/Dashboard.tsx",
+          "operation": "modify",
+          "description": "Add purple accents to secondary elements such as card shadows, decorative borders, or background gradients to create visual hierarchy alongside the light pink primary colors."
+        },
+        {
+          "path": "frontend/src/components/WeeklyMoodInsights.tsx",
+          "operation": "modify",
+          "description": "Add purple accents to secondary UI elements or gradient overlays to complement the light pink primary colors and enhance visual appeal."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Implement a CSS-only aurora background with diagonal violet/magenta/purple streaks, electric cyan accents, soft blooms, and subtle motion.",
+      "summary": "Update the Tailwind theme configuration in tailwind.config.js to define light pink and purple color variables that can be used consistently across components",
       "acceptanceCriteria": [
-        "The main app background uses CSS (gradients/blur/overlays/animations) and not a static image file.",
-        "The palette includes visible electric cyan accents in addition to violet/magenta/purple.",
-        "The background reads as diagonally flowing aurora streaks with soft bloom patches, and has subtle animated movement without being distracting."
+        "Custom color variables for light pink and purple are defined in Tailwind config",
+        "Color tokens are reusable across the application"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/tailwind.config.js",
           "operation": "modify",
-          "description": "Enhance the existing .aurora-bg CSS gradient stack to more clearly show diagonal aurora-like streaks and add visible electric cyan accents (in addition to violet/magenta/purple), keeping motion subtle (refine existing keyframes/pseudo-element overlays without introducing any static background image)."
+          "description": "Define comprehensive color palettes in theme.extend.colors for both light pink (primary/accent/pink) and purple (secondary/purple) with full shade ranges (50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950). Ensure these tokens are designed for reusability across buttons, backgrounds, borders, text, and interactive states throughout the application."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Match the unauthenticated login screen to the specified centered glassmorphism card design with correct text, buttons, and terms gating.",
+      "summary": "Update index.css theme variables to reflect the new light pink and purple color scheme, ensuring consistency with Tailwind configuration",
       "acceptanceCriteria": [
-        "The login card is centered and has a white frosted/glass look with a soft glow that separates it from the aurora background.",
-        "Primary button shows a purple-to-magenta gradient and includes a sparkle icon next to the label.",
-        "Secondary button is white with a glowing purple outline and black label text.",
-        "Internet Identity login remains gated by the terms checkbox (must be checked to enable login).",
-        "All user-facing text is in English and uses the corrected phrasing for the terms agreement sentence/links."
+        "CSS variables align with the new color scheme",
+        "Theme variables support the light pink and purple palette"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/AnonymousLogin.tsx",
-          "operation": "modify",
-          "description": "Refine the login layout to fully match the described glassmorphism card and content order (logo, purple heading, subheading, gradient primary button with sparkle icon, OR divider, outlined guest button, and corrected terms agreement text/links). Continue using shadcn-ui Card/Button/Checkbox components (Verify the component's usage instructions before implementing) and keep the checkbox gating for Internet Identity login."
-        },
-        {
           "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Tune the glass login card look (frosted white translucency + soft outer glow), primary gradient button styling, and guest outline glow styling to match the spec while keeping the existing aurora background visible behind the blur."
+          "description": "Update all color-related CSS custom properties in :root to use light pink and purple values that align with the Tailwind configuration. Ensure variables for background, foreground, primary, secondary, accent, border, and interactive states all reflect the new light pink and purple color scheme. Update both light and dark mode variables if present."
         }
       ]
     },
     {
       "id": "REQ-6",
-      "summary": "Add a decorative bottom-left translucent purple circular user-silhouette accent on the login screen.",
+      "summary": "Update all existing components to use the new light pink and purple color scheme, replacing current color references with the new theme tokens",
       "acceptanceCriteria": [
-        "On the login screen, a decorative bottom-left translucent purple circle is partially off-screen/peeking in and includes a user silhouette icon.",
-        "The element does not block interaction with the login card or buttons (pointer-events disabled)."
+        "All components render with the new color scheme",
+        "No remnants of the old color scheme remain visible",
+        "Visual consistency is maintained across all pages"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/AnonymousLogin.tsx",
+          "path": "frontend/src/components/Footer.tsx",
           "operation": "modify",
-          "description": "Add an absolutely positioned, bottom-left, partially off-screen decorative element containing a user silhouette icon; ensure it is translucent purple, purely decorative, and has pointer-events disabled so it cannot block interactions."
+          "description": "Update footer styling to use white background and light pink/purple accent colors for text and links by replacing existing color classes with the new theme tokens."
         },
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/src/components/MoodHistory.tsx",
           "operation": "modify",
-          "description": "Add CSS classes for the login bottom-left corner accent (positioning, translucency, partial off-screen peek, blur/glow as needed) and ensure pointer-events are disabled."
-        }
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "summary": "Use existing generated SafeSpace logo images as static frontend assets via BrandLogo (no backend serving).",
-      "acceptanceCriteria": [
-        "BrandLogo renders images from /assets/generated/safespace-logo.dim_64x64.png and /assets/generated/safespace-logo.dim_256x256.png.",
-        "No backend endpoints are added or used to serve logo images."
-      ],
-      "file_operations": [
+          "description": "Update mood history list styling to use white background, light pink borders and accents, and purple secondary elements by replacing existing color classes with the new theme tokens."
+        },
+        {
+          "path": "frontend/src/components/AIChat.tsx",
+          "operation": "modify",
+          "description": "Update chat interface styling including message bubbles, input fields, and buttons to use white background with light pink and purple accents by replacing existing color classes with the new theme tokens."
+        },
+        {
+          "path": "frontend/src/components/ChatRoom.tsx",
+          "operation": "modify",
+          "description": "Update chat room interface styling including room list, message containers, and send buttons to use white background with light pink primary and purple secondary colors by replacing existing color classes with the new theme tokens."
+        },
+        {
+          "path": "frontend/src/components/PrivateChat.tsx",
+          "operation": "modify",
+          "description": "Update private chat interface styling including thread list and message containers to use white background with light pink and purple accents by replacing existing color classes with the new theme tokens."
+        },
+        {
+          "path": "frontend/src/components/AnalyticsDashboard.tsx",
+          "operation": "modify",
+          "description": "Update analytics dashboard styling including cards, charts, and data displays to use white background with light pink primary and purple secondary colors by replacing existing color classes with the new theme tokens."
+        },
+        {
+          "path": "frontend/src/components/AppMarketSettings.tsx",
+          "operation": "modify",
+          "description": "Update app market settings interface styling to use white background with light pink buttons and purple accents by replacing existing color classes with the new theme tokens."
+        },
+        {
+          "path": "frontend/src/components/AccessDeniedScreen.tsx",
+          "operation": "modify",
+          "description": "Update access denied screen styling to use white background with light pink and purple accents by replacing existing color classes with the new theme tokens."
+        },
         {
           "path": "frontend/src/components/BrandLogo.tsx",
           "operation": "modify",
-          "description": "Confirm BrandLogo continues to load the static generated logo assets from frontend/public/assets/generated/safespace-logo.dim_64x64.png and frontend/public/assets/generated/safespace-logo.dim_256x256.png, and align wordmark styling to the SafeSpace header spec (purple sans-serif, capitalized if required) without introducing any backend image fetching."
+          "description": "Update logo component styling to complement the new light pink and purple color scheme if the logo uses theme colors."
         },
         {
-          "path": "frontend/src/components/Header.tsx",
+          "path": "frontend/src/components/PresentationViewer.tsx",
           "operation": "modify",
-          "description": "Ensure the header uses BrandLogo for the left-aligned logo/wordmark so the static assets are visibly present in authenticated sessions; keep all image usage as static frontend assets."
+          "description": "Update presentation viewer interface styling to use white background with light pink and purple UI elements by replacing existing color classes with the new theme tokens."
         },
         {
-          "path": "frontend/src/components/AnonymousLogin.tsx",
+          "path": "frontend/src/components/CreateChatRoomDialog.tsx",
           "operation": "modify",
-          "description": "Ensure the login card renders the same BrandLogo logo mark at the top so the static generated assets are used on the unauthenticated screen as well. Use shadcn-ui Card layout as already present (Verify the component's usage instructions before implementing)."
+          "description": "Update dialog styling to use white background with light pink buttons and purple accents by replacing existing color classes with the new theme tokens."
+        },
+        {
+          "path": "frontend/src/components/StartPrivateChatDialog.tsx",
+          "operation": "modify",
+          "description": "Update dialog styling to use white background with light pink primary and purple secondary colors by replacing existing color classes with the new theme tokens."
+        },
+        {
+          "path": "frontend/src/components/StartupErrorState.tsx",
+          "operation": "modify",
+          "description": "Update error state styling to use white background with light pink and purple accents by replacing existing color classes with the new theme tokens."
+        },
+        {
+          "path": "frontend/src/components/StartupTimeoutFallback.tsx",
+          "operation": "modify",
+          "description": "Update timeout fallback styling to use white background with light pink and purple UI elements by replacing existing color classes with the new theme tokens."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Update any app-level styling or container backgrounds to use the new white background with light pink and purple theme colors by replacing existing color classes with the new theme tokens."
         }
       ]
     }

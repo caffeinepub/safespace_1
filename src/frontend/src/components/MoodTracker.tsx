@@ -61,15 +61,15 @@ export default function MoodTracker({ onBack, guestId }: MoodTrackerProps) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Button variant="ghost" onClick={onBack} className="mb-4">
+      <Button variant="ghost" onClick={onBack} className="mb-4 text-pink-700 hover:bg-pink-50">
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Dashboard
       </Button>
 
-      <Card>
+      <Card className="border-pink-200 bg-white">
         <CardHeader>
-          <CardTitle>How are you feeling?</CardTitle>
-          <CardDescription>Select your current mood and add optional notes</CardDescription>
+          <CardTitle className="text-pink-800">How are you feeling?</CardTitle>
+          <CardDescription className="text-pink-600">Select your current mood and add optional notes</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
@@ -79,30 +79,31 @@ export default function MoodTracker({ onBack, guestId }: MoodTrackerProps) {
                 onClick={() => setSelectedMood(option.mood)}
                 className={`p-4 rounded-lg border-2 transition-all ${
                   selectedMood === option.mood
-                    ? 'border-lavender-500 bg-lavender-50 scale-105'
-                    : 'border-gray-200 hover:border-lavender-300'
+                    ? 'border-pink-400 bg-pink-50 scale-105'
+                    : 'border-pink-200 hover:border-pink-300 bg-white'
                 }`}
               >
                 <div className="text-4xl mb-2">{option.emoji}</div>
-                <div className="text-sm font-medium">{option.label}</div>
+                <div className="text-sm font-medium text-pink-800">{option.label}</div>
               </button>
             ))}
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Notes (optional)</label>
+            <label className="text-sm font-medium text-pink-800">Notes (optional)</label>
             <Textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="What's on your mind?"
               rows={4}
+              className="border-pink-200 focus:border-pink-400"
             />
           </div>
 
           <Button
             onClick={handleSubmit}
             disabled={!selectedMood || createMood.isPending}
-            className="w-full"
+            className="w-full bg-pink-500 hover:bg-pink-600 text-white"
           >
             {createMood.isPending ? (
               <>

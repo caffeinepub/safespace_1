@@ -1,82 +1,64 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Building a modern, glowing web UI for the mental wellness platform \"SafeSpace\" with an aurora-style background and a central glassmorphism login card; header appears only on authenticated pages and nav items are visual placeholders.",
+  "summary": "App with light pink and purple color scheme on white background",
   "architectural_notes": [
-    "Header/top navigation renders only on authenticated pages (not on login screen).",
-    "Navigation items/icons are visual placeholders only (no routing yet).",
-    "Aurora background should be recreated using CSS gradients/blur effects (no generated image asset)."
+    "Color scheme: light pink (primary), purple (accent), white (background)",
+    "Design philosophy: appealing and cohesive using mostly light pink"
   ],
   "known_issues": [],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- SafeSpace logo mark: white heart centered in a purple circle, transparent background (safespace-logo.dim_256x256.png)\n- SafeSpace logo mark: white heart centered in a purple circle, transparent background (safespace-logo.dim_64x64.png)",
   "existing_features": [
     {
-      "id": "feature-show-the-top-header-navigation-bar-only-for-authenticated-internet-identity-sessions-do-not-render-the-header-on-the-unauthenticated-login-screen-or-during-guest-sessions",
-      "title": "Show the top header navigation bar only for authenticated (Internet Identity) sessions; do not render the header on the unauthenticated login screen or during guest sessions.",
+      "id": "feature-update-the-global-color-scheme-to-use-crisp-white-as-the-primary-background-color-throughout-the-entire-application",
+      "title": "Update the global color scheme to use crisp white as the primary background color throughout the entire application",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-authenticated-header-ui-to-match-the-provided-safespace-spec-a-solid-white-strip-across-the-top-left-aligned-safespace-circular-heart-logo-and-safespace-wordmark-centered-nav-items-with-home-styled-as-a-purple-pill-with-a-heart-icon-other-nav-items-shown-as-black-icons-black-text-ai-companion-mood-tracker-my-history-right-aligned-purple-circular-profile-icon-and-purple-circular-alien-robot-icon-plus-an-outlined-logout-button-with-an-exit-arrow-icon-and-black-text-border",
-      "title": "Update the authenticated header UI to match the provided SafeSpace spec: a solid white strip across the top; left-aligned SafeSpace circular heart logo and 'SafeSpace' wordmark; centered nav items with 'Home' styled as a purple pill with a heart icon; other nav items shown as black icons + black text ('AI Companion', 'Mood Tracker', 'My History'); right-aligned purple circular profile icon and purple circular alien/robot icon, plus an outlined Logout button with an exit/arrow icon and black text/border.",
+      "id": "feature-update-the-color-theme-to-use-light-pink-as-the-primary-accent-color-for-ui-elements-including-buttons-cards-borders-highlights-and-interactive-elements",
+      "title": "Update the color theme to use light pink as the primary accent color for UI elements including buttons, cards, borders, highlights, and interactive elements",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-render-the-header-center-navigation-items-as-visual-placeholders-only-non-navigating-clicking-them-must-not-change-the-current-page-or-route-keep-existing-in-app-navigation-mechanisms-elsewhere-e-g-dashboard-cards-unchanged",
-      "title": "Render the header center navigation items as visual placeholders only (non-navigating): clicking them must not change the current page or route; keep existing in-app navigation mechanisms elsewhere (e.g., dashboard cards) unchanged.",
+      "id": "feature-add-purple-as-a-secondary-accent-color-to-complement-light-pink-creating-visual-appeal-and-hierarchy-in-the-ui",
+      "title": "Add purple as a secondary accent color to complement light pink, creating visual appeal and hierarchy in the UI",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-the-safespace-aurora-background-using-css-gradients-effects-no-generated-background-image-a-vibrant-deep-abstract-background-with-diagonal-aurora-like-light-streaks-in-violet-magenta-purple-and-electric-cyan-include-soft-blooms-luminous-patches-and-subtle-motion",
-      "title": "Implement the SafeSpace aurora background using CSS gradients/effects (no generated background image): a vibrant deep abstract background with diagonal, aurora-like light streaks in violet, magenta, purple, and electric cyan; include soft blooms/luminous patches and subtle motion.",
+      "id": "feature-update-the-tailwind-theme-configuration-in-tailwind-config-js-to-define-light-pink-and-purple-color-variables-that-can-be-used-consistently-across-components",
+      "title": "Update the Tailwind theme configuration in tailwind.config.js to define light pink and purple color variables that can be used consistently across components",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-the-unauthenticated-login-experience-matches-the-described-central-glassmorphism-card-layout-centered-frosted-translucent-white-card-with-a-soft-outer-glow-top-logo-heading-welcome-to-safespace-in-bold-purple-subheading-your-personal-mental-wellness-companion-in-smaller-black-gray-primary-gradient-button-login-with-internet-identity-with-sparkle-icon-or-divider-secondary-continue-as-guest-button-with-glowing-purple-outline-and-a-terms-of-service-privacy-policy-agreement-checkbox",
-      "title": "Ensure the unauthenticated login experience matches the described central glassmorphism card layout: centered frosted/translucent white card with a soft outer glow; top logo; heading 'Welcome to SafeSpace' in bold purple; subheading 'Your personal mental wellness companion' in smaller black/gray; primary gradient button 'Login with Internet Identity' with sparkle icon; 'OR' divider; secondary 'Continue as Guest' button with glowing purple outline; and a Terms of Service + Privacy Policy agreement checkbox.",
+      "id": "feature-update-index-css-theme-variables-to-reflect-the-new-light-pink-and-purple-color-scheme-ensuring-consistency-with-tailwind-configuration",
+      "title": "Update index.css theme variables to reflect the new light pink and purple color scheme, ensuring consistency with Tailwind configuration",
       "reqIds": [
         "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-the-specified-corner-accent-element-to-the-login-screen-a-partially-visible-translucent-purple-circular-icon-with-a-user-silhouette-in-the-bottom-left-corner-purely-decorative",
-      "title": "Add the specified corner accent element to the login screen: a partially visible, translucent purple circular icon with a user silhouette in the bottom-left corner (purely decorative).",
+      "id": "feature-update-all-existing-components-to-use-the-new-light-pink-and-purple-color-scheme-replacing-current-color-references-with-the-new-theme-tokens",
+      "title": "Update all existing components to use the new light pink and purple color scheme, replacing current color references with the new theme tokens",
       "reqIds": [
         "REQ-6"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-ensure-safespace-logo-assets-are-present-and-used-as-static-frontend-assets-no-backend-serving-use-the-existing-generated-image-files-referenced-by-the-brandlogo-component-under-frontend-public-assets-generated",
-      "title": "Ensure SafeSpace logo assets are present and used as static frontend assets (no backend serving): use the existing generated image files referenced by the BrandLogo component under frontend/public/assets/generated.",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Implement SafeSpace UI: CSS aurora background, glassmorphism central login card, and authenticated-only header with placeholder nav items/icons",
-      "reqIds": [],
-      "status": "pending"
-    }
-  ],
-  "gameProjectType": "none",
+  "new_feature_requests": [],
   "projectName": "SafeSpace",
   "clarification_mode": "instant",
   "clarification_rounds": 0

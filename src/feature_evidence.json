@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-show-the-top-header-navigation-bar-only-for-authenticated-internet-identity-sessions-do-not-render-the-header-on-the-unauthenticated-login-screen-or-during-guest-sessions",
-      "featureTitle": "Show the top header navigation bar only for authenticated (Internet Identity) sessions; do not render the header on the unauthenticated login screen or during guest sessions.",
+      "featureId": "feature-update-the-global-color-scheme-to-use-crisp-white-as-the-primary-background-color-throughout-the-entire-application",
+      "featureTitle": "Update the global color scheme to use crisp white as the primary background color throughout the entire application",
       "files": [
-        "frontend/src/App.tsx"
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -24,11 +25,13 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-authenticated-header-ui-to-match-the-provided-safespace-spec-a-solid-white-strip-across-the-top-left-aligned-safespace-circular-heart-logo-and-safespace-wordmark-centered-nav-items-with-home-styled-as-a-purple-pill-with-a-heart-icon-other-nav-items-shown-as-black-icons-black-text-ai-companion-mood-tracker-my-history-right-aligned-purple-circular-profile-icon-and-purple-circular-alien-robot-icon-plus-an-outlined-logout-button-with-an-exit-arrow-icon-and-black-text-border",
-      "featureTitle": "Update the authenticated header UI to match the provided SafeSpace spec: a solid white strip across the top; left-aligned SafeSpace circular heart logo and 'SafeSpace' wordmark; centered nav items with 'Home' styled as a purple pill with a heart icon; other nav items shown as black icons + black text ('AI Companion', 'Mood Tracker', 'My History'); right-aligned purple circular profile icon and purple circular alien/robot icon, plus an outlined Logout button with an exit/arrow icon and black text/border.",
+      "featureId": "feature-update-the-color-theme-to-use-light-pink-as-the-primary-accent-color-for-ui-elements-including-buttons-cards-borders-highlights-and-interactive-elements",
+      "featureTitle": "Update the color theme to use light pink as the primary accent color for UI elements including buttons, cards, borders, highlights, and interactive elements",
       "files": [
-        "frontend/src/components/Header.tsx",
-        "frontend/src/index.css"
+        "frontend/src/components/Dashboard.tsx",
+        "frontend/src/components/MoodTracker.tsx",
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -47,10 +50,12 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-render-the-header-center-navigation-items-as-visual-placeholders-only-non-navigating-clicking-them-must-not-change-the-current-page-or-route-keep-existing-in-app-navigation-mechanisms-elsewhere-e-g-dashboard-cards-unchanged",
-      "featureTitle": "Render the header center navigation items as visual placeholders only (non-navigating): clicking them must not change the current page or route; keep existing in-app navigation mechanisms elsewhere (e.g., dashboard cards) unchanged.",
+      "featureId": "feature-add-purple-as-a-secondary-accent-color-to-complement-light-pink-creating-visual-appeal-and-hierarchy-in-the-ui",
+      "featureTitle": "Add purple as a secondary accent color to complement light pink, creating visual appeal and hierarchy in the UI",
       "files": [
-        "frontend/src/components/Header.tsx"
+        "frontend/src/components/Dashboard.tsx",
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -69,10 +74,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-the-safespace-aurora-background-using-css-gradients-effects-no-generated-background-image-a-vibrant-deep-abstract-background-with-diagonal-aurora-like-light-streaks-in-violet-magenta-purple-and-electric-cyan-include-soft-blooms-luminous-patches-and-subtle-motion",
-      "featureTitle": "Implement the SafeSpace aurora background using CSS gradients/effects (no generated background image): a vibrant deep abstract background with diagonal, aurora-like light streaks in violet, magenta, purple, and electric cyan; include soft blooms/luminous patches and subtle motion.",
+      "featureId": "feature-update-the-tailwind-theme-configuration-in-tailwind-config-js-to-define-light-pink-and-purple-color-variables-that-can-be-used-consistently-across-components",
+      "featureTitle": "Update the Tailwind theme configuration in tailwind.config.js to define light pink and purple color variables that can be used consistently across components",
       "files": [
-        "frontend/src/index.css"
+        "frontend/tailwind.config.js"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -91,10 +96,9 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-the-unauthenticated-login-experience-matches-the-described-central-glassmorphism-card-layout-centered-frosted-translucent-white-card-with-a-soft-outer-glow-top-logo-heading-welcome-to-safespace-in-bold-purple-subheading-your-personal-mental-wellness-companion-in-smaller-black-gray-primary-gradient-button-login-with-internet-identity-with-sparkle-icon-or-divider-secondary-continue-as-guest-button-with-glowing-purple-outline-and-a-terms-of-service-privacy-policy-agreement-checkbox",
-      "featureTitle": "Ensure the unauthenticated login experience matches the described central glassmorphism card layout: centered frosted/translucent white card with a soft outer glow; top logo; heading 'Welcome to SafeSpace' in bold purple; subheading 'Your personal mental wellness companion' in smaller black/gray; primary gradient button 'Login with Internet Identity' with sparkle icon; 'OR' divider; secondary 'Continue as Guest' button with glowing purple outline; and a Terms of Service + Privacy Policy agreement checkbox.",
+      "featureId": "feature-update-index-css-theme-variables-to-reflect-the-new-light-pink-and-purple-color-scheme-ensuring-consistency-with-tailwind-configuration",
+      "featureTitle": "Update index.css theme variables to reflect the new light pink and purple color scheme, ensuring consistency with Tailwind configuration",
       "files": [
-        "frontend/src/components/AnonymousLogin.tsx",
         "frontend/src/index.css"
       ],
       "components": [
@@ -114,11 +118,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-the-specified-corner-accent-element-to-the-login-screen-a-partially-visible-translucent-purple-circular-icon-with-a-user-silhouette-in-the-bottom-left-corner-purely-decorative",
-      "featureTitle": "Add the specified corner accent element to the login screen: a partially visible, translucent purple circular icon with a user silhouette in the bottom-left corner (purely decorative).",
+      "featureId": "feature-update-all-existing-components-to-use-the-new-light-pink-and-purple-color-scheme-replacing-current-color-references-with-the-new-theme-tokens",
+      "featureTitle": "Update all existing components to use the new light pink and purple color scheme, replacing current color references with the new theme tokens",
       "files": [
-        "frontend/src/components/AnonymousLogin.tsx",
-        "frontend/src/index.css"
+        "frontend/src/components/Footer.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -133,30 +136,6 @@
       ],
       "testIds": [
         "REQ-6"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-safespace-logo-assets-are-present-and-used-as-static-frontend-assets-no-backend-serving-use-the-existing-generated-image-files-referenced-by-the-brandlogo-component-under-frontend-public-assets-generated",
-      "featureTitle": "Ensure SafeSpace logo assets are present and used as static frontend assets (no backend serving): use the existing generated image files referenced by the BrandLogo component under frontend/public/assets/generated.",
-      "files": [
-        "frontend/src/components/AnonymousLogin.tsx",
-        "frontend/src/components/BrandLogo.tsx",
-        "frontend/src/components/Header.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "authorization@4.0.0",
-        "stripe@3.0.0",
-        "http-outcalls@3.0.0",
-        "blob-storage@4.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-7"
       ],
       "confidence": "high"
     }
